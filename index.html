@@ -8,8 +8,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1A1A1A; color: white; display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
-
-    /* ── Header ─────────────────────────────────────── */
     .header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
     .header img { height: 40px; object-fit: contain; }
     .header-links { display: flex; gap: 8px; align-items: center; }
@@ -17,51 +15,46 @@
     .header-links a:hover { background: #f5f5f5; color: #1A1A1A; }
     .header-links a.btn-dark { background: #1A1A1A; color: white; font-weight: 600; }
     .header-links a.btn-dark:hover { background: #333; }
-
-    /* ── Main hero — fills remaining height ─────────── */
     .hero { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 48px; padding: 0 80px; }
-
-    /* Left side */
     .hero-left { flex: 1; max-width: 560px; }
     .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(232,98,42,0.15); border: 1px solid rgba(232,98,42,0.3); color: #E8622A; font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-    .hero h1 { font-size: 52px; font-weight: 800; line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 20px; }
+    .hero h1 { font-size: 40px; font-weight: 800; line-height: 1.15; letter-spacing: -1px; margin-bottom: 20px; }
     .hero h1 em { color: #E8622A; font-style: normal; }
     .hero p { font-size: 17px; opacity: 0.65; line-height: 1.75; margin-bottom: 36px; max-width: 440px; }
-    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .cta-orange { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; background: #E8622A; color: white; box-shadow: 0 4px 20px rgba(232,98,42,0.4); transition: all 0.2s; }
-    .cta-orange:hover { background: #d4561f; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(232,98,42,0.5); }
+    .cta-orange:hover { background: #d4561f; transform: translateY(-1px); }
     .cta-orange svg { width: 18px; height: 18px; fill: white; flex-shrink: 0; }
-
-    /* Right side — stat cards */
-    .hero-right { display: flex; flex-direction: column; gap: 14px; flex-shrink: 0; }
-    .stat-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 18px 28px; display: flex; align-items: center; gap: 18px; transition: background 0.2s; }
+    .msg { display: none; margin-top: 20px; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.6; max-width: 420px; }
+    .msg-success { background: rgba(46,125,50,0.15); border: 1px solid rgba(46,125,50,0.3); color: #81c784; }
+    .msg-already  { background: rgba(21,101,192,0.15); border: 1px solid rgba(21,101,192,0.3); color: #90caf9; }
+    .msg-error    { background: rgba(198,40,40,0.15); border: 1px solid rgba(198,40,40,0.3); color: #ef9a9a; }
+    .processing   { display: none; align-items: center; gap: 10px; margin-top: 20px; font-size: 14px; color: rgba(255,255,255,0.5); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #E8622A; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    .hero-right { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+    .stat-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 16px 24px; display: flex; align-items: center; gap: 16px; transition: background 0.2s; }
     .stat-pill:hover { background: rgba(255,255,255,0.09); }
-    .stat-pill .icon { font-size: 28px; flex-shrink: 0; }
-    .stat-pill .val { font-size: 26px; font-weight: 700; color: #E8622A; line-height: 1; }
-    .stat-pill .lbl { font-size: 12px; opacity: 0.55; margin-top: 3px; letter-spacing: 0.3px; }
-
-    /* ── Strava badge ────────────────────────────────── */
-    .strava-badge { flex-shrink: 0; background: rgba(252,76,2,0.1); border-top: 1px solid rgba(252,76,2,0.2); padding: 10px 40px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.5); }
-    .strava-badge svg { width: 16px; height: 16px; fill: #FC4C02; flex-shrink: 0; }
-    .strava-badge a { color: #FC4C02; text-decoration: none; }
-    .strava-badge a:hover { text-decoration: underline; }
-    .strava-badge code { background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: rgba(255,255,255,0.6); }
-
-    /* ── Responsive ──────────────────────────────────── */
+    .stat-pill .icon { font-size: 26px; flex-shrink: 0; }
+    .stat-pill .val { font-size: 24px; font-weight: 700; color: #E8622A; line-height: 1; }
+    .stat-pill .lbl { font-size: 12px; opacity: 0.5; margin-top: 3px; }
+    .footer-bar { flex-shrink: 0; background: rgba(252,76,2,0.08); border-top: 1px solid rgba(252,76,2,0.15); padding: 10px 40px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 12px; color: rgba(255,255,255,0.4); flex-wrap: wrap; }
+    .footer-bar svg { width: 14px; height: 14px; fill: #FC4C02; flex-shrink: 0; }
+    .footer-bar a { color: rgba(255,255,255,0.5); text-decoration: none; }
+    .footer-bar a:hover { color: #E8622A; }
+    .footer-bar code { background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
     @media (max-width: 900px) {
       body { overflow: auto; }
-      .hero { flex-direction: column; align-items: flex-start; padding: 40px 24px; gap: 32px; }
-      .hero h1 { font-size: 36px; }
+      .hero { flex-direction: column; align-items: flex-start; padding: 36px 20px; gap: 28px; }
+      .hero h1 { font-size: 34px; }
       .hero-right { flex-direction: row; flex-wrap: wrap; width: 100%; }
       .stat-pill { flex: 1; min-width: 140px; }
       .header { padding: 12px 20px; }
-      .strava-badge { padding: 10px 20px; }
+      .footer-bar { padding: 10px 20px; }
     }
   </style>
 </head>
 <body>
-
-<!-- Header -->
 <div class="header">
   <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
   <div class="header-links">
@@ -70,60 +63,90 @@
     <a href="admin-login.html" class="btn-dark">Admin Login</a>
   </div>
 </div>
-
-<!-- Hero — full height -->
 <div class="hero">
-
-  <!-- Left: text + CTA -->
   <div class="hero-left">
     <div class="hero-eyebrow">
       <svg style="width:12px;height:12px;fill:#E8622A" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
       Arcgate Internal Event · 2026
     </div>
-    <h1>Move More.<br><em>Win Together.</em></h1>
-    <p>Arcgate Walkathon 2026 is an internal corporate fitness challenge connecting 500+ employees through Strava. Walk, run and hike your way to the top of the leaderboard.</p>
+    <h1>Arcgate Walkathon is an initiative of<br><em>Healthy Arcgate Community.</em></h1>
+    <p>Arcgate Walkathon is a company fitness challenge connecting employees through Strava. Walk and Run your way to the top of the leaderboard.</p>
     <div class="hero-cta">
-      <a href="register.html?event=walkathon2026" class="cta-orange">
+      <a id="strava-btn" href="#" class="cta-orange">
         <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
         Connect Strava
       </a>
     </div>
+    <div class="processing" id="processing">
+      <div class="spinner"></div>
+      Connecting your account...
+    </div>
+    <div class="msg msg-success" id="msg-success">
+      ✅ <strong>Registration successful!</strong><br>
+      Welcome to Arcgate Walkathon 2026! Your activities will appear on the leaderboard automatically within 30 seconds of saving on Strava.
+    </div>
+    <div class="msg msg-already" id="msg-already">
+      ✅ <strong>You're already registered!</strong><br>
+      You previously connected your Strava account. Your activities are being tracked automatically — no action needed!
+    </div>
+    <div class="msg msg-error" id="msg-error">
+      ❌ <strong>Something went wrong.</strong><br>
+      Please try again or contact prakash@arcgate.com
+    </div>
   </div>
-
-  <!-- Right: stats -->
   <div class="hero-right">
-    <div class="stat-pill">
-      <div class="icon">👥</div>
-      <div><div class="val">500+</div><div class="lbl">Registered participants</div></div>
-    </div>
-    <div class="stat-pill">
-      <div class="icon">🏙️</div>
-      <div><div class="val">6</div><div class="lbl">Competing city teams</div></div>
-    </div>
-    <div class="stat-pill">
-      <div class="icon">📅</div>
-      <div><div class="val">June 2026</div><div class="lbl">Event period</div></div>
-    </div>
-    <div class="stat-pill">
-      <div class="icon">⚡</div>
-      <div><div class="val">Live</div><div class="lbl">Real-time leaderboard</div></div>
-    </div>
-    <div class="stat-pill">
-      <div class="icon">🔒</div>
-      <div><div class="val">Secure</div><div class="lbl">Data used only for this event</div></div>
-    </div>
+    <div class="stat-pill"><div class="icon">👥</div><div><div class="val">500+</div><div class="lbl">Registered participants</div></div></div>
+    <div class="stat-pill"><div class="icon">🏙️</div><div><div class="val">6</div><div class="lbl">Competing city teams</div></div></div>
+    <div class="stat-pill"><div class="icon">📅</div><div><div class="val">June 2026</div><div class="lbl">Event period</div></div></div>
+    <div class="stat-pill"><div class="icon">⚡</div><div><div class="val">Live</div><div class="lbl">Real-time leaderboard</div></div></div>
+    <div class="stat-pill"><div class="icon">🔒</div><div><div class="val">Secure</div><div class="lbl">Data used only for this event</div></div></div>
   </div>
-
 </div>
-
-<!-- Strava compliance bar -->
-<div class="strava-badge">
+<div class="footer-bar">
   <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
   Powered by Strava API &nbsp;·&nbsp; Scopes: <code>read</code> <code>activity:read</code> only &nbsp;·&nbsp;
   <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp;
   <a href="terms.html">Terms of Service</a> &nbsp;·&nbsp;
   <a href="https://www.strava.com/legal/api" target="_blank">Strava API Terms</a>
 </div>
-
+<script>
+  var STRAVA_CLIENT_ID = '29159';
+  var BACKEND_URL      = 'https://walkathon-backend-hv9j.onrender.com';
+  var EVENT_CODE       = 'walkathon2026';
+  var params           = new URLSearchParams(window.location.search);
+  var authCode         = params.get('code');
+  var redirectURI      = window.location.origin + window.location.pathname;
+  var authUrl = 'https://www.strava.com/oauth/authorize'
+    + '?client_id='    + STRAVA_CLIENT_ID
+    + '&redirect_uri=' + encodeURIComponent(redirectURI)
+    + '&response_type=code'
+    + '&scope=read,activity:read'
+    + '&state='        + EVENT_CODE;
+  document.getElementById('strava-btn').href = authUrl;
+  if (authCode) {
+    document.getElementById('strava-btn').style.display = 'none';
+    document.getElementById('processing').style.display = 'flex';
+    fetch(BACKEND_URL + '/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: authCode, event_code: EVENT_CODE })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      document.getElementById('processing').style.display = 'none';
+      if (d.success) {
+        document.getElementById('msg-success').style.display = 'block';
+      } else if (d.already_registered) {
+        document.getElementById('msg-already').style.display = 'block';
+      } else {
+        document.getElementById('msg-error').style.display = 'block';
+      }
+    })
+    .catch(function() {
+      document.getElementById('processing').style.display = 'none';
+      document.getElementById('msg-error').style.display = 'block';
+    });
+  }
+</script>
 </body>
 </html>
