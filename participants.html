@@ -111,6 +111,27 @@
 const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
+
+// ── fetchAllRows: fetch ALL rows from Supabase with automatic pagination ──
+async function fetchAllRows(baseUrl, hdrs) {
+  var all = [];
+  var pageSize = 1000;
+  var from = 0;
+  while (true) {
+    var to = from + pageSize - 1;
+    var r = await fetch(baseUrl + (baseUrl.includes('?') ? '&' : '?') + 'limit=' + pageSize + '&offset=' + from, {
+      headers: Object.assign({}, hdrs, { 'Range-Unit': 'items', 'Range': from + '-' + to })
+    });
+    if (!r.ok) { console.error('fetchAllRows error', r.status, baseUrl); break; }
+    var page = await r.json();
+    if (!Array.isArray(page) || page.length === 0) break;
+    all = all.concat(page);
+    if (page.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
+}
+
 function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
 function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
 authGuard();
@@ -151,12 +172,12 @@ async function loadParticipants(){
   const [rR,pR,aR]=await Promise.all([
     fetch(SUPABASE_URL+'/rest/v1/registration?order=full_name.asc',{headers:HDR}),
     fetch(SUPABASE_URL+'/rest/v1/participants?select=strava_athlete_id',{headers:HDR}),
-    fetch(SUPABASE_URL+'/rest/v1/activities?select=strava_athlete_id,distance_meters&is_deleted=eq.false',{headers:HDR})
+    fetchAllRows(SUPABASE_URL+'/rest/v1/activities?select=strava_athlete_id,distance_meters&is_deleted=eq.false&order=id.asc',HDR)
   ]);
   const regs=await rR.json();
   const conn=new Set((await pR.json()).map(p=>p.strava_athlete_id));
   const am={};
-  (await aR.json()).forEach(a=>{ if(!am[a.strava_athlete_id]) am[a.strava_athlete_id]={cnt:0,dist:0}; am[a.strava_athlete_id].cnt++; am[a.strava_athlete_id].dist+=a.distance_meters||0; });
+  aR.forEach(a=>{ if(!am[a.strava_athlete_id]) am[a.strava_athlete_id]={cnt:0,dist:0}; am[a.strava_athlete_id].cnt++; am[a.strava_athlete_id].dist+=a.distance_meters||0; });
   allRows=regs.map(r=>({...r,connected:conn.has(r.strava_athlete_id),cnt:am[r.strava_athlete_id]?.cnt||0,dist:am[r.strava_athlete_id]?.dist||0}));
   const cc=allRows.filter(r=>r.connected).length;
   const ac=allRows.filter(r=>r.cnt>0).length;
