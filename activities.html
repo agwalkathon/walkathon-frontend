@@ -344,17 +344,17 @@ async function loadActivities() {
   var st=document.getElementById('status-filter').value;
   var fr=document.getElementById('flag-reason-filter').value;
 
-  var url=SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.false&order=activity_date.desc';
-  if(df) url+='&activity_date=gte.'+df;
-  if(dt) url+='&activity_date=lte.'+dt+'T23:59:59';
+  var url=SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.false&order=activity_date.desc&limit=2000';
+  if(df) url+='&activity_date=gte.'+df+'T00:00:00.000Z';
+  if(dt) url+='&activity_date=lte.'+dt+'T23:59:59.999Z';
   if(sp) url+='&sport_type=eq.'+sp;
   if(st==='valid')   url+='&is_flagged=eq.false';
   if(st==='invalid') url+='&is_flagged=eq.true';
-  if(fr) url+='&flag_reason=ilike.*'+fr.replace(/ /g,'%20')+'*';
+  if(fr) url+='&flag_reason=ilike.%25'+encodeURIComponent(fr)+'%25';
 
   try {
     var results = await Promise.all([
-      fetch(url,{headers:HDR}),
+      fetch(url,{headers:{...HDR, 'Range-Unit':'items', 'Range':'0-1999'}}),
       fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team',{headers:HDR})
     ]);
     var acts=await results[0].json(), regs=await results[1].json();
