@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Walkathon 2026 — Register</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .logo { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 28px; color: #1a1a2e; margin-bottom: 8px; }
+    .subtitle { color: #666; font-size: 16px; margin-bottom: 32px; line-height: 1.5; }
+    .btn-strava {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #FC4C02;
+      color: white;
+      text-decoration: none;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-strava:hover { background: #e04400; }
+    .btn-strava svg { width: 24px; height: 24px; fill: white; }
+    .note {
+      margin-top: 24px;
+      font-size: 13px;
+      color: #999;
+      line-height: 1.6;
+    }
+    .success {
+      display: none;
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 24px;
+      color: #2e7d32;
+    }
+    .error {
+      display: none;
+      background: #ffebee;
+      border: 1px solid #ef9a9a;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 24px;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🚶</div>
+    <h1>Walkathon 2026</h1>
+    <p class="subtitle">Connect your Strava account to join the leaderboard and track your progress.</p>
+
+    <a id="strava-btn" href="#" class="btn-strava">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>
+      </svg>
+      Connect with Strava
+    </a>
+
+    <div class="success" id="success-msg">
+      ✅ <strong>Registration successful!</strong><br>
+      You're now connected. Your activities will appear on the leaderboard automatically.
+    </div>
+
+    <div class="error" id="error-msg">
+      ❌ <strong>Something went wrong.</strong><br>
+      Please try again or contact the event organizer.
+    </div>
+
+    <p class="note">
+      We only read your walk/run activity data.<br>
+      We never post anything to your Strava account.
+    </p>
+  </div>
+
+  <script>
+    // ── Config ──────────────────────────────────────────────
+    const STRAVA_CLIENT_ID  = 'YOUR_CLIENT_ID';
+    const REDIRECT_URI      = window.location.origin + window.location.pathname;
+    const BACKEND_URL       = 'https://walkathon-backend-hv9j.onrender.com';
+    const SCOPE             = 'read,activity:read';
+
+    // ── Build Strava OAuth URL ───────────────────────────────
+    const authUrl = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=${SCOPE}`;
+    document.getElementById('strava-btn').href = authUrl;
+
+    // ── Handle OAuth callback ────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get('code');
+
+    if (code) {
+      document.getElementById('strava-btn').style.display = 'none';
+
+      fetch(`${BACKEND_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('success-msg').style.display = 'block';
+        } else {
+          document.getElementById('error-msg').style.display = 'block';
+        }
+      })
+      .catch(() => {
+        document.getElementById('error-msg').style.display = 'block';
+      });
+    }
+  </script>
+</body>
+</html>
