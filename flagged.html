@@ -197,7 +197,7 @@ async function loadData(){
       :'<button class="btn btn-blue" onclick="doAction('+a.id+',\'restore\',\'\')">↩️ Restore</button>';
     return '<tr id="row-'+a.id+'">'
       +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+name+'</a></td>'
-      +'<td>'+(a.activity_name||'—')+'</td>'
+      +'<td><a href="https://www.strava.com/activities/'+a.strava_activity_id+'" target="_blank" class="act-link">'+(a.activity_name||'—')+'</a></td>'
       +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
       +'<td>'+fmtDate(a.activity_date)+' '+fmtTime(a.activity_date)+'</td>'
       +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
