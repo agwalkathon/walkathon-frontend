@@ -171,7 +171,7 @@ function logout() { sessionStorage.removeItem('wk_admin'); window.location.href=
 authGuard();
 
 var currentBoard = 'dayshift-female';
-var CONFIG = { medals: { bronze:{male:125,female:100}, silver:{male:200,female:150}, gold:{male:300,female:250} }, bonus: [{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}], basePer_km: 1 };
+var CONFIG = { medals: { bronze:{male:125,female:100}, silver:{male:200,female:150}, gold:{male:300,female:250} }, bonus: [{km:5,points:1},{km:8,points:2},{km:10,points:3},{km:15,points:4},{km:21,points:7}], basePer_km: 1 };
 var CHALLENGES = [];
 var allData = {}; // cache {board: rows}
 
@@ -228,7 +228,7 @@ function calcBonus(km) {
   var sorted = CONFIG.bonus.slice().sort(function(a,b){ return b.km-a.km; });
   for (var i=0; i<sorted.length; i++) {
     var bracketKm  = Number(sorted[i].km)     || 0;
-    var bracketPts = Number(sorted[i].points) || Number(sorted[i].pts) || 0;
+    var bracketPts = (sorted[i].points !== undefined ? Number(sorted[i].points) : Number(sorted[i].pts)) || 0;
     if (km >= bracketKm) { result = bracketPts; break; }
   }
   return result;
