@@ -117,18 +117,26 @@ function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualR
 authGuard();
 async function load() {
   const today = new Date().toISOString().split('T')[0];
-  const [actR,regR,connR] = await Promise.all([
-    fetch(SUPABASE_URL+'/rest/v1/activities?order=activity_date.desc',{headers:HDR}),
+  // Fetch activities count using HEAD request (no data, just count)
+  const [countR, regR, connR, recentR] = await Promise.all([
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=id', {
+      headers: {...HDR, 'Prefer':'count=exact', 'Range-Unit':'items', 'Range':'0-0'}
+    }),
     fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name',{headers:HDR}),
-    fetch(SUPABASE_URL+'/rest/v1/participants?select=strava_athlete_id',{headers:HDR})
+    fetch(SUPABASE_URL+'/rest/v1/participants?select=strava_athlete_id',{headers:HDR}),
+    fetch(SUPABASE_URL+'/rest/v1/activities?order=activity_date.desc&limit=200',{headers:HDR})
   ]);
-  const acts=await actR.json(), regs=await regR.json(), conn=await connR.json();
+  const regs=await regR.json(), conn=await connR.json();
+  const acts=await recentR.json();
+  // Get total count from Content-Range header
+  const contentRange = countR.headers.get('content-range') || '';
+  const totalCount = parseInt(contentRange.split('/')[1]) || acts.length;
   const nm={}; regs.forEach(r=>nm[r.strava_athlete_id]=r.full_name);
-  const km=acts.reduce((s,a)=>s+(a.distance_meters||0),0)/1000;
+  const km=acts.reduce((s,a)=>s+(Number(a.distance_meters)||0),0)/1000;
   const fl=acts.filter(a=>a.is_flagged&&!a.is_deleted).length;
   const td=acts.filter(a=>a.activity_date?.startsWith(today)).length;
   document.getElementById('s-participants').textContent=regs.length;
-  document.getElementById('s-activities').textContent=acts.length;
+  document.getElementById('s-activities').textContent=totalCount;
   document.getElementById('s-km').textContent=km.toFixed(1)+' km';
   document.getElementById('s-flagged').textContent=fl;
   document.getElementById('s-today').textContent=td;
