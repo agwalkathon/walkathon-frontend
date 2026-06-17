@@ -4,11 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flagged Activities — Arcgate Walkathon 2026</title>
-  <link rel="stylesheet" href="_shared.css">
   <style>
-    .tab-bar { display:flex; gap:8px; margin-bottom:20px; }
-    .tab-btn { padding:8px 20px; border-radius:8px; border:1px solid #e8e8e8; font-size:13px; font-weight:500; cursor:pointer; background:white; color:#555; transition:all 0.15s; }
-    .tab-btn.active { background:#1A1A1A; color:white; border-color:#1A1A1A; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header nav { display: flex; gap: 4px; flex-wrap: wrap; }
+    .site-header nav a { font-size: 13px; color: #555; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+    .site-header nav a:hover { background: #f0f0f0; }
+    .site-header nav a.active { background: #E8622A; color: white; }
+    .page-bar { background: #1A1A1A; color: white; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .page-bar h1 { font-size: 20px; font-weight: 600; }
+    .page-bar .back { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+    .content { flex: 1; padding: 24px 28px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 18px; }
+    .tab-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid #e8e8e8; font-size: 13px; font-weight: 500; cursor: pointer; background: white; color: #555; transition: all 0.15s; }
+    .tab-btn.active { background: #1A1A1A; color: white; border-color: #1A1A1A; }
+    .summary { border-radius: 10px; padding: 13px 18px; margin-bottom: 18px; font-size: 14px; }
+    .summary.warn { background: #fff3e0; border: 1px solid #ffcc80; color: #e65100; }
+    .summary.ok   { background: #e8f5e9; border: 1px solid #a5d6a7; color: #2e7d32; }
+    .summary.info { background: #e3f2fd; border: 1px solid #90caf9; color: #1565c0; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-walk { background: #e8f5e9; color: #2e7d32; }
+    .badge-run  { background: #e3f2fd; color: #1565c0; }
+    .badge-ride { background: #fff3e0; color: #e65100; }
+    .badge-hike { background: #f3e5f5; color: #6a1b9a; }
+    .ath { color: #E8622A; text-decoration: none; font-weight: 500; }
+    .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; margin-right: 4px; }
+    .btn-green { background: #e8f5e9; color: #2e7d32; }
+    .btn-red   { background: #ffebee; color: #c62828; }
+    .btn-blue  { background: #e3f2fd; color: #1565c0; }
+    .loading-row td { text-align: center; padding: 48px; color: #bbb; }
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
   </style>
 </head>
 <body>
@@ -23,12 +57,10 @@
     <a href="#" onclick="logout();return false;">Sign out</a>
   </nav>
 </div>
-
 <div class="page-bar">
   <h1>🚩 Flagged Activities</h1>
   <a href="admin.html" class="back">← Dashboard</a>
 </div>
-
 <div class="content">
   <div class="tab-bar">
     <button class="tab-btn active" id="tab-flagged" onclick="switchTab('flagged')">🚩 Flagged</button>
@@ -47,15 +79,20 @@
     </div>
   </div>
 </div>
-
 <div class="site-footer">
   © 2026 Arcgate Walkathon &nbsp;·&nbsp;
   <a href="privacy.html">Privacy Policy</a>
   <a href="terms.html">Terms of Service</a>
 </div>
-
-<script src="_nav.js"></script>
 <script>
+const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
+function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
+function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtTime(d) { return new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualRun') return 'badge-run'; if(t==='Ride'||t==='VirtualRide') return 'badge-ride'; return 'badge-hike'; }
 authGuard();
 let currentTab='flagged', regMap={};
 function switchTab(t){
@@ -66,44 +103,39 @@ function switchTab(t){
 }
 async function loadData(){
   document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8">Loading...</td></tr>';
-  const regRes=await fetch(`${SUPABASE_URL}/rest/v1/registration?select=strava_athlete_id,full_name`,{headers:HDR});
-  (await regRes.json()).forEach(r=>regMap[r.strava_athlete_id]=r.full_name);
+  const rR=await fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name',{headers:HDR});
+  (await rR.json()).forEach(r=>regMap[r.strava_athlete_id]=r.full_name);
   const url=currentTab==='flagged'
-    ?`${SUPABASE_URL}/rest/v1/activities?is_flagged=eq.true&is_deleted=eq.false&order=activity_date.desc`
-    :`${SUPABASE_URL}/rest/v1/activities?is_deleted=eq.true&order=activity_date.desc`;
+    ?SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.true&is_deleted=eq.false&order=activity_date.desc'
+    :SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.true&order=activity_date.desc';
   const acts=await (await fetch(url,{headers:HDR})).json();
   const sum=document.getElementById('summary');
   if(currentTab==='flagged'){
     sum.className=acts.length?'summary warn':'summary ok';
-    sum.textContent=acts.length?`⚠️ ${acts.length} activit${acts.length===1?'y':'ies'} flagged for review`:'✅ No flagged activities — everything looks clean!';
+    sum.textContent=acts.length?'⚠️ '+acts.length+' activit'+(acts.length===1?'y':'ies')+' flagged for review':'✅ No flagged activities — everything looks clean!';
   } else {
     sum.className='summary info';
-    sum.textContent=`🗑️ ${acts.length} deleted activit${acts.length===1?'y':'ies'} — can be restored anytime`;
+    sum.textContent='🗑️ '+acts.length+' deleted activit'+(acts.length===1?'y':'ies')+' — can be restored anytime';
   }
   if(!acts.length){
-    document.getElementById('flagged-body').innerHTML=`<tr><td colspan="8" style="text-align:center;padding:48px;color:#bbb">${currentTab==='flagged'?'🎉 No flagged activities!':'No deleted activities'}</td></tr>`;
+    document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8">'+(currentTab==='flagged'?'🎉 No flagged activities!':'No deleted activities')+'</td></tr>';
     return;
   }
-  document.getElementById('flagged-body').innerHTML=acts.map(a=>`<tr id="row-${a.id}">
-    <td><a href="https://www.strava.com/athletes/${a.strava_athlete_id}" target="_blank" class="ath">${regMap[a.strava_athlete_id]||'Unknown'}</a></td>
-    <td>${a.activity_name||'—'}</td>
-    <td><span class="badge ${badgeClass(a.sport_type)}">${a.sport_type||'—'}</span></td>
-    <td>${fmtDate(a.activity_date)} ${fmtTime(a.activity_date)}</td>
-    <td>${a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—'}</td>
-    <td>${a.avg_speed?(a.avg_speed*3.6).toFixed(1)+' km/h':'—'}</td>
-    <td style="font-size:12px;color:#e53935">${a.flag_reason||'—'}</td>
-    <td style="display:flex;gap:6px">
-      ${currentTab==='flagged'?`
-        <button class="btn btn-green" onclick="clearFlag(${a.id})">✅ Clear</button>
-        <button class="btn btn-red" onclick="softDelete(${a.id})">🗑️ Delete</button>
-      `:`<button class="btn btn-blue" onclick="restore(${a.id})">↩️ Restore</button>`}
-    </td>
-  </tr>`).join('');
+  document.getElementById('flagged-body').innerHTML=acts.map(a=>'<tr id="row-'+a.id+'">'
+    +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+(regMap[a.strava_athlete_id]||'Unknown')+'</a></td>'
+    +'<td>'+(a.activity_name||'—')+'</td>'
+    +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
+    +'<td>'+fmtDate(a.activity_date)+' '+fmtTime(a.activity_date)+'</td>'
+    +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
+    +'<td>'+(a.avg_speed?(a.avg_speed*3.6).toFixed(1)+' km/h':'—')+'</td>'
+    +'<td style="font-size:12px;color:#e53935">'+(a.flag_reason||'—')+'</td>'
+    +'<td>'+(currentTab==='flagged'
+      ?'<button class="btn btn-green" onclick="clearFlag('+a.id+')">✅ Clear</button><button class="btn btn-red" onclick="softDelete('+a.id+')">🗑️ Delete</button>'
+      :'<button class="btn btn-blue" onclick="restore('+a.id+')">↩️ Restore</button>')
+    +'</td></tr>'
+  ).join('');
 }
-async function patch(id,data){
-  await fetch(`${SUPABASE_URL}/rest/v1/activities?id=eq.${id}`,{method:'PATCH',headers:{...HDR,'Content-Type':'application/json'},body:JSON.stringify(data)});
-  document.getElementById(`row-${id}`).remove();
-}
+async function patch(id,data){ await fetch(SUPABASE_URL+'/rest/v1/activities?id=eq.'+id,{method:'PATCH',headers:{...HDR,'Content-Type':'application/json'},body:JSON.stringify(data)}); document.getElementById('row-'+id).remove(); }
 function clearFlag(id){patch(id,{is_flagged:false,flag_reason:'Manually cleared by admin'});}
 function softDelete(id){if(confirm('Mark as deleted? Can be restored later.')) patch(id,{is_deleted:true,deleted_reason:'Deleted by admin'});}
 function restore(id){patch(id,{is_deleted:false,deleted_reason:null});}

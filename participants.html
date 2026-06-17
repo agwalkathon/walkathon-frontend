@@ -4,7 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Participants — Arcgate Walkathon 2026</title>
-  <link rel="stylesheet" href="_shared.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header nav { display: flex; gap: 4px; flex-wrap: wrap; }
+    .site-header nav a { font-size: 13px; color: #555; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+    .site-header nav a:hover { background: #f0f0f0; }
+    .site-header nav a.active { background: #E8622A; color: white; }
+    .page-bar { background: #1A1A1A; color: white; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .page-bar h1 { font-size: 20px; font-weight: 600; }
+    .page-bar .back { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+    .content { flex: 1; padding: 24px 28px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .stats-grid { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+    .stat-card { background: white; border-radius: 12px; padding: 16px 20px; flex: 1; min-width: 130px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-left: 4px solid #E8622A; }
+    .stat-card .val { font-size: 24px; font-weight: 700; color: #E8622A; }
+    .stat-card .lbl { font-size: 12px; color: #888; margin-top: 4px; }
+    .stat-card.green .val { color: #2e7d32; } .stat-card.green { border-left-color: #2e7d32; }
+    .stat-card.dark  .val { color: #1A1A1A; } .stat-card.dark  { border-left-color: #1A1A1A; }
+    .toolbar { background: white; border-radius: 14px; padding: 14px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { padding: 8px 11px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 13px; }
+    .toolbar input:focus, .toolbar select:focus { outline: none; border-color: #E8622A; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfcfb; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-conn   { background: #e3f2fd; color: #1565c0; }
+    .badge-pend   { background: #fff3e0; color: #e65100; }
+    .badge-active { background: #e8f5e9; color: #2e7d32; }
+    .badge-del    { background: #f5f5f5; color: #999; }
+    .ath { color: #E8622A; text-decoration: none; font-weight: 500; }
+    .ath:hover { text-decoration: underline; }
+    .loading-row td { text-align: center; padding: 48px; color: #bbb; }
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+  </style>
 </head>
 <body>
 <div class="site-header">
@@ -18,12 +57,10 @@
     <a href="#" onclick="logout();return false;">Sign out</a>
   </nav>
 </div>
-
 <div class="page-bar">
   <h1>👥 Participants</h1>
   <a href="admin.html" class="back">← Dashboard</a>
 </div>
-
 <div class="content">
   <div class="stats-grid">
     <div class="stat-card"><div class="val" id="s-total">—</div><div class="lbl">Total registered</div></div>
@@ -31,7 +68,6 @@
     <div class="stat-card"><div class="val" id="s-active">—</div><div class="lbl">Have activities</div></div>
     <div class="stat-card dark"><div class="val" id="s-km">—</div><div class="lbl">Total km</div></div>
   </div>
-
   <div class="toolbar">
     <input type="text" id="search" placeholder="Search name, email or team..." oninput="filterTable()" style="width:240px">
     <select id="team-filter" onchange="filterTable()">
@@ -54,7 +90,6 @@
     </select>
     <span style="margin-left:auto;font-size:13px;color:#888" id="count"></span>
   </div>
-
   <div class="card">
     <div class="table-wrap">
       <table>
@@ -67,72 +102,70 @@
     </div>
   </div>
 </div>
-
 <div class="site-footer">
   © 2026 Arcgate Walkathon &nbsp;·&nbsp;
   <a href="privacy.html">Privacy Policy</a>
   <a href="terms.html">Terms of Service</a>
 </div>
-
-<script src="_nav.js"></script>
 <script>
+const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
+function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
+function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
 authGuard();
 let allRows=[];
 function filterTable(){
   const q=document.getElementById('search').value.toLowerCase();
-  const team=document.getElementById('team-filter').value;
-  const shift=document.getElementById('shift-filter').value;
-  const status=document.getElementById('status-filter').value;
+  const tm=document.getElementById('team-filter').value;
+  const sh=document.getElementById('shift-filter').value;
+  const st=document.getElementById('status-filter').value;
   const filtered=allRows.filter(r=>{
     const mq=!q||r.full_name?.toLowerCase().includes(q)||r.email?.toLowerCase().includes(q)||r.leaderboard_team?.toLowerCase().includes(q);
-    const mt=!team||r.leaderboard_team===team;
-    const ms=!shift||r.shift===shift;
-    const mst=!status?true:status==='active'?r.activity_count>0:status==='inactive'?r.activity_count===0:status==='connected'?r.is_connected:!r.is_connected;
+    const mt=!tm||r.leaderboard_team===tm;
+    const ms=!sh||r.shift===sh;
+    const mst=!st?true:st==='active'?r.cnt>0:st==='inactive'?r.cnt===0:st==='connected'?r.connected:!r.connected;
     return mq&&mt&&ms&&mst;
   });
-  document.getElementById('count').textContent=`${filtered.length} of ${allRows.length} participants`;
+  document.getElementById('count').textContent=filtered.length+' of '+allRows.length+' participants';
   renderRows(filtered);
 }
 function renderRows(rows){
   document.getElementById('participants-body').innerHTML=rows.length
-    ?rows.map((p,i)=>`<tr>
-        <td>${i+1}</td>
-        <td><a href="${p.strava_profile_url||`https://www.strava.com/athletes/${p.strava_athlete_id}`}" target="_blank" class="ath">${p.full_name||'—'}</a></td>
-        <td style="font-size:12px"><span style="background:#f0f4f8;padding:2px 8px;border-radius:6px;color:#555">${p.leaderboard_team||'—'}</span></td>
-        <td>${p.shift||'—'}</td>
-        <td>${p.gender||'—'}</td>
-        <td>${p.tshirt_size||'—'}</td>
-        <td style="font-size:12px;color:#888">${p.project_lead||'—'}</td>
-        <td><span class="badge ${p.is_connected?'badge-conn':'badge-pend'}">${p.is_connected?'✅ Connected':'⚠️ Not yet'}</span></td>
-        <td>${p.activity_count||0}</td>
-        <td>${p.total_distance?(p.total_distance/1000).toFixed(1)+' km':'—'}</td>
-        <td><span class="badge ${p.activity_count>0?'badge-active':'badge-del'}">${p.activity_count>0?'🏃 Active':'Pending'}</span></td>
-      </tr>`).join('')
+    ?rows.map((p,i)=>'<tr>'
+      +'<td>'+(i+1)+'</td>'
+      +'<td><a href="'+(p.strava_profile_url||'https://www.strava.com/athletes/'+p.strava_athlete_id)+'" target="_blank" class="ath">'+(p.full_name||'—')+'</a></td>'
+      +'<td><span style="background:#f0f4f8;padding:2px 8px;border-radius:6px;font-size:12px;color:#555">'+(p.leaderboard_team||'—')+'</span></td>'
+      +'<td>'+(p.shift||'—')+'</td>'
+      +'<td>'+(p.gender||'—')+'</td>'
+      +'<td>'+(p.tshirt_size||'—')+'</td>'
+      +'<td style="font-size:12px;color:#888">'+(p.project_lead||'—')+'</td>'
+      +'<td><span class="badge '+(p.connected?'badge-conn':'badge-pend')+'">'+(p.connected?'✅ Connected':'⚠️ Not yet')+'</span></td>'
+      +'<td>'+(p.cnt||0)+'</td>'
+      +'<td>'+(p.dist?(p.dist/1000).toFixed(1)+' km':'—')+'</td>'
+      +'<td><span class="badge '+(p.cnt>0?'badge-active':'badge-del')+'">'+(p.cnt>0?'🏃 Active':'Pending')+'</span></td>'
+      +'</tr>').join('')
     :'<tr class="loading-row"><td colspan="11">No participants match your filters</td></tr>';
 }
 async function loadParticipants(){
-  const [regRes,partRes,actRes]=await Promise.all([
-    fetch(`${SUPABASE_URL}/rest/v1/registration?order=full_name.asc`,{headers:HDR}),
-    fetch(`${SUPABASE_URL}/rest/v1/participants?select=strava_athlete_id`,{headers:HDR}),
-    fetch(`${SUPABASE_URL}/rest/v1/activities?select=strava_athlete_id,distance_meters&is_deleted=eq.false`,{headers:HDR})
+  const [rR,pR,aR]=await Promise.all([
+    fetch(SUPABASE_URL+'/rest/v1/registration?order=full_name.asc',{headers:HDR}),
+    fetch(SUPABASE_URL+'/rest/v1/participants?select=strava_athlete_id',{headers:HDR}),
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=strava_athlete_id,distance_meters&is_deleted=eq.false',{headers:HDR})
   ]);
-  const regs=await regRes.json();
-  const connected=new Set((await partRes.json()).map(p=>p.strava_athlete_id));
-  const actMap={};
-  (await actRes.json()).forEach(a=>{
-    if(!actMap[a.strava_athlete_id]) actMap[a.strava_athlete_id]={count:0,dist:0};
-    actMap[a.strava_athlete_id].count++;
-    actMap[a.strava_athlete_id].dist+=a.distance_meters||0;
-  });
-  allRows=regs.map(r=>({...r,is_connected:connected.has(r.strava_athlete_id),activity_count:actMap[r.strava_athlete_id]?.count||0,total_distance:actMap[r.strava_athlete_id]?.dist||0}));
-  const connCnt=allRows.filter(r=>r.is_connected).length;
-  const actCnt=allRows.filter(r=>r.activity_count>0).length;
-  const totalKm=allRows.reduce((s,r)=>s+r.total_distance,0)/1000;
+  const regs=await rR.json();
+  const conn=new Set((await pR.json()).map(p=>p.strava_athlete_id));
+  const am={};
+  (await aR.json()).forEach(a=>{ if(!am[a.strava_athlete_id]) am[a.strava_athlete_id]={cnt:0,dist:0}; am[a.strava_athlete_id].cnt++; am[a.strava_athlete_id].dist+=a.distance_meters||0; });
+  allRows=regs.map(r=>({...r,connected:conn.has(r.strava_athlete_id),cnt:am[r.strava_athlete_id]?.cnt||0,dist:am[r.strava_athlete_id]?.dist||0}));
+  const cc=allRows.filter(r=>r.connected).length;
+  const ac=allRows.filter(r=>r.cnt>0).length;
+  const km=allRows.reduce((s,r)=>s+r.dist,0)/1000;
   document.getElementById('s-total').textContent=allRows.length;
-  document.getElementById('s-connected').textContent=connCnt;
-  document.getElementById('s-active').textContent=actCnt;
-  document.getElementById('s-km').textContent=totalKm.toFixed(1)+' km';
-  document.getElementById('count').textContent=`${allRows.length} participants`;
+  document.getElementById('s-connected').textContent=cc;
+  document.getElementById('s-active').textContent=ac;
+  document.getElementById('s-km').textContent=km.toFixed(1)+' km';
+  document.getElementById('count').textContent=allRows.length+' participants';
   renderRows(allRows);
 }
 loadParticipants();

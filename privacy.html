@@ -4,45 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — Arcgate Walkathon 2026</title>
-  <link rel="stylesheet" href="_shared.css">
   <style>
-    .doc-wrap { max-width:760px; margin:40px auto; padding:0 20px 40px; }
-    .doc-card { background:white; border-radius:14px; padding:48px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
-    .doc-card h2 { font-size:17px; font-weight:600; color:#1A1A1A; margin:28px 0 10px; }
-    .doc-card p { font-size:15px; color:#444; margin-bottom:14px; line-height:1.75; }
-    .doc-card ul { padding-left:20px; margin-bottom:14px; }
-    .doc-card ul li { font-size:15px; color:#444; margin-bottom:6px; line-height:1.6; }
-    .doc-card .updated { font-size:13px; color:#999; margin-bottom:28px; }
-    .contact-box { background:#f5f5f5; border-radius:10px; padding:20px 24px; margin-top:32px; }
-    .contact-box p { margin:0; font-size:14px; color:#555; }
-    .doc-card a { color:#E8622A; text-decoration:none; }
-    .doc-card a:hover { text-decoration:underline; }
-    .hero-doc { background:#1A1A1A; color:white; padding:40px 32px; text-align:center; }
-    .hero-doc h1 { font-size:28px; font-weight:700; margin-bottom:8px; }
-    .hero-doc p { font-size:14px; opacity:0.6; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header nav { display: flex; gap: 4px; }
+    .site-header nav a { font-size: 13px; color: #555; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+    .site-header nav a:hover { background: #f0f0f0; }
+    .hero { background: #1A1A1A; color: white; padding: 40px 28px; text-align: center; }
+    .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .hero p { font-size: 14px; opacity: 0.6; }
+    .doc-wrap { max-width: 760px; margin: 36px auto; padding: 0 20px 40px; flex: 1; width: 100%; }
+    .doc-card { background: white; border-radius: 14px; padding: 44px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .doc-card h2 { font-size: 17px; font-weight: 600; color: #1A1A1A; margin: 28px 0 10px; border-left: 3px solid #E8622A; padding-left: 12px; }
+    .doc-card p { font-size: 15px; color: #444; margin-bottom: 14px; line-height: 1.75; }
+    .doc-card ul { padding-left: 20px; margin-bottom: 14px; }
+    .doc-card ul li { font-size: 15px; color: #444; margin-bottom: 6px; line-height: 1.6; }
+    .updated { font-size: 13px; color: #999; margin-bottom: 28px; }
+    .contact-box { background: #f5f5f5; border-radius: 10px; padding: 20px 24px; margin-top: 28px; }
+    .contact-box p { margin: 0; font-size: 14px; color: #555; }
+    a { color: #E8622A; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
   </style>
 </head>
 <body>
 <div class="site-header">
   <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
   <nav>
-    <a href="index.html">Register</a>
+    <a href="register.html?event=walkathon2026">Register</a>
     <a href="terms.html">Terms</a>
     <a href="admin-login.html">Admin</a>
   </nav>
 </div>
-<div class="hero-doc">
+<div class="hero">
   <h1>🔒 Privacy Policy</h1>
   <p>Arcgate Walkathon 2026 — Powered by Strava</p>
 </div>
 <div class="doc-wrap">
   <div class="doc-card">
     <p class="updated">Last updated: June 17, 2026</p>
-    <p>This Privacy Policy describes how <strong>Arcgate Walkathon 2026</strong> ("we", "our", or "the application") collects, uses, and protects information obtained from participants through the Strava API. We are committed to protecting your privacy and handling your data responsibly.</p>
+    <p>This Privacy Policy describes how <strong>Arcgate Walkathon 2026</strong> collects, uses, and protects information obtained from participants through the Strava API. We are committed to protecting your privacy.</p>
     <h2>1. Who we are</h2>
-    <p>Arcgate Walkathon 2026 is an internal fitness event organized by Arcgate for its employees. This application is used exclusively to track participant walking and running activities during the event period and display leaderboard rankings.</p>
+    <p>Arcgate Walkathon 2026 is an internal fitness event organized by Arcgate for its employees. This application is used exclusively to track participant activities and display leaderboard rankings.</p>
     <h2>2. What data we collect</h2>
-    <p>When you connect your Strava account, we access the following data through the Strava API:</p>
     <ul>
       <li>Your Strava athlete ID, first name, and last name</li>
       <li>Activity details: name, type, date, distance, duration, elevation gain</li>
@@ -50,7 +57,7 @@
       <li>Health metrics: average heart rate, max heart rate, calories burned</li>
       <li>Step count (derived from cadence data)</li>
     </ul>
-    <p>We do <strong>not</strong> collect your precise GPS route, photos, gear information, or any data not directly related to activity performance.</p>
+    <p>We do <strong>not</strong> collect your GPS route, photos, gear information, or any data not directly related to activity performance.</p>
     <h2>3. How we use your data</h2>
     <ul>
       <li>Displaying your activities on the internal event leaderboard</li>
@@ -60,31 +67,30 @@
     </ul>
     <p>We do <strong>not</strong> sell, share, or distribute your data to any third parties outside of Arcgate.</p>
     <h2>4. Data storage and security</h2>
-    <p>Your data is stored securely in a password-protected database (Supabase, hosted on AWS). We implement Row Level Security (RLS) to ensure data is only accessible to authorized systems. Your Strava access token is stored securely and never exposed publicly.</p>
+    <p>Your data is stored securely in a password-protected database (Supabase, hosted on AWS) with Row Level Security (RLS) enabled. Your Strava access token is stored securely and never exposed publicly.</p>
     <h2>5. Data retention</h2>
-    <p>Activity data collected during the event will be retained for a maximum of 90 days after the event concludes. After this period, all personal data will be permanently deleted. You may request deletion at any time by contacting the event organizer.</p>
+    <p>Activity data will be retained for a maximum of 90 days after the event concludes, then permanently deleted. You may request deletion at any time by contacting the event organizer.</p>
     <h2>6. Your rights</h2>
     <ul>
       <li>Disconnect your Strava account at any time via <a href="https://www.strava.com/settings/apps" target="_blank">strava.com/settings/apps</a></li>
       <li>Request a copy of the data we hold about you</li>
       <li>Request deletion of your data before the automatic deletion period</li>
-      <li>Opt out of leaderboard display at any time</li>
     </ul>
     <h2>7. Strava data usage</h2>
-    <p>Our use of Strava data complies with <a href="https://www.strava.com/legal/api" target="_blank">Strava's API Agreement</a> and <a href="https://www.strava.com/legal/privacy" target="_blank">Strava's Privacy Policy</a>. We only request the minimum scopes necessary: <code>read</code> and <code>activity:read</code>.</p>
+    <p>Our use of Strava data complies with <a href="https://www.strava.com/legal/api" target="_blank">Strava's API Agreement</a>. We only request the minimum scopes necessary: <code>read</code> and <code>activity:read</code>.</p>
     <h2>8. Cookies</h2>
     <p>This application uses browser session storage only to maintain your admin login session. We do not use tracking cookies or third-party analytics.</p>
     <h2>9. Changes to this policy</h2>
     <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated date.</p>
     <div class="contact-box">
-      <p>📧 <strong>Contact us:</strong> For any privacy-related questions or data deletion requests, contact the event organizer at <a href="mailto:prakash@arcgate.com">prakash@arcgate.com</a></p>
+      <p>📧 <strong>Contact us:</strong> For any privacy-related questions, contact <a href="mailto:prakash@arcgate.com">prakash@arcgate.com</a></p>
     </div>
   </div>
 </div>
 <div class="site-footer">
   © 2026 Arcgate Walkathon &nbsp;·&nbsp;
   <a href="terms.html">Terms of Service</a>
-  <a href="index.html">Register</a>
+  <a href="register.html?event=walkathon2026">Register</a>
 </div>
 </body>
 </html>

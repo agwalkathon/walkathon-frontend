@@ -7,31 +7,31 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .login-wrap { width: 100%; max-width: 420px; padding: 20px; }
-    .logo-wrap { text-align: center; margin-bottom: 32px; }
-    .logo-wrap img { height: 48px; filter: brightness(0) invert(1); }
+    .wrap { width: 100%; max-width: 420px; padding: 20px; }
+    .logo-wrap { text-align: center; margin-bottom: 28px; }
+    .logo-wrap img { height: 44px; object-fit: contain; filter: brightness(0) invert(1); }
     .card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-    .card-icon { width: 52px; height: 52px; background: #E8622A; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px; }
-    .card h1 { text-align: center; font-size: 22px; color: #1A1A1A; margin-bottom: 4px; }
-    .card .sub { text-align: center; font-size: 13px; color: #999; margin-bottom: 28px; }
+    .icon-wrap { width: 52px; height: 52px; background: #E8622A; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px; }
+    h1 { text-align: center; font-size: 22px; color: #1A1A1A; margin-bottom: 4px; }
+    .sub { text-align: center; font-size: 13px; color: #999; margin-bottom: 28px; }
     .field { margin-bottom: 16px; }
     .field label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
     .field input { width: 100%; padding: 11px 14px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 15px; color: #1A1A1A; transition: border 0.15s; }
     .field input:focus { outline: none; border-color: #E8622A; }
     .btn-login { width: 100%; padding: 13px; background: #E8622A; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
     .btn-login:hover { background: #d4561f; }
-    .error { display: none; background: #ffebee; color: #c62828; border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-top: 16px; text-align: center; }
-    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #555; }
+    .error-msg { display: none; background: #ffebee; color: #c62828; border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-top: 16px; text-align: center; }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; }
     .footer a { color: #E8622A; text-decoration: none; }
   </style>
 </head>
 <body>
-<div class="login-wrap">
+<div class="wrap">
   <div class="logo-wrap">
     <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
   </div>
   <div class="card">
-    <div class="card-icon">🛡️</div>
+    <div class="icon-wrap">🛡️</div>
     <h1>Admin Access</h1>
     <p class="sub">Restricted to event organizers only</p>
     <div class="field">
@@ -43,32 +43,32 @@
       <input type="password" id="password" placeholder="••••••••">
     </div>
     <button class="btn-login" onclick="doLogin()">Sign in</button>
-    <div class="error" id="error-msg">❌ Invalid email or password</div>
+    <div class="error-msg" id="err">❌ Invalid email or password</div>
   </div>
   <div class="footer">
     <a href="index.html">← Back to registration</a>
   </div>
 </div>
 <script>
-  const VALID_EMAIL_HASH    = '03d30f639abb9e75cf8d20cebff2a289eab3aebe6a43156a72dcc186ee5fcba83';
-  const VALID_PASSWORD_HASH = '0173190d539938a402bd13cc767cb2977973cc288349cb485d2a44c147658872e';
+  const EH = '03d30f639abb9e75cf8d20cebff2a289eab3aebe6a43156a72dcc186ee5fcba83';
+  const PH = '0173190d539938a402bd13cc767cb2977973cc288349cb485d2a44c147658872e';
   async function sha256(m) {
     const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(m));
-    return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('');
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
   }
   async function doLogin() {
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const pass  = document.getElementById('password').value;
-    const [eh, ph] = await Promise.all([sha256(email), sha256(pass)]);
-    if (eh === VALID_EMAIL_HASH && ph === VALID_PASSWORD_HASH) {
-      sessionStorage.setItem('wk_admin', JSON.stringify({ loggedIn: true, expires: Date.now() + 8*60*60*1000 }));
+    const e = document.getElementById('email').value.trim().toLowerCase();
+    const p = document.getElementById('password').value;
+    const [eh,ph] = await Promise.all([sha256(e),sha256(p)]);
+    if (eh===EH && ph===PH) {
+      sessionStorage.setItem('wk_admin', JSON.stringify({loggedIn:true, expires:Date.now()+8*60*60*1000}));
       window.location.href = 'admin.html';
     } else {
-      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('err').style.display = 'block';
     }
   }
-  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  const s = JSON.parse(sessionStorage.getItem('wk_admin') || '{}');
+  document.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  const s = JSON.parse(sessionStorage.getItem('wk_admin')||'{}');
   if (s.loggedIn && s.expires > Date.now()) window.location.href = 'admin.html';
 </script>
 </body>

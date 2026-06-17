@@ -3,115 +3,291 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arcgate Walkathon 2026 — Register</title>
+  <title>Arcgate Walkathon 2026 — Powered by Strava</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; min-height: 100vh; display: flex; flex-direction: column; }
-    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .site-header img { height: 42px; }
-    .site-header span { font-size: 13px; color: #888; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
-    .hero { background: #1A1A1A; color: white; padding: 60px 32px; text-align: center; }
-    .hero h1 { font-size: 38px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #1A1A1A; }
+
+    /* ── Header ─────────────────────────────────────── */
+    .header { background: #fff; border-bottom: 3px solid #E8622A; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .header img { height: 44px; object-fit: contain; }
+    .header-links { display: flex; gap: 8px; align-items: center; }
+    .header-links a { font-size: 13px; color: #555; text-decoration: none; padding: 7px 16px; border-radius: 8px; transition: all 0.15s; }
+    .header-links a:hover { background: #f5f5f5; color: #1A1A1A; }
+    .header-links a.btn-orange { background: #E8622A; color: white; font-weight: 600; }
+    .header-links a.btn-orange:hover { background: #d4561f; }
+    .header-links a.btn-dark { background: #1A1A1A; color: white; font-weight: 600; }
+    .header-links a.btn-dark:hover { background: #333; }
+
+    /* ── Hero ───────────────────────────────────────── */
+    .hero { background: #1A1A1A; color: white; padding: 80px 40px; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .hero-text { flex: 1; min-width: 300px; }
+    .hero-eyebrow { display: inline-block; background: #E8622A; color: white; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+    .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
     .hero h1 em { color: #E8622A; font-style: normal; }
-    .hero p { font-size: 16px; opacity: 0.7; max-width: 480px; margin: 0 auto; line-height: 1.7; }
-    .accent-bar { background: #E8622A; display: flex; justify-content: center; flex-wrap: wrap; }
-    .accent-bar .stat { padding: 14px 48px; text-align: center; border-right: 1px solid rgba(255,255,255,0.25); color: white; }
-    .accent-bar .stat:last-child { border-right: none; }
-    .accent-bar .stat .val { font-size: 22px; font-weight: 700; }
-    .accent-bar .stat .lbl { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-    .main { max-width: 540px; margin: 40px auto; padding: 0 20px 40px; flex: 1; width: 100%; }
-    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .feature { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; border-top: 3px solid #E8622A; }
-    .feature .icon { font-size: 28px; margin-bottom: 8px; }
-    .feature .title { font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
-    .feature .desc { font-size: 12px; color: #999; line-height: 1.5; }
-    .card { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center; margin-bottom: 20px; }
-    .card h2 { font-size: 22px; color: #1A1A1A; margin-bottom: 8px; }
-    .card .sub { font-size: 14px; color: #888; margin-bottom: 28px; line-height: 1.6; }
-    .btn-strava { display: inline-flex; align-items: center; gap: 12px; background: #E8622A; color: white; text-decoration: none; padding: 16px 36px; border-radius: 10px; font-size: 16px; font-weight: 600; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 16px rgba(232,98,42,0.3); }
-    .btn-strava:hover { background: #d4561f; transform: translateY(-1px); }
-    .btn-strava svg { width: 22px; height: 22px; fill: white; }
-    .success { display: none; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 20px; margin-top: 20px; color: #2e7d32; font-size: 14px; line-height: 1.6; }
-    .error { display: none; background: #ffebee; border: 1px solid #ef9a9a; border-radius: 10px; padding: 20px; margin-top: 20px; color: #c62828; font-size: 14px; }
-    .note { font-size: 12px; color: #bbb; text-align: center; margin-top: 16px; line-height: 1.9; }
-    .note a { color: #E8622A; text-decoration: none; }
-    .note a:hover { text-decoration: underline; }
-    .powered { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: 12px; color: #ccc; }
-    .powered svg { width: 14px; height: 14px; fill: #FC4C02; }
-    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 18px 32px; font-size: 12px; }
-    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+    .hero p { font-size: 18px; opacity: 0.7; line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
+    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-cta a { padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .cta-orange { background: #E8622A; color: white; box-shadow: 0 4px 16px rgba(232,98,42,0.4); }
+    .cta-orange:hover { background: #d4561f; transform: translateY(-1px); }
+    .cta-ghost  { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+    .cta-ghost:hover  { background: rgba(255,255,255,0.15); }
+    .hero-visual { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 12px; }
+    .stat-pill { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 16px; }
+    .stat-pill .icon { font-size: 28px; }
+    .stat-pill .val { font-size: 28px; font-weight: 700; color: #E8622A; }
+    .stat-pill .lbl { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+
+    /* ── Powered by Strava bar ──────────────────────── */
+    .strava-bar { background: #FC4C02; color: white; padding: 14px 40px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; font-weight: 500; }
+    .strava-bar svg { width: 20px; height: 20px; fill: white; }
+
+    /* ── How it works ───────────────────────────────── */
+    .section { padding: 72px 40px; }
+    .section-label { font-size: 12px; font-weight: 600; color: #E8622A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .section h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 16px; }
+    .section .sub { font-size: 16px; color: #666; max-width: 560px; line-height: 1.7; margin-bottom: 48px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+    .step { background: #F5F5F5; border-radius: 16px; padding: 28px; position: relative; }
+    .step-num { width: 36px; height: 36px; background: #E8622A; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+    .step h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: #666; line-height: 1.6; }
+
+    /* ── Features ───────────────────────────────────── */
+    .features-section { background: #F5F5F5; padding: 72px 40px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 48px; }
+    .feature-card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-top: 4px solid #E8622A; }
+    .feature-card .icon { font-size: 32px; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: #666; line-height: 1.6; }
+
+    /* ── Data we use ────────────────────────────────── */
+    .data-section { padding: 72px 40px; }
+    .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 48px; }
+    .data-item { border: 1px solid #f0f0f0; border-radius: 12px; padding: 20px; display: flex; align-items: flex-start; gap: 12px; }
+    .data-item .dot { width: 10px; height: 10px; background: #E8622A; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+    .data-item .text h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .data-item .text p { font-size: 13px; color: #888; line-height: 1.5; }
+    .data-not { background: #f9f9f9; border-radius: 12px; padding: 20px 24px; margin-top: 24px; font-size: 14px; color: #666; }
+    .data-not strong { color: #1A1A1A; }
+
+    /* ── Access section ─────────────────────────────── */
+    .access-section { background: #1A1A1A; color: white; padding: 72px 40px; }
+    .access-section .section-label { color: #E8622A; }
+    .access-section h2 { color: white; }
+    .access-section .sub { color: rgba(255,255,255,0.6); }
+    .access-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 48px; }
+    .access-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; text-decoration: none; color: white; transition: all 0.2s; display: block; }
+    .access-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); border-color: #E8622A; }
+    .access-card .icon { font-size: 32px; margin-bottom: 14px; }
+    .access-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: white; }
+    .access-card p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .access-card .arrow { display: inline-block; margin-top: 16px; font-size: 13px; color: #E8622A; font-weight: 600; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    .footer { background: #111; color: #666; padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .footer-left { font-size: 13px; }
+    .footer-left strong { color: #E8622A; }
+    .footer-right { display: flex; gap: 20px; }
+    .footer-right a { font-size: 13px; color: #666; text-decoration: none; }
+    .footer-right a:hover { color: #E8622A; }
+
+    @media (max-width: 640px) {
+      .hero { padding: 48px 20px; }
+      .hero h1 { font-size: 32px; }
+      .section, .features-section, .data-section, .access-section { padding: 48px 20px; }
+      .header { padding: 12px 20px; }
+      .footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
   </style>
 </head>
 <body>
-<div class="site-header">
+
+<!-- Header -->
+<div class="header">
   <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
-  <span>2026 Edition</span>
+  <div class="header-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms</a>
+    <a href="admin-login.html" class="btn-dark">Admin Login</a>
+    <a href="register.html?event=walkathon2026" class="btn-orange">Join Event</a>
+  </div>
 </div>
+
+<!-- Hero -->
 <div class="hero">
-  <h1>Walk. Run. <em>Win.</em></h1>
-  <p>Connect your Strava account to join the Arcgate Walkathon 2026 leaderboard and compete with 500+ colleagues.</p>
-</div>
-<div class="accent-bar">
-  <div class="stat"><div class="val">500+</div><div class="lbl">Participants</div></div>
-  <div class="stat"><div class="val">June 2026</div><div class="lbl">Event period</div></div>
-  <div class="stat"><div class="val">6</div><div class="lbl">City teams</div></div>
-  <div class="stat"><div class="val">Live</div><div class="lbl">Leaderboard</div></div>
-</div>
-<div class="main">
-  <div class="features">
-    <div class="feature"><div class="icon">🏆</div><div class="title">Live leaderboard</div><div class="desc">Real-time rankings updated instantly after every activity</div></div>
-    <div class="feature"><div class="icon">📊</div><div class="title">Full stats</div><div class="desc">Distance, pace, steps, elevation and calories tracked</div></div>
-    <div class="feature"><div class="icon">👥</div><div class="title">Team competition</div><div class="desc">Compete across 6 city teams — Seattle, Chicago, Austin and more</div></div>
-    <div class="feature"><div class="icon">🔒</div><div class="title">Secure & private</div><div class="desc">Data used only for this event, never shared externally</div></div>
+  <div class="hero-text">
+    <span class="hero-eyebrow">Arcgate Internal Event</span>
+    <h1>Move More.<br><em>Win Together.</em></h1>
+    <p>Arcgate Walkathon 2026 is an internal corporate fitness challenge connecting 500+ employees through Strava. Walk, run and hike your way to the top of the leaderboard.</p>
+    <div class="hero-cta">
+      <a href="register.html?event=walkathon2026" class="cta-orange">
+        <svg style="width:16px;height:16px;fill:white;margin-right:8px;vertical-align:middle" viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        Connect with Strava
+      </a>
+      <a href="admin-login.html" class="cta-ghost">Admin Dashboard</a>
+    </div>
   </div>
-  <div class="card">
-    <h2>Join the leaderboard</h2>
-    <p class="sub">Connect your Strava account once — your walks, runs and hikes appear automatically on the leaderboard within seconds.</p>
-    <a id="strava-btn" href="#" class="btn-strava">
-      <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-      Connect with Strava
+  <div class="hero-visual">
+    <div class="stat-pill">
+      <div class="icon">👥</div>
+      <div><div class="val">500+</div><div class="lbl">Registered participants</div></div>
+    </div>
+    <div class="stat-pill">
+      <div class="icon">🏙️</div>
+      <div><div class="val">6</div><div class="lbl">Competing city teams</div></div>
+    </div>
+    <div class="stat-pill">
+      <div class="icon">📅</div>
+      <div><div class="val">June 2026</div><div class="lbl">Event period</div></div>
+    </div>
+    <div class="stat-pill">
+      <div class="icon">⚡</div>
+      <div><div class="val">Live</div><div class="lbl">Real-time leaderboard</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Powered by Strava -->
+<div class="strava-bar">
+  <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+  Powered by Strava API — we use only <code style="background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px">read</code> and <code style="background:rgba(255,255,255,0.2);padding:2px 6px;border-radius:4px">activity:read</code> scopes
+</div>
+
+<!-- How it works -->
+<div class="section">
+  <div class="section-label">How it works</div>
+  <h2>Simple. Automatic. Fair.</h2>
+  <p class="sub">Participants connect their Strava account once — every walk, run and hike is tracked automatically and appears on the leaderboard within seconds.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Register with Strava</h3>
+      <p>Employees visit the registration page and authorize their Strava account using OAuth. Takes 30 seconds.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Activity auto-tracked</h3>
+      <p>Strava sends a webhook to our server whenever a participant saves a walk, run or hike. No manual uploads needed.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Leaderboard updates live</h3>
+      <p>Activity data is saved to our database and the leaderboard refreshes instantly. Rankings update within 30 seconds of any activity.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Admin verifies fairly</h3>
+      <p>Our admin panel flags suspicious activities automatically. Organizers can review, clear or remove flagged entries.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="features-section">
+  <div class="section-label">Features</div>
+  <h2>Built for a great event experience</h2>
+  <p class="sub">Everything an event organizer needs — and everything a participant expects.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">🏆</div>
+      <h3>6 leaderboard types</h3>
+      <p>Rankings by total distance, most activities, best pace, highest elevation, most calories and most steps.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">👥</div>
+      <h3>Team competition</h3>
+      <p>500+ participants split across 6 city teams — Seattle, San Francisco, Los Angeles, Chicago, Austin and New York.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🚩</div>
+      <h3>Fraud detection</h3>
+      <p>Automatic flagging of suspicious activities based on speed, distance and time rules. Admin reviews with one click.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📊</div>
+      <h3>Rich activity data</h3>
+      <p>Distance, pace, elevation, heart rate, calories, steps, cadence — all stored and displayed per activity.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔒</div>
+      <h3>Secure by design</h3>
+      <p>Row Level Security on all database tables. SHA-256 hashed admin credentials. No plain text secrets in source code.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🎯</div>
+      <h3>Multi-event ready</h3>
+      <p>Each event has a unique URL code. One platform can run multiple events simultaneously — walkathons, cycling challenges and more.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Strava data we use -->
+<div class="data-section">
+  <div class="section-label">Strava data usage</div>
+  <h2>Minimal data. Clear purpose.</h2>
+  <p class="sub">We request only the scopes we need — <strong>read</strong> and <strong>activity:read</strong>. Here is exactly what we access and why.</p>
+  <div class="data-grid">
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Athlete name</h4><p>Displayed on leaderboard and admin panel</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Activity distance</h4><p>Primary metric for leaderboard rankings</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Activity type</h4><p>Filter walks, runs, rides and hikes separately</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Duration & pace</h4><p>Pace leaderboard and activity verification</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Elevation gain</h4><p>Elevation leaderboard ranking</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Heart rate</h4><p>Displayed in activity details for participants</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Calories</h4><p>Calories leaderboard and personal stats</p></div></div>
+    <div class="data-item"><div class="dot"></div><div class="text"><h4>Cadence / steps</h4><p>Steps leaderboard ranking</p></div></div>
+  </div>
+  <div class="data-not">
+    <strong>What we do NOT access:</strong> GPS route coordinates, photos, gear, segments, kudos, private messages, followers list, clubs, or any data beyond what is listed above. We never post to Strava on behalf of users.
+  </div>
+</div>
+
+<!-- Access section -->
+<div class="access-section">
+  <div class="section-label">Access the platform</div>
+  <h2>Everything in one place</h2>
+  <p class="sub">Participants, administrators and reviewers each have their own dedicated area.</p>
+  <div class="access-grid">
+    <a href="register.html?event=walkathon2026" class="access-card">
+      <div class="icon">🏃</div>
+      <h3>Participant registration</h3>
+      <p>Employees connect their Strava account to join the event leaderboard. Requires a valid event link.</p>
+      <span class="arrow">Join event →</span>
     </a>
-    <div class="success" id="success-msg">
-      ✅ <strong>Registration successful!</strong><br>
-      Welcome to Arcgate Walkathon 2026! Your activities will appear on the leaderboard automatically within 30 seconds of saving on Strava.
-    </div>
-    <div class="error" id="error-msg">
-      ❌ <strong>Something went wrong.</strong><br>
-      Please try again or contact the event organizer at prakash@arcgate.com
-    </div>
-    <p class="note">
-      We only read your walk, run and hike activity data.<br>
-      We never post anything to your Strava account.<br><br>
-      By connecting, you agree to our
-      <a href="terms.html" target="_blank">Terms of Service</a> and
-      <a href="privacy.html" target="_blank">Privacy Policy</a>
-    </p>
-    <div class="powered">
-      <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-      <span>Powered by Strava</span>
-    </div>
+    <a href="admin-login.html" class="access-card">
+      <div class="icon">🛡️</div>
+      <h3>Admin dashboard</h3>
+      <p>Event organizers manage participants, review flagged activities, view leaderboards and monitor all data.</p>
+      <span class="arrow">Admin login →</span>
+    </a>
+    <a href="privacy.html" class="access-card">
+      <div class="icon">🔒</div>
+      <h3>Privacy Policy</h3>
+      <p>Full details on what data we collect, how we use it, and participant rights under our data policy.</p>
+      <span class="arrow">Read policy →</span>
+    </a>
+    <a href="terms.html" class="access-card">
+      <div class="icon">📋</div>
+      <h3>Terms of Service</h3>
+      <p>Event participation rules, fair play guidelines, and terms governing use of this application.</p>
+      <span class="arrow">Read terms →</span>
+    </a>
   </div>
 </div>
-<div class="site-footer">
-  © 2026 Arcgate Walkathon &nbsp;·&nbsp;
-  <a href="privacy.html">Privacy Policy</a>
-  <a href="terms.html">Terms of Service</a>
-  <a href="admin-login.html">Admin</a>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-left">
+    © 2026 <strong>Arcgate Walkathon</strong> — Internal corporate fitness event &nbsp;·&nbsp;
+    Built with Strava API
+  </div>
+  <div class="footer-right">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="admin-login.html">Admin</a>
+    <a href="https://www.strava.com/legal/api" target="_blank">Strava API Terms</a>
+  </div>
 </div>
-<script>
-  const STRAVA_CLIENT_ID = '159703';
-  const REDIRECT_URI = window.location.origin + window.location.pathname;
-  const BACKEND_URL = 'https://walkathon-backend-hv9j.onrender.com';
-  const authUrl = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=read,activity:read`;
-  document.getElementById('strava-btn').href = authUrl;
-  const code = new URLSearchParams(window.location.search).get('code');
-  if (code) {
-    document.getElementById('strava-btn').style.display = 'none';
-    fetch(`${BACKEND_URL}/register`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code}) })
-      .then(r => r.json())
-      .then(d => { document.getElementById(d.success ? 'success-msg' : 'error-msg').style.display = 'block'; })
-      .catch(() => { document.getElementById('error-msg').style.display = 'block'; });
-  }
-</script>
+
 </body>
 </html>

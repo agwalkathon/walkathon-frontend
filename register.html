@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcgate Walkathon 2026 — Register</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header a { font-size: 13px; color: #888; text-decoration: none; }
+    .site-header a:hover { color: #E8622A; }
+    .hero { background: #1A1A1A; color: white; padding: 56px 28px; text-align: center; }
+    .hero .event-badge { display: inline-block; background: #E8622A; color: white; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; }
+    .hero p { font-size: 16px; opacity: 0.7; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+    .accent-bar { background: #E8622A; display: flex; justify-content: center; flex-wrap: wrap; }
+    .accent-bar .stat { padding: 13px 40px; text-align: center; border-right: 1px solid rgba(255,255,255,0.25); color: white; }
+    .accent-bar .stat:last-child { border-right: none; }
+    .accent-bar .stat .val { font-size: 20px; font-weight: 700; }
+    .accent-bar .stat .lbl { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+    .main { max-width: 540px; margin: 36px auto; padding: 0 20px 40px; flex: 1; width: 100%; }
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .feature { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; border-top: 3px solid #E8622A; }
+    .feature .icon { font-size: 26px; margin-bottom: 8px; }
+    .feature .title { font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
+    .feature .desc { font-size: 12px; color: #999; line-height: 1.5; }
+    .card { background: white; border-radius: 16px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center; margin-bottom: 18px; }
+    .card h2 { font-size: 22px; color: #1A1A1A; margin-bottom: 8px; }
+    .card .sub { font-size: 14px; color: #888; margin-bottom: 26px; line-height: 1.6; }
+    .btn-strava { display: inline-flex; align-items: center; gap: 12px; background: #E8622A; color: white; text-decoration: none; padding: 15px 34px; border-radius: 10px; font-size: 16px; font-weight: 600; transition: background 0.2s, transform 0.1s; box-shadow: 0 4px 16px rgba(232,98,42,0.3); }
+    .btn-strava:hover { background: #d4561f; transform: translateY(-1px); }
+    .btn-strava svg { width: 22px; height: 22px; fill: white; }
+    .success { display: none; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 18px; margin-top: 18px; color: #2e7d32; font-size: 14px; line-height: 1.6; }
+    .error { display: none; background: #ffebee; border: 1px solid #ef9a9a; border-radius: 10px; padding: 18px; margin-top: 18px; color: #c62828; font-size: 14px; }
+    .invalid { text-align: center; padding: 60px 24px; }
+    .invalid .icon { font-size: 48px; margin-bottom: 16px; }
+    .invalid h2 { font-size: 22px; color: #1A1A1A; margin-bottom: 12px; }
+    .invalid p { font-size: 15px; color: #666; line-height: 1.6; margin-bottom: 24px; }
+    .invalid a { color: #E8622A; text-decoration: none; font-weight: 500; }
+    .note { font-size: 12px; color: #bbb; text-align: center; margin-top: 16px; line-height: 1.9; }
+    .note a { color: #E8622A; text-decoration: none; }
+    .powered { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: 12px; color: #ccc; }
+    .powered svg { width: 14px; height: 14px; fill: #FC4C02; }
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+  </style>
+</head>
+<body>
+<div class="site-header">
+  <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
+  <a href="index.html">← Back to home</a>
+</div>
+
+<div id="invalid-view" style="display:none">
+  <div class="main">
+    <div class="card">
+      <div class="invalid">
+        <div class="icon">🔗</div>
+        <h2>Invalid registration link</h2>
+        <p>This registration link is missing an event code. Please use the link provided by your event organizer.</p>
+        <p>If you are an Arcgate employee, contact <a href="mailto:prakash@arcgate.com">prakash@arcgate.com</a> for the correct link.</p>
+        <a href="index.html" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#E8622A;color:white;border-radius:8px;font-weight:600;text-decoration:none">Go to home page</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="valid-view" style="display:none">
+  <div class="hero">
+    <span class="event-badge" id="event-badge">Loading...</span>
+    <h1>Join the Leaderboard</h1>
+    <p>Connect your Strava account to start tracking your activities and compete with colleagues.</p>
+  </div>
+  <div class="accent-bar">
+    <div class="stat"><div class="val">500+</div><div class="lbl">Participants</div></div>
+    <div class="stat"><div class="val">June 2026</div><div class="lbl">Event period</div></div>
+    <div class="stat"><div class="val">6</div><div class="lbl">City teams</div></div>
+    <div class="stat"><div class="val">Live</div><div class="lbl">Leaderboard</div></div>
+  </div>
+  <div class="main">
+    <div class="features">
+      <div class="feature"><div class="icon">🏆</div><div class="title">Live leaderboard</div><div class="desc">Real-time rankings updated after every activity</div></div>
+      <div class="feature"><div class="icon">📊</div><div class="title">Full stats</div><div class="desc">Distance, pace, steps, elevation and calories</div></div>
+      <div class="feature"><div class="icon">👥</div><div class="title">Team competition</div><div class="desc">Compete across 6 city teams</div></div>
+      <div class="feature"><div class="icon">🔒</div><div class="title">Secure & private</div><div class="desc">Data used only for this event</div></div>
+    </div>
+    <div class="card">
+      <h2>Connect your Strava</h2>
+      <p class="sub">Authorize once — your walks, runs and hikes appear on the leaderboard automatically within seconds of saving on Strava.</p>
+      <a id="strava-btn" href="#" class="btn-strava">
+        <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        Connect with Strava
+      </a>
+      <div class="success" id="success-msg">
+        ✅ <strong>Registration successful!</strong><br>
+        Welcome to <span id="success-event"></span>! Your activities will appear on the leaderboard automatically within 30 seconds of saving on Strava.
+      </div>
+      <div class="error" id="error-msg">
+        ❌ <strong>Something went wrong.</strong><br>
+        Please try again or contact the event organizer at prakash@arcgate.com
+      </div>
+      <p class="note">
+        We only read your walk, run and hike activity data.<br>
+        We never post anything to your Strava account.<br><br>
+        By connecting, you agree to our
+        <a href="terms.html" target="_blank">Terms of Service</a> and
+        <a href="privacy.html" target="_blank">Privacy Policy</a>
+      </p>
+      <div class="powered">
+        <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        <span>Powered by Strava</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="site-footer">
+  © 2026 Arcgate Walkathon &nbsp;·&nbsp;
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="terms.html">Terms of Service</a>
+  <a href="index.html">Home</a>
+</div>
+
+<script>
+  const STRAVA_CLIENT_ID = '159703';
+  const BACKEND_URL      = 'https://walkathon-backend-hv9j.onrender.com';
+
+  // Known events — add new events here
+  const EVENTS = {
+    'walkathon2026': 'Arcgate Walkathon 2026',
+    'walkathon2027': 'Arcgate Walkathon 2027',
+    'cycling2026':   'Arcgate Cycling Challenge 2026'
+  };
+
+  const params    = new URLSearchParams(window.location.search);
+  const eventCode = params.get('event');
+  const authCode  = params.get('code');
+
+  // Validate event code
+  if (!eventCode || !EVENTS[eventCode]) {
+    document.getElementById('invalid-view').style.display = 'block';
+  } else {
+    document.getElementById('valid-view').style.display = 'block';
+
+    const eventName = EVENTS[eventCode];
+    document.getElementById('event-badge').textContent  = eventName;
+    document.getElementById('success-event').textContent = eventName;
+    document.title = eventName + ' — Register';
+
+    // Build Strava OAuth URL — preserve event code in redirect
+    const redirectURI = window.location.origin + window.location.pathname + '?event=' + eventCode;
+    const authUrl = 'https://www.strava.com/oauth/authorize?client_id=' + STRAVA_CLIENT_ID
+      + '&redirect_uri=' + encodeURIComponent(redirectURI)
+      + '&response_type=code&scope=read,activity:read';
+    document.getElementById('strava-btn').href = authUrl;
+
+    // Handle OAuth callback
+    if (authCode) {
+      document.getElementById('strava-btn').style.display = 'none';
+      fetch(BACKEND_URL + '/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ code: authCode, event_code: eventCode })
+      })
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById(d.success ? 'success-msg' : 'error-msg').style.display = 'block';
+      })
+      .catch(() => {
+        document.getElementById('error-msg').style.display = 'block';
+      });
+    }
+  }
+</script>
+</body>
+</html>

@@ -4,11 +4,51 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leaderboard — Arcgate Walkathon 2026</title>
-  <link rel="stylesheet" href="_shared.css">
   <style>
-    .rank-num { font-weight:700; font-size:16px; color:#ccc; width:36px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header nav { display: flex; gap: 4px; flex-wrap: wrap; }
+    .site-header nav a { font-size: 13px; color: #555; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+    .site-header nav a:hover { background: #f0f0f0; }
+    .site-header nav a.active { background: #E8622A; color: white; }
+    .page-bar { background: #1A1A1A; color: white; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .page-bar h1 { font-size: 20px; font-weight: 600; }
+    .page-bar .back { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+    .content { flex: 1; padding: 24px 28px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab { padding: 11px 18px; cursor: pointer; font-size: 13px; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s; white-space: nowrap; }
+    .tab.active { color: #E8622A; border-bottom-color: #E8622A; font-weight: 500; }
+    .filter-bar { background: white; border-radius: 14px; padding: 18px 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 22px; }
+    .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .filter-group label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .filter-group input, .filter-group select { width: 100%; padding: 8px 11px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 13px; background: #fafafa; }
+    .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #E8622A; }
+    .filter-actions { display: flex; gap: 8px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .btn-primary { background: #E8622A; color: white; }
+    .btn-ghost   { background: #f0f0f0; color: #555; }
+    .result-info { font-size: 13px; color: #888; margin-bottom: 14px; }
+    .card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfcfb; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-walk { background: #e8f5e9; color: #2e7d32; }
+    .badge-run  { background: #e3f2fd; color: #1565c0; }
+    .badge-ride { background: #fff3e0; color: #e65100; }
+    .badge-hike { background: #f3e5f5; color: #6a1b9a; }
+    .ath { color: #E8622A; text-decoration: none; font-weight: 500; }
+    .ath:hover { text-decoration: underline; }
+    .rank-num { font-weight: 700; font-size: 16px; color: #ccc; }
     .rank-num.r1{color:#FFD700}.rank-num.r2{color:#C0C0C0}.rank-num.r3{color:#CD7F32}
-    .result-info { font-size:13px; color:#888; margin-bottom:14px; }
+    .loading-row td { text-align: center; padding: 48px; color: #bbb; }
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
   </style>
 </head>
 <body>
@@ -23,12 +63,10 @@
     <a href="#" onclick="logout();return false;">Sign out</a>
   </nav>
 </div>
-
 <div class="page-bar">
   <h1>🏆 Leaderboard</h1>
   <a href="admin.html" class="back">← Dashboard</a>
 </div>
-
 <div class="content">
   <div class="tabs">
     <div class="tab active" onclick="switchTab('distance')">🏅 Distance</div>
@@ -38,7 +76,6 @@
     <div class="tab" onclick="switchTab('calories')">🔥 Calories</div>
     <div class="tab" onclick="switchTab('steps')">👟 Steps</div>
   </div>
-
   <div class="filter-bar">
     <div class="filter-grid">
       <div class="filter-group"><label>From date</label><input type="date" id="date-from"></div>
@@ -61,10 +98,9 @@
     </div>
     <div class="filter-actions">
       <button class="btn btn-primary" onclick="loadLeaderboard()">Apply</button>
-      <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+      <button class="btn btn-ghost"   onclick="clearFilters()">Clear</button>
     </div>
   </div>
-
   <div class="result-info" id="result-info"></div>
   <div class="card">
     <div class="table-wrap">
@@ -75,15 +111,21 @@
     </div>
   </div>
 </div>
-
 <div class="site-footer">
   © 2026 Arcgate Walkathon &nbsp;·&nbsp;
   <a href="privacy.html">Privacy Policy</a>
   <a href="terms.html">Terms of Service</a>
 </div>
-
-<script src="_nav.js"></script>
 <script>
+const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
+function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
+function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
+function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualRun') return 'badge-run'; if(t==='Ride'||t==='VirtualRide') return 'badge-ride'; return 'badge-hike'; }
+function fmtDur(s) { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
+function fmtPace(ms){ if(!ms) return '—'; const p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+sec.toString().padStart(2,'0')+' /km'; }
+function fmtSpd(ms) { return ms?(ms*3.6).toFixed(1)+' km/h':'—'; }
 authGuard();
 let currentTab='distance';
 function switchTab(t){
@@ -98,45 +140,35 @@ function clearFilters(){
   ['sport-filter','team-filter'].forEach(id=>document.getElementById(id).value='');
   loadLeaderboard();
 }
-function fmtPace(ms){if(!ms)return'—';const p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60);return`${min}:${sec.toString().padStart(2,'0')} /km`;}
-function fmtSpeed(ms){return ms?(ms*3.6).toFixed(1)+' km/h':'—';}
 async function loadLeaderboard(){
   document.getElementById('table-body').innerHTML='<tr class="loading-row"><td colspan="7">⏳ Loading rankings...</td></tr>';
-  const dateFrom=document.getElementById('date-from').value;
-  const dateTo=document.getElementById('date-to').value;
-  const sport=document.getElementById('sport-filter').value;
-  const team=document.getElementById('team-filter').value;
-  let url=`${SUPABASE_URL}/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false&order=activity_date.desc`;
-  if(dateFrom) url+=`&activity_date=gte.${dateFrom}`;
-  if(dateTo)   url+=`&activity_date=lte.${dateTo}T23:59:59`;
-  if(sport)    url+=`&sport_type=eq.${sport}`;
-  const [actRes,regRes]=await Promise.all([
-    fetch(url,{headers:HDR}),
-    fetch(`${SUPABASE_URL}/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team`,{headers:HDR})
-  ]);
-  let acts=await actRes.json();
-  const regs=await regRes.json();
-  const regMap={};
-  regs.forEach(r=>regMap[r.strava_athlete_id]=r);
-  if(team) acts=acts.filter(a=>regMap[a.strava_athlete_id]?.leaderboard_team===team);
-  const athMap={};
+  const df=document.getElementById('date-from').value, dt=document.getElementById('date-to').value;
+  const sp=document.getElementById('sport-filter').value, tm=document.getElementById('team-filter').value;
+  let url=SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false&order=activity_date.desc';
+  if(df) url+='&activity_date=gte.'+df;
+  if(dt) url+='&activity_date=lte.'+dt+'T23:59:59';
+  if(sp) url+='&sport_type=eq.'+sp;
+  const [aR,rR]=await Promise.all([fetch(url,{headers:HDR}),fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team',{headers:HDR})]);
+  let acts=await aR.json(); const regs=await rR.json();
+  const rm={}; regs.forEach(r=>rm[r.strava_athlete_id]=r);
+  if(tm) acts=acts.filter(a=>rm[a.strava_athlete_id]?.leaderboard_team===tm);
+  const am={};
   acts.forEach(a=>{
     const id=a.strava_athlete_id;
-    if(!athMap[id]) athMap[id]={id,name:regMap[id]?.full_name||'Unknown',team:regMap[id]?.leaderboard_team||'—',activities:0,dist:0,elev:0,cals:0,steps:0,moving:0,speedSum:0,speedCnt:0,types:new Set()};
-    const e=athMap[id];
-    e.activities++; e.dist+=a.distance_meters||0; e.elev+=a.elevation_gain||0;
-    e.cals+=a.calories||0; e.steps+=a.steps||0; e.moving+=a.moving_time_seconds||0;
-    if(a.avg_speed){e.speedSum+=a.avg_speed;e.speedCnt++;}
+    if(!am[id]) am[id]={id,name:rm[id]?.full_name||'Unknown',team:rm[id]?.leaderboard_team||'—',cnt:0,dist:0,elev:0,cals:0,steps:0,mov:0,ss:0,sc:0,types:new Set()};
+    const e=am[id]; e.cnt++; e.dist+=a.distance_meters||0; e.elev+=a.elevation_gain||0;
+    e.cals+=a.calories||0; e.steps+=a.steps||0; e.mov+=a.moving_time_seconds||0;
+    if(a.avg_speed){e.ss+=a.avg_speed;e.sc++;}
     if(a.sport_type) e.types.add(a.sport_type);
   });
-  let aths=Object.values(athMap);
+  let aths=Object.values(am);
   if(currentTab==='distance')   aths.sort((a,b)=>b.dist-a.dist);
-  if(currentTab==='activities') aths.sort((a,b)=>b.activities-a.activities);
+  if(currentTab==='activities') aths.sort((a,b)=>b.cnt-a.cnt);
   if(currentTab==='elevation')  aths.sort((a,b)=>b.elev-a.elev);
-  if(currentTab==='pace')       aths.sort((a,b)=>(b.speedSum/b.speedCnt||0)-(a.speedSum/a.speedCnt||0));
+  if(currentTab==='pace')       aths.sort((a,b)=>(b.sc?b.ss/b.sc:0)-(a.sc?a.ss/a.sc:0));
   if(currentTab==='calories')   aths.sort((a,b)=>b.cals-a.cals);
   if(currentTab==='steps')      aths.sort((a,b)=>b.steps-a.steps);
-  document.getElementById('result-info').textContent=`${aths.length} participants · ${acts.length} activities`;
+  document.getElementById('result-info').textContent=aths.length+' participants · '+acts.length+' activities';
   const heads={
     distance:  ['Rank','Athlete','Team','Activities','Total distance','Total time','Elevation'],
     activities:['Rank','Athlete','Team','Activities','Total distance','Calories','Types'],
@@ -145,21 +177,21 @@ async function loadLeaderboard(){
     calories:  ['Rank','Athlete','Team','Activities','Total calories','Total distance','Types'],
     steps:     ['Rank','Athlete','Team','Activities','Total steps','Total distance','Types']
   };
-  document.getElementById('table-head').innerHTML='<tr>'+heads[currentTab].map(h=>`<th>${h}</th>`).join('')+'</tr>';
+  document.getElementById('table-head').innerHTML='<tr>'+heads[currentTab].map(h=>'<th>'+h+'</th>').join('')+'</tr>';
   if(!aths.length){document.getElementById('table-body').innerHTML='<tr class="loading-row"><td colspan="7">No data found</td></tr>';return;}
   document.getElementById('table-body').innerHTML=aths.map((a,i)=>{
-    const avgSpd=a.speedCnt?a.speedSum/a.speedCnt:0;
-    const typeStr=[...a.types].map(t=>`<span class="badge ${badgeClass(t)}">${t}</span>`).join(' ');
-    const rankCls=i===0?'r1':i===1?'r2':i===2?'r3':'';
-    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    const avs=a.sc?a.ss/a.sc:0;
+    const ts=[...a.types].map(t=>'<span class="badge '+bc(t)+'">'+t+'</span>').join(' ');
+    const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
     let cols='';
-    if(currentTab==='distance')   cols=`<td>${a.activities}</td><td><strong>${(a.dist/1000).toFixed(2)} km</strong></td><td>${fmtDuration(a.moving)}</td><td>${a.elev.toFixed(0)} m</td>`;
-    if(currentTab==='activities') cols=`<td><strong>${a.activities}</strong></td><td>${(a.dist/1000).toFixed(2)} km</td><td>${a.cals.toFixed(0)} kcal</td><td>${typeStr}</td>`;
-    if(currentTab==='elevation')  cols=`<td>${a.activities}</td><td><strong>${a.elev.toFixed(0)} m</strong></td><td>${(a.dist/1000).toFixed(2)} km</td><td>${typeStr}</td>`;
-    if(currentTab==='pace')       cols=`<td>${a.activities}</td><td><strong>${fmtPace(avgSpd)}</strong> <span style="color:#aaa;font-size:12px">${fmtSpeed(avgSpd)}</span></td><td>${(a.dist/1000).toFixed(2)} km</td><td>${typeStr}</td>`;
-    if(currentTab==='calories')   cols=`<td>${a.activities}</td><td><strong>${a.cals.toFixed(0)} kcal</strong></td><td>${(a.dist/1000).toFixed(2)} km</td><td>${typeStr}</td>`;
-    if(currentTab==='steps')      cols=`<td>${a.activities}</td><td><strong>${a.steps.toLocaleString()} steps</strong></td><td>${(a.dist/1000).toFixed(2)} km</td><td>${typeStr}</td>`;
-    return`<tr><td><span class="rank-num ${rankCls}">${medal}</span></td><td><a href="https://www.strava.com/athletes/${a.id}" target="_blank" class="ath">${a.name}</a></td><td style="font-size:12px;color:#888">${a.team}</td>${cols}</tr>`;
+    if(currentTab==='distance')   cols='<td>'+a.cnt+'</td><td><strong>'+(a.dist/1000).toFixed(2)+' km</strong></td><td>'+fmtDur(a.mov)+'</td><td>'+a.elev.toFixed(0)+' m</td>';
+    if(currentTab==='activities') cols='<td><strong>'+a.cnt+'</strong></td><td>'+(a.dist/1000).toFixed(2)+' km</td><td>'+a.cals.toFixed(0)+' kcal</td><td>'+ts+'</td>';
+    if(currentTab==='elevation')  cols='<td>'+a.cnt+'</td><td><strong>'+a.elev.toFixed(0)+' m</strong></td><td>'+(a.dist/1000).toFixed(2)+' km</td><td>'+ts+'</td>';
+    if(currentTab==='pace')       cols='<td>'+a.cnt+'</td><td><strong>'+fmtPace(avs)+'</strong> <span style="color:#aaa;font-size:12px">'+fmtSpd(avs)+'</span></td><td>'+(a.dist/1000).toFixed(2)+' km</td><td>'+ts+'</td>';
+    if(currentTab==='calories')   cols='<td>'+a.cnt+'</td><td><strong>'+a.cals.toFixed(0)+' kcal</strong></td><td>'+(a.dist/1000).toFixed(2)+' km</td><td>'+ts+'</td>';
+    if(currentTab==='steps')      cols='<td>'+a.cnt+'</td><td><strong>'+a.steps.toLocaleString()+' steps</strong></td><td>'+(a.dist/1000).toFixed(2)+' km</td><td>'+ts+'</td>';
+    return '<tr><td><span class="rank-num '+rc+'">'+md+'</span></td><td><a href="https://www.strava.com/athletes/'+a.id+'" target="_blank" class="ath">'+a.name+'</a></td><td style="font-size:12px;color:#888">'+a.team+'</td>'+cols+'</tr>';
   }).join('');
 }
 loadLeaderboard();
