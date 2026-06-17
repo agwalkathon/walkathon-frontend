@@ -23,7 +23,7 @@
     .filter-group label { display: block; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .filter-group input, .filter-group select { width: 100%; padding: 8px 11px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 13px; background: #fafafa; }
     .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #E8622A; background: white; }
-    .filter-actions { display: flex; gap: 8px; }
+    .filter-actions { display: flex; gap: 8px; align-items: center; }
     .btn { padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; }
     .btn-primary { background: #E8622A; color: white; }
     .btn-ghost   { background: #f0f0f0; color: #555; }
@@ -51,6 +51,8 @@
     .empty { text-align: center; padding: 56px 24px; color: #bbb; }
     .empty .icon { font-size: 40px; margin-bottom: 12px; }
     .loading-row td { text-align: center; padding: 48px; color: #bbb; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 28px; height: 28px; border: 3px solid #f0f0f0; border-top-color: #E8622A; border-radius: 50%; animation: spin 0.8s linear infinite; }
     .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
     .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
   </style>
@@ -98,8 +100,13 @@
     <div class="filter-actions">
       <button class="btn btn-primary" onclick="loadActivities()">Search</button>
       <button class="btn btn-ghost"   onclick="clearFilters()">Clear</button>
+      <span id="searching-indicator" style="display:none;display:flex;align-items:center;gap:8px;font-size:13px;color:#888">
+        <div class="spinner" style="width:18px;height:18px;border-width:2px"></div>
+        Searching...
+      </span>
     </div>
   </div>
+
   <div class="stats-grid" id="stats-row" style="display:none">
     <div class="stat-card"><div class="val" id="total-activities">—</div><div class="lbl">Activities found</div></div>
     <div class="stat-card"><div class="val" id="total-distance">—</div><div class="lbl">Total km</div></div>
@@ -107,6 +114,7 @@
     <div class="stat-card green"><div class="val" id="total-steps">—</div><div class="lbl">Total steps</div></div>
     <div class="stat-card"><div class="val" id="avg-distance">—</div><div class="lbl">Avg km / activity</div></div>
   </div>
+
   <div class="card">
     <div id="placeholder" class="empty">
       <div class="icon">🔍</div>
@@ -136,67 +144,100 @@
 const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
-function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
+function authGuard() { var s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
 function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
 function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
 function fmtTime(d) { return new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
-function fmtDur(s)  { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
-function fmtPS(ms,t){ if(!ms) return '—'; if(t==='Ride'||t==='VirtualRide') return (ms*3.6).toFixed(1)+' km/h'; const p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+sec.toString().padStart(2,'0')+' /km'; }
+function fmtDur(s)  { var h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
+function fmtPS(ms,t){ if(!ms) return '—'; if(t==='Ride'||t==='VirtualRide') return (ms*3.6).toFixed(1)+' km/h'; var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+sec.toString().padStart(2,'0')+' /km'; }
 function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualRun') return 'badge-run'; if(t==='Ride'||t==='VirtualRide') return 'badge-ride'; return 'badge-hike'; }
 authGuard();
+
+function showSpinner(show) {
+  var ind = document.getElementById('searching-indicator');
+  ind.style.display = show ? 'flex' : 'none';
+}
+
 function clearFilters() {
-  ['date-from','date-to','athlete-name'].forEach(id=>document.getElementById(id).value='');
-  ['sport-filter','team-filter'].forEach(id=>document.getElementById(id).value='');
+  ['date-from','date-to','athlete-name'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['sport-filter','team-filter'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('results').style.display='none';
   document.getElementById('placeholder').style.display='block';
   document.getElementById('stats-row').style.display='none';
 }
+
 async function loadActivities() {
   document.getElementById('placeholder').style.display='none';
   document.getElementById('results').style.display='block';
   document.getElementById('stats-row').style.display='none';
-  document.getElementById('activities-body').innerHTML='<tr class="loading-row"><td colspan="14">⏳ Searching...</td></tr>';
-  const df=document.getElementById('date-from').value, dt=document.getElementById('date-to').value;
-  const sp=document.getElementById('sport-filter').value, nm=document.getElementById('athlete-name').value.trim().toLowerCase();
-  const tm=document.getElementById('team-filter').value;
-  let url=SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false&order=activity_date.desc';
+  showSpinner(true);
+  document.getElementById('activities-body').innerHTML=
+    '<tr><td colspan="14"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px">'
+    +'<div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin 0.8s linear infinite"></div>'
+    +'<span style="color:#888;font-size:14px">Searching activities...</span>'
+    +'</div></td></tr>';
+
+  var df=document.getElementById('date-from').value, dt=document.getElementById('date-to').value;
+  var sp=document.getElementById('sport-filter').value, nm=document.getElementById('athlete-name').value.trim().toLowerCase();
+  var tm=document.getElementById('team-filter').value;
+
+  var url=SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false&order=activity_date.desc';
   if(df) url+='&activity_date=gte.'+df;
   if(dt) url+='&activity_date=lte.'+dt+'T23:59:59';
   if(sp) url+='&sport_type=eq.'+sp;
-  const [aR,rR]=await Promise.all([fetch(url,{headers:HDR}),fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team',{headers:HDR})]);
-  let acts=await aR.json(); const regs=await rR.json();
-  const rm={}; regs.forEach(r=>rm[r.strava_athlete_id]=r);
-  if(nm) acts=acts.filter(a=>(rm[a.strava_athlete_id]?.full_name||'').toLowerCase().includes(nm));
-  if(tm) acts=acts.filter(a=>rm[a.strava_athlete_id]?.leaderboard_team===tm);
-  const km=acts.reduce((s,a)=>s+(a.distance_meters||0),0)/1000;
-  const steps=acts.reduce((s,a)=>s+(a.steps||0),0);
-  const uniq=new Set(acts.map(a=>a.strava_athlete_id)).size;
-  document.getElementById('total-activities').textContent=acts.length;
-  document.getElementById('total-distance').textContent=km.toFixed(1);
-  document.getElementById('total-participants').textContent=uniq;
-  document.getElementById('total-steps').textContent=steps.toLocaleString();
-  document.getElementById('avg-distance').textContent=acts.length?(km/acts.length).toFixed(1):'0';
-  document.getElementById('stats-row').style.display='flex';
-  document.getElementById('result-count').textContent=acts.length+' activit'+(acts.length===1?'y':'ies')+' found';
-  if(!acts.length){document.getElementById('activities-body').innerHTML='<tr class="loading-row"><td colspan="14">No activities match your filters</td></tr>';return;}
-  document.getElementById('activities-body').innerHTML=acts.map((a,i)=>{
-    const r=rm[a.strava_athlete_id];
-    return '<tr><td>'+(i+1)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+(r?.full_name||'Unknown')+'</a></td>'
-      +'<td style="font-size:12px;color:#888">'+(r?.leaderboard_team||'—')+'</td>'
-      +'<td>'+(a.activity_name||'—')+'</td>'
-      +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
-      +'<td>'+fmtDate(a.activity_date)+'</td>'
-      +'<td>'+fmtTime(a.activity_date)+'</td>'
-      +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
-      +'<td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td>'
-      +'<td>'+fmtPS(a.avg_speed,a.sport_type)+'</td>'
-      +'<td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td>'
-      +'<td>'+(a.steps?a.steps.toLocaleString():'—')+'</td>'
-      +'<td>'+(a.calories?a.calories.toFixed(0):'—')+'</td>'
-      +'<td>'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'</td></tr>';
-  }).join('');
+
+  try {
+    var results = await Promise.all([
+      fetch(url,{headers:HDR}),
+      fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team',{headers:HDR})
+    ]);
+    var acts=await results[0].json(), regs=await results[1].json();
+    var rm={}; regs.forEach(function(r){ rm[r.strava_athlete_id]=r; });
+    if(nm) acts=acts.filter(function(a){ return (rm[a.strava_athlete_id]?.full_name||'').toLowerCase().includes(nm); });
+    if(tm) acts=acts.filter(function(a){ return rm[a.strava_athlete_id]?.leaderboard_team===tm; });
+
+    var km=acts.reduce(function(s,a){ return s+(a.distance_meters||0); },0)/1000;
+    var steps=acts.reduce(function(s,a){ return s+(a.steps||0); },0);
+    var uniq=new Set(acts.map(function(a){ return a.strava_athlete_id; })).size;
+
+    document.getElementById('total-activities').textContent=acts.length;
+    document.getElementById('total-distance').textContent=km.toFixed(1);
+    document.getElementById('total-participants').textContent=uniq;
+    document.getElementById('total-steps').textContent=steps.toLocaleString();
+    document.getElementById('avg-distance').textContent=acts.length?(km/acts.length).toFixed(1):'0';
+    document.getElementById('stats-row').style.display='flex';
+    document.getElementById('result-count').textContent=acts.length+' activit'+(acts.length===1?'y':'ies')+' found';
+
+    if(!acts.length){
+      document.getElementById('activities-body').innerHTML='<tr><td colspan="14" style="text-align:center;padding:48px;color:#bbb">No activities match your filters</td></tr>';
+    } else {
+      document.getElementById('activities-body').innerHTML=acts.map(function(a,i){
+        var r=rm[a.strava_athlete_id];
+        return '<tr>'
+          +'<td>'+(i+1)+'</td>'
+          +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+(r?.full_name||'Unknown')+'</a></td>'
+          +'<td style="font-size:12px;color:#888">'+(r?.leaderboard_team||'—')+'</td>'
+          +'<td>'+(a.activity_name||'—')+'</td>'
+          +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
+          +'<td>'+fmtDate(a.activity_date)+'</td>'
+          +'<td>'+fmtTime(a.activity_date)+'</td>'
+          +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
+          +'<td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td>'
+          +'<td>'+fmtPS(a.avg_speed,a.sport_type)+'</td>'
+          +'<td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td>'
+          +'<td>'+(a.steps?a.steps.toLocaleString():'—')+'</td>'
+          +'<td>'+(a.calories?a.calories.toFixed(0):'—')+'</td>'
+          +'<td>'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  } catch(e) {
+    document.getElementById('activities-body').innerHTML='<tr><td colspan="14" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>';
+  }
+  showSpinner(false);
 }
-document.getElementById('athlete-name').addEventListener('keydown',e=>{if(e.key==='Enter')loadActivities();});
+
+document.getElementById('athlete-name').addEventListener('keydown',function(e){ if(e.key==='Enter') loadActivities(); });
 </script>
 </body>
 </html>
