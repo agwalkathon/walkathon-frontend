@@ -291,10 +291,24 @@ async function confirmStatus() {
     payload = { activity_id: currentId, action: 'flag', flag_reason: reason };
   }
   try {
-    var resp = await fetch(BACKEND_URL+'/flag', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-    var result = {};
-    try { result = await resp.json(); } catch(e) { result = {success: resp.ok}; }
-    if (!resp.ok && !result.success) throw new Error(result.error || 'Server error '+resp.status);
+    // Patch Supabase directly — more reliable than going through backend
+    var patchData = {};
+    if (payload.action === 'flag')            patchData = { is_flagged: true,  flag_reason: payload.flag_reason };
+    if (payload.action === 'unflag')          patchData = { is_flagged: false, flag_reason: null };
+    if (payload.action === 'update_distance') patchData = { distance_meters: payload.distance_meters, is_flagged: true, flag_reason: payload.flag_reason };
+
+    var resp = await fetch(SUPABASE_URL+'/rest/v1/activities?id=eq.'+currentId, {
+      method: 'PATCH',
+      headers: {
+        apikey: SUPABASE_ANON,
+        Authorization: 'Bearer '+SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(patchData)
+    });
+    var result = { success: resp.ok };
+    if (!resp.ok) throw new Error('Supabase error '+resp.status+' — check RLS policies allow UPDATE on activities');
     // Update status cell in-place
     var statusCell = document.getElementById('status-cell-'+currentId);
     if (statusCell) {
