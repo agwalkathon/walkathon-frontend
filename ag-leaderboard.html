@@ -226,12 +226,26 @@ async function loadRegistration() {
 }
 
 async function loadActivities() {
-  var url = SB_URL+'/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false'
+  // Fetch ALL activities using pagination (Supabase default limit is 1000)
+  var baseUrl = SB_URL+'/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false'
     +'&activity_date=gte.2026-06-01T00:00:00'
     +'&activity_date=lte.2026-06-30T23:59:59'
-    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id';
-  var r = await fetch(url, {headers:HDR});
-  return await r.json();
+    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id'
+    +'&order=activity_date.asc';
+  var allActs = [];
+  var pageSize = 1000;
+  var offset = 0;
+  while (true) {
+    var url = baseUrl + '&limit=' + pageSize + '&offset=' + offset;
+    var r = await fetch(url, {headers: {...HDR, 'Range-Unit': 'items', 'Range': offset+'-'+(offset+pageSize-1)}});
+    var page = await r.json();
+    if (!Array.isArray(page) || page.length === 0) break;
+    allActs = allActs.concat(page);
+    if (page.length < pageSize) break; // Last page
+    offset += pageSize;
+  }
+  console.log('Total activities loaded:', allActs.length);
+  return allActs;
 }
 
 // Calculate bonus points for daily total km (highest bracket only)
