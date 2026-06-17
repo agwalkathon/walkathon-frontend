@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard Config — Arcgate Walkathon 2026</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .site-header nav { display: flex; gap: 4px; flex-wrap: wrap; }
+    .site-header nav a { font-size: 13px; color: #555; text-decoration: none; padding: 6px 12px; border-radius: 6px; }
+    .site-header nav a:hover { background: #f0f0f0; }
+    .site-header nav a.active { background: #E8622A; color: white; }
+    .page-bar { background: #1A1A1A; color: white; padding: 18px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .page-bar h1 { font-size: 20px; font-weight: 600; }
+    .page-bar .back { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; }
+    .content { flex: 1; padding: 24px 28px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .section { background: white; border-radius: 14px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #1A1A1A; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .section-sub { font-size: 13px; color: #888; margin-bottom: 22px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 18px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .field input, .field select { padding: 9px 12px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px; background: #fafafa; }
+    .field input:focus, .field select:focus { outline: none; border-color: #E8622A; background: white; }
+    .save-btn { padding: 10px 24px; background: #E8622A; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .save-btn:hover { background: #d4561f; }
+    .saved-msg { display: none; color: #2e7d32; font-size: 13px; margin-left: 12px; }
+
+    /* Bonus table */
+    .bonus-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    .bonus-table th { background: #fafafa; padding: 9px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; }
+    .bonus-table td { padding: 9px 14px; border-bottom: 1px solid #f8f8f8; }
+    .bonus-table input { width: 80px; padding: 6px 10px; border: 1px solid #e8e8e8; border-radius: 6px; font-size: 13px; text-align: center; }
+    .bonus-table input:focus { outline: none; border-color: #E8622A; }
+
+    /* Challenges */
+    .challenge-card { border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 16px; position: relative; }
+    .challenge-card .ch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .challenge-card .ch-name { font-size: 15px; font-weight: 600; color: #1A1A1A; }
+    .challenge-card .ch-actions { display: flex; gap: 8px; }
+    .btn-del { padding: 6px 12px; background: #ffebee; color: #c62828; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-save-ch { padding: 6px 14px; background: #E8622A; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .btn-add { padding: 10px 20px; background: #1A1A1A; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .dot-active { background: #2e7d32; }
+    .dot-inactive { background: #bbb; }
+    .toggle-active { padding: 5px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .toggle-on  { background: #e8f5e9; color: #2e7d32; }
+    .toggle-off { background: #f5f5f5; color: #999; }
+
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+  </style>
+</head>
+<body>
+<div class="site-header">
+  <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
+  <nav>
+    <a href="admin.html">Dashboard</a>
+    <a href="activities.html">Activities</a>
+    <a href="ag-leaderboard.html">AG Leaderboards</a>
+    <a href="ag-config.html" class="active">Config</a>
+    <a href="#" onclick="logout();return false;">Sign out</a>
+  </nav>
+</div>
+<div class="page-bar">
+  <h1>⚙️ Leaderboard Configuration</h1>
+  <a href="ag-leaderboard.html" class="back">← Leaderboards</a>
+</div>
+<div class="content">
+
+  <!-- Medal Milestones -->
+  <div class="section">
+    <div class="section-title">🏅 Medal Milestones</div>
+    <div class="section-sub">Points required to earn each medal, by gender</div>
+    <div class="form-grid">
+      <div class="field"><label>🥇 Gold — Male</label><input type="number" id="gold-male" value="300"></div>
+      <div class="field"><label>🥇 Gold — Female</label><input type="number" id="gold-female" value="250"></div>
+      <div class="field"><label>🥈 Silver — Male</label><input type="number" id="silver-male" value="200"></div>
+      <div class="field"><label>🥈 Silver — Female</label><input type="number" id="silver-female" value="150"></div>
+      <div class="field"><label>🥉 Bronze — Male</label><input type="number" id="bronze-male" value="125"></div>
+      <div class="field"><label>🥉 Bronze — Female</label><input type="number" id="bronze-female" value="100"></div>
+    </div>
+    <button class="save-btn" onclick="saveMedals()">Save medals</button>
+    <span class="saved-msg" id="medals-saved">✅ Saved!</span>
+  </div>
+
+  <!-- Base + Bonus Points -->
+  <div class="section">
+    <div class="section-title">📊 Points Configuration</div>
+    <div class="section-sub">Base points per km, and bonus points for daily distance milestones (highest bracket only)</div>
+    <div class="form-grid" style="max-width:300px;margin-bottom:20px">
+      <div class="field"><label>Base points per km</label><input type="number" id="base-per-km" value="1" step="0.1"></div>
+    </div>
+    <table class="bonus-table">
+      <thead><tr><th>Daily distance milestone</th><th>Bonus points</th></tr></thead>
+      <tbody id="bonus-rows"></tbody>
+    </table>
+    <button class="save-btn" onclick="saveBonus()">Save points config</button>
+    <span class="saved-msg" id="bonus-saved">✅ Saved!</span>
+  </div>
+
+  <!-- Challenges -->
+  <div class="section">
+    <div class="section-title">🎯 Challenges</div>
+    <div class="section-sub">Configure challenge bonuses. Participants earn bonus points by completing a qualifying activity.</div>
+    <div id="challenges-list">Loading...</div>
+    <button class="btn-add" onclick="addChallenge()">+ Add challenge</button>
+    <span class="saved-msg" id="ch-saved">✅ Saved!</span>
+  </div>
+
+</div>
+
+<div class="site-footer">
+  © 2026 Arcgate Walkathon &nbsp;·&nbsp;
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="terms.html">Terms of Service</a>
+</div>
+
+<script>
+var SB_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+var HDR = { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON, 'Content-Type': 'application/json' };
+function authGuard() { var s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
+function logout() { sessionStorage.removeItem('wk_admin'); window.location.href='admin-login.html'; }
+authGuard();
+
+var BONUS_DEFAULT = [{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}];
+var bonusData = BONUS_DEFAULT.slice();
+
+function showSaved(id) { var el=document.getElementById(id); el.style.display='inline'; setTimeout(function(){ el.style.display='none'; },2500); }
+
+function renderBonusRows() {
+  document.getElementById('bonus-rows').innerHTML = bonusData.map(function(b,i) {
+    return '<tr><td>'+b.km+' km</td><td><input type="number" value="'+b.pts+'" id="bp-'+i+'" min="0"></td></tr>';
+  }).join('');
+}
+
+async function loadConfig() {
+  var r = await fetch(SB_URL+'/rest/v1/leaderboard_config?select=config_key,config_value', {headers:HDR});
+  var rows = await r.json();
+  rows.forEach(function(row) {
+    if (row.config_key==='medals') {
+      var m = row.config_value;
+      document.getElementById('gold-male').value    = m.gold.male;
+      document.getElementById('gold-female').value  = m.gold.female;
+      document.getElementById('silver-male').value  = m.silver.male;
+      document.getElementById('silver-female').value= m.silver.female;
+      document.getElementById('bronze-male').value  = m.bronze.male;
+      document.getElementById('bronze-female').value= m.bronze.female;
+    }
+    if (row.config_key==='bonus_points') {
+      bonusData = row.config_value.map(function(b){ return {km:b.km,pts:b.points||b.pts}; });
+      renderBonusRows();
+    }
+    if (row.config_key==='base_points') {
+      document.getElementById('base-per-km').value = row.config_value.per_km || 1;
+    }
+  });
+  if (!rows.find(function(r){ return r.config_key==='bonus_points'; })) renderBonusRows();
+}
+
+async function saveMedals() {
+  var val = { gold:{male:+document.getElementById('gold-male').value, female:+document.getElementById('gold-female').value}, silver:{male:+document.getElementById('silver-male').value, female:+document.getElementById('silver-female').value}, bronze:{male:+document.getElementById('bronze-male').value, female:+document.getElementById('bronze-female').value} };
+  await fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.medals', {method:'PATCH', headers:HDR, body:JSON.stringify({config_value:val, updated_at:new Date().toISOString()})});
+  showSaved('medals-saved');
+}
+
+async function saveBonus() {
+  var bonusArr = bonusData.map(function(b,i){ return {km:b.km, points:+(document.getElementById('bp-'+i).value)||0}; });
+  var base = parseFloat(document.getElementById('base-per-km').value)||1;
+  await Promise.all([
+    fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.bonus_points', {method:'PATCH', headers:HDR, body:JSON.stringify({config_value:bonusArr, updated_at:new Date().toISOString()})}),
+    fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.base_points',  {method:'PATCH', headers:HDR, body:JSON.stringify({config_value:{per_km:base}, updated_at:new Date().toISOString()})})
+  ]);
+  showSaved('bonus-saved');
+}
+
+async function loadChallenges() {
+  var r = await fetch(SB_URL+'/rest/v1/challenges?order=start_date.asc&select=*', {headers:HDR});
+  var chs = await r.json();
+  renderChallenges(chs);
+}
+
+function renderChallenges(chs) {
+  document.getElementById('challenges-list').innerHTML = chs.length
+    ? chs.map(function(c){ return challengeHtml(c); }).join('')
+    : '<p style="color:#bbb;font-size:14px;margin-bottom:16px">No challenges yet. Click Add challenge below.</p>';
+}
+
+function challengeHtml(c) {
+  var types = (c.sport_types||[]).join(', ');
+  return '<div class="challenge-card" id="ch-'+c.id+'">'
+    +'<div class="ch-header">'
+    +'<div class="ch-name"><span class="status-dot '+(c.is_active?'dot-active':'dot-inactive')+'"></span>'+c.name+'</div>'
+    +'<div class="ch-actions">'
+    +'<button class="toggle-active '+(c.is_active?'toggle-on':'toggle-off')+'" onclick="toggleChallenge('+c.id+','+c.is_active+')">'+(c.is_active?'✅ Active':'⏸ Inactive')+'</button>'
+    +'<button class="btn-save-ch" onclick="saveChallenge('+c.id+')">Save</button>'
+    +'<button class="btn-del" onclick="deleteChallenge('+c.id+')">Delete</button>'
+    +'</div></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px">'
+    +field('Challenge name','ch-name-'+c.id,'text',c.name)
+    +field('Start date','ch-start-'+c.id,'date',c.start_date)
+    +field('End date','ch-end-'+c.id,'date',c.end_date)
+    +field('Bonus points','ch-pts-'+c.id,'number',c.bonus_points)
+    +field('Eligible','ch-elig-'+c.id,'select-elig',c.eligible)
+    +field('Activity scope','ch-scope-'+c.id,'select-scope',c.activity_scope)
+    +field('Distance type','ch-dtype-'+c.id,'select-dtype',c.distance_type)
+    +field('Min distance (km)','ch-dmin-'+c.id,'number',c.distance_min)
+    +field('Max distance (km)','ch-dmax-'+c.id,'number',c.distance_max)
+    +field('Start time (HH:MM)','ch-time-'+c.id,'text',c.start_time_criteria||'')
+    +field('Elevation (m)','ch-elev-'+c.id,'number',c.elevation_criteria||0)
+    +'</div></div>';
+}
+
+function field(label, id, type, val) {
+  var input = '';
+  if (type==='select-elig') {
+    input='<select id="'+id+'">'
+      +['all','dayshift','nightshift','male','female'].map(function(v){ return '<option value="'+v+'"'+(v==val?' selected':'')+'>'+v.charAt(0).toUpperCase()+v.slice(1)+'</option>'; }).join('')
+      +'</select>';
+  } else if (type==='select-scope') {
+    input='<select id="'+id+'"><option value="single"'+(val==='single'?' selected':'')+'>Single activity</option><option value="daily"'+(val==='daily'?' selected':'')+'>Entire day total</option></select>';
+  } else if (type==='select-dtype') {
+    input='<select id="'+id+'"><option value="fixed"'+(val==='fixed'?' selected':'')+'>Fixed</option><option value="range"'+(val==='range'?' selected':'')+'>Range</option><option value="extended"'+(val==='extended'?' selected':'')+'>Extended (min+)</option></select>';
+  } else {
+    input='<input type="'+type+'" id="'+id+'" value="'+(val||'')+'">';
+  }
+  return '<div class="field"><label>'+label+'</label>'+input+'</div>';
+}
+
+function getVal(id) { var el=document.getElementById(id); return el?el.value:null; }
+
+async function saveChallenge(id) {
+  var data = {
+    name: getVal('ch-name-'+id), start_date: getVal('ch-start-'+id),
+    end_date: getVal('ch-end-'+id), bonus_points: +getVal('ch-pts-'+id)||0,
+    eligible: getVal('ch-elig-'+id), activity_scope: getVal('ch-scope-'+id),
+    distance_type: getVal('ch-dtype-'+id), distance_min: +getVal('ch-dmin-'+id)||0,
+    distance_max: +getVal('ch-dmax-'+id)||0, start_time_criteria: getVal('ch-time-'+id)||null,
+    elevation_criteria: +getVal('ch-elev-'+id)||0
+  };
+  await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id, {method:'PATCH', headers:HDR, body:JSON.stringify(data)});
+  showSaved('ch-saved');
+  loadChallenges();
+}
+
+async function toggleChallenge(id, current) {
+  await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id, {method:'PATCH', headers:HDR, body:JSON.stringify({is_active:!current})});
+  loadChallenges();
+}
+
+async function deleteChallenge(id) {
+  if (!confirm('Delete this challenge?')) return;
+  await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id, {method:'DELETE', headers:HDR});
+  loadChallenges();
+}
+
+async function addChallenge() {
+  var r = await fetch(SB_URL+'/rest/v1/challenges', {method:'POST', headers:{...HDR,Prefer:'return=representation'},
+    body:JSON.stringify({name:'New Challenge',start_date:'2026-06-01',end_date:'2026-06-30',bonus_points:1,eligible:'all',activity_scope:'single',distance_type:'fixed',distance_min:5,distance_max:5,elevation_criteria:0,is_active:false})});
+  loadChallenges();
+}
+
+loadConfig();
+loadChallenges();
+</script>
+</body>
+</html>
