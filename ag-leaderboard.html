@@ -297,9 +297,9 @@ function calcPoints(acts, athleteId, gender) {
 
   Object.keys(byDay).forEach(function(day) {
     var dayActs = byDay[day];
-    var dayKm = dayActs.reduce(function(s,a){ return s+(a.distance_meters||0)/1000; }, 0);
-    totalDistKm += dayKm;
-    var distPts = Math.round(dayKm * CONFIG.basePer_km * 100) / 100;
+    var dayKm = dayActs.reduce(function(s,a){ return s+(Number(a.distance_meters)||0)/1000; }, 0);
+    totalDistKm = Number(totalDistKm) + Number(dayKm);
+    var distPts = Math.round(Number(dayKm) * Number(CONFIG.basePer_km) * 100) / 100;
     totalDistPts += distPts;
     totalBonus += calcBonus(dayKm);
   });
@@ -388,7 +388,7 @@ function updateStats(rows, board) {
     if (m.cls==='medal-gold')   golds++;
     if (m.cls==='medal-silver') silvers++;
     if (m.cls==='medal-bronze') bronzes++;
-    km  += row.pts.distKm;
+    km  += Number(row.pts.distKm) || 0;
     pts += row.pts.totalPts;
   });
   document.getElementById('stat-total').textContent  = rows.length;
