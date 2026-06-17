@@ -90,8 +90,8 @@
   <nav>
     <a href="admin.html">Dashboard</a>
     <a href="activities.html" class="active">Activities</a>
-    <a href="leaderboard.html">Leaderboard</a>
-    <a href="flagged.html">Flagged</a>
+    <a href="ag-leaderboard.html">AG Leaderboards</a>
+    <a href="ag-config.html">Config</a>
     <a href="participants.html">Participants</a>
     <a href="#" onclick="logout();return false;">Sign out</a>
   </nav>
@@ -289,8 +289,9 @@ async function confirmStatus() {
   }
   try {
     var resp = await fetch(BACKEND_URL+'/flag', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-    var result = await resp.json();
-    if (!result.success) throw new Error(result.error || 'Failed');
+    var result = {};
+    try { result = await resp.json(); } catch(e) { result = {success: resp.ok}; }
+    if (!resp.ok && !result.success) throw new Error(result.error || 'Server error '+resp.status);
     // Update status cell in-place
     var statusCell = document.getElementById('status-cell-'+currentId);
     if (statusCell) {
