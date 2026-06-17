@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Walkathon — Arcgate Walkathon 2026</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
+    .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .site-header img { height: 40px; object-fit: contain; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .athlete-avatar { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #E8622A; display: none; }
+    .athlete-name { font-size: 14px; font-weight: 600; color: #1A1A1A; display: none; }
+    .btn-logout { padding: 7px 14px; background: #f0f0f0; color: #555; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; display: none; }
+    .btn-logout:hover { background: #e0e0e0; }
+
+    /* Login screen */
+    .login-screen { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .login-card { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.1); max-width: 480px; width: 100%; }
+    .login-card .icon { font-size: 48px; margin-bottom: 16px; }
+    .login-card h1 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+    .login-card p { font-size: 15px; color: #888; line-height: 1.7; margin-bottom: 32px; }
+    .btn-strava { display: inline-flex; align-items: center; gap: 12px; background: #E8622A; color: white; text-decoration: none; padding: 15px 32px; border-radius: 10px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 16px rgba(232,98,42,0.3); transition: all 0.2s; }
+    .btn-strava:hover { background: #d4561f; transform: translateY(-1px); }
+    .btn-strava svg { width: 20px; height: 20px; fill: white; }
+    .login-note { font-size: 12px; color: #ccc; margin-top: 20px; line-height: 1.8; }
+    .login-note a { color: #E8622A; text-decoration: none; }
+
+    /* Loading */
+    .loading-screen { flex: 1; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 40px; height: 40px; border: 4px solid #f0f0f0; border-top-color: #E8622A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loading-text { font-size: 14px; color: #888; }
+
+    /* Error screen */
+    .error-screen { flex: 1; display: none; align-items: center; justify-content: center; padding: 40px; }
+    .error-card { background: white; border-radius: 16px; padding: 40px; text-align: center; max-width: 420px; }
+    .error-card .icon { font-size: 40px; margin-bottom: 12px; }
+    .error-card h2 { font-size: 20px; margin-bottom: 8px; }
+    .error-card p { font-size: 14px; color: #888; margin-bottom: 20px; line-height: 1.6; }
+    .btn-retry { padding: 10px 24px; background: #E8622A; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* Dashboard */
+    .dashboard { display: none; flex: 1; flex-direction: column; }
+    .hero-bar { background: #1A1A1A; color: white; padding: 24px 28px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .hero-avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #E8622A; }
+    .hero-info h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .hero-info p { font-size: 13px; opacity: 0.6; }
+    .hero-medal { margin-left: auto; }
+    .medal-display { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+    .medal-gold   { background: rgba(255,215,0,0.15); color: #FFD700; border: 1px solid rgba(255,215,0,0.3); }
+    .medal-silver { background: rgba(192,192,192,0.15); color: #C0C0C0; border: 1px solid rgba(192,192,192,0.3); }
+    .medal-bronze { background: rgba(205,127,50,0.15); color: #CD7F32; border: 1px solid rgba(205,127,50,0.3); }
+    .medal-none   { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+
+    .content { flex: 1; padding: 24px 28px; max-width: 1200px; width: 100%; margin: 0 auto; }
+
+    /* Stats */
+    .stats-grid { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+    .stat-card { background: white; border-radius: 12px; padding: 18px 22px; flex: 1; min-width: 130px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-left: 4px solid #E8622A; }
+    .stat-card .val { font-size: 26px; font-weight: 700; color: #E8622A; }
+    .stat-card .lbl { font-size: 12px; color: #888; margin-top: 4px; }
+    .stat-card.green { border-left-color: #2e7d32; } .stat-card.green .val { color: #2e7d32; }
+    .stat-card.dark  { border-left-color: #1A1A1A; } .stat-card.dark  .val { color: #1A1A1A; }
+    .stat-card.blue  { border-left-color: #1565c0; } .stat-card.blue  .val { color: #1565c0; }
+
+    /* Points breakdown */
+    .points-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+    .points-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
+    .points-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .points-row:last-child { border-bottom: none; font-weight: 700; font-size: 16px; padding-top: 14px; }
+    .points-row .label { font-size: 14px; color: #555; }
+    .points-row .value { font-size: 16px; font-weight: 600; color: #E8622A; }
+    .points-row.total .value { font-size: 22px; color: #1A1A1A; }
+
+    /* Medal progress */
+    .progress-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+    .progress-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
+    .medal-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .medal-icon { font-size: 24px; width: 32px; }
+    .medal-info { flex: 1; }
+    .medal-name { font-size: 13px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
+    .medal-threshold { font-size: 12px; color: #888; }
+    .progress-bar { height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+    .fill-bronze { background: #CD7F32; }
+    .fill-silver { background: #C0C0C0; }
+    .fill-gold   { background: #FFD700; }
+    .medal-pts   { font-size: 13px; font-weight: 700; color: #1A1A1A; white-space: nowrap; }
+
+    /* Rank card */
+    .rank-card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .rank-num-big { font-size: 64px; font-weight: 800; color: #E8622A; line-height: 1; }
+    .rank-num-big.r1 { color: #FFD700; } .rank-num-big.r2 { color: #C0C0C0; } .rank-num-big.r3 { color: #CD7F32; }
+    .rank-details h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .rank-details p { font-size: 14px; color: #888; }
+
+    /* Activities table */
+    .acts-card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 24px; }
+    .acts-card .card-header { padding: 16px 22px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+    .acts-card .card-header h3 { font-size: 16px; font-weight: 600; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fdfcfb; }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-walk  { background: #e8f5e9; color: #2e7d32; }
+    .badge-run   { background: #e3f2fd; color: #1565c0; }
+    .badge-ride  { background: #fff3e0; color: #e65100; }
+    .badge-hike  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-valid { background: #e8f5e9; color: #2e7d32; }
+    .badge-flag  { background: #ffebee; color: #c62828; }
+    .act-link { color: #E8622A; text-decoration: none; font-weight: 500; }
+    .act-link:hover { text-decoration: underline; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } .content { padding: 16px; } .site-header { padding: 12px 16px; } }
+
+    .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
+    .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
+  <div class="header-right">
+    <img class="athlete-avatar" id="athlete-avatar" src="" alt="">
+    <span class="athlete-name" id="athlete-name-header"></span>
+    <button class="btn-logout" id="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</div>
+
+<!-- Login screen -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="icon">🏃</div>
+    <h1>My Walkathon</h1>
+    <p>Connect your Strava account to view your personal leaderboard position, points breakdown, medal progress and all your activities.</p>
+    <a id="strava-login-btn" href="#" class="btn-strava">
+      <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+      View my data
+    </a>
+    <p class="login-note">
+      This is private — only you can see your own data.<br>
+      We only read your activity data. We never post to Strava.<br><br>
+      <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Service</a>
+    </p>
+  </div>
+</div>
+
+<!-- Loading screen -->
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Loading your data...</div>
+</div>
+
+<!-- Error screen -->
+<div class="error-screen" id="error-screen">
+  <div class="error-card">
+    <div class="icon" id="error-icon">⚠️</div>
+    <h2 id="error-title">Something went wrong</h2>
+    <p id="error-msg">Please try again.</p>
+    <button class="btn-retry" onclick="resetToLogin()">Try again</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+  <div class="hero-bar">
+    <img class="hero-avatar" id="hero-avatar" src="" alt="">
+    <div class="hero-info">
+      <h2 id="hero-name">—</h2>
+      <p id="hero-team">—</p>
+    </div>
+    <div class="hero-medal">
+      <span class="medal-display medal-none" id="hero-medal">— Working toward Bronze</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Stats row -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="val" id="st-activities">—</div><div class="lbl">Activities</div></div>
+      <div class="stat-card"><div class="val" id="st-km">—</div><div class="lbl">Total km</div></div>
+      <div class="stat-card green"><div class="val" id="st-total-pts">—</div><div class="lbl">Total points</div></div>
+      <div class="stat-card blue"><div class="val" id="st-rank">—</div><div class="lbl">My rank</div></div>
+      <div class="stat-card dark"><div class="val" id="st-board-size">—</div><div class="lbl">Participants in board</div></div>
+    </div>
+
+    <div class="two-col">
+      <!-- Points breakdown -->
+      <div class="points-card">
+        <h3>🎯 Points breakdown</h3>
+        <div class="points-row">
+          <span class="label">Distance points <span style="font-size:11px;color:#bbb">(1pt per km)</span></span>
+          <span class="value" id="pts-dist">—</span>
+        </div>
+        <div class="points-row">
+          <span class="label">Bonus points <span style="font-size:11px;color:#bbb">(daily milestone)</span></span>
+          <span class="value" id="pts-bonus">—</span>
+        </div>
+        <div class="points-row">
+          <span class="label">Challenge bonus</span>
+          <span class="value" id="pts-challenge">—</span>
+        </div>
+        <div class="points-row total">
+          <span class="label">Total points</span>
+          <span class="value" id="pts-total">—</span>
+        </div>
+      </div>
+
+      <!-- Medal progress -->
+      <div class="progress-card">
+        <h3>🏅 Medal progress</h3>
+        <div id="medal-progress-rows"></div>
+      </div>
+    </div>
+
+    <!-- Rank card -->
+    <div class="rank-card" id="rank-card">
+      <div class="rank-num-big" id="rank-num">—</div>
+      <div class="rank-details">
+        <h3 id="rank-label">My rank</h3>
+        <p id="rank-sub">Loading leaderboard...</p>
+      </div>
+    </div>
+
+    <!-- My activities -->
+    <div class="acts-card">
+      <div class="card-header">
+        <h3>📋 My activities <span id="acts-count" style="font-size:13px;color:#888;font-weight:400"></span></h3>
+        <span style="font-size:12px;color:#bbb">June 2026</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Status</th><th>Activity</th><th>Type</th><th>Date</th>
+            <th>Distance</th><th>Duration</th><th>Pace</th><th>Elevation</th><th>Steps</th><th>Calories</th>
+          </tr></thead>
+          <tbody id="acts-body"><tr><td colspan="11" style="text-align:center;padding:40px;color:#bbb">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="site-footer">
+  © 2026 Arcgate Walkathon &nbsp;·&nbsp;
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="terms.html">Terms of Service</a>
+  <a href="index.html">Home</a>
+</div>
+
+<script>
+var STRAVA_CLIENT_ID = '29159';
+var BACKEND_URL      = 'https://walkathon-backend-hv9j.onrender.com';
+var EVENT_CODE       = 'walkathon2026';
+
+// ── Point config (matches admin config defaults) ──────────────
+var CONFIG = {
+  medals:   { bronze:{male:125,female:100}, silver:{male:200,female:150}, gold:{male:300,female:250} },
+  bonus:    [{km:5,points:1},{km:8,points:2},{km:10,points:3},{km:15,points:4},{km:21,points:7}],
+  basePer_km: 1
+};
+
+function show(id)  { document.getElementById(id).style.display = 'flex'; }
+function hide(id)  { document.getElementById(id).style.display = 'none'; }
+function showBlock(id) { document.getElementById(id).style.display = 'block'; }
+
+function setLoading(msg) {
+  hide('login-screen'); hide('error-screen'); hide('dashboard');
+  show('loading-screen');
+  document.getElementById('loading-text').textContent = msg || 'Loading your data...';
+}
+
+function showError(icon, title, msg) {
+  hide('login-screen'); hide('loading-screen'); hide('dashboard');
+  show('error-screen');
+  document.getElementById('error-icon').textContent  = icon;
+  document.getElementById('error-title').textContent = title;
+  document.getElementById('error-msg').textContent   = msg;
+}
+
+function resetToLogin() {
+  hide('error-screen'); hide('loading-screen'); hide('dashboard');
+  show('login-screen');
+  window.history.replaceState({}, '', window.location.pathname);
+}
+
+function logout() {
+  localStorage.removeItem('wk_portal');
+  resetToLogin();
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
+function fmtDur(s)  { if(!s) return '—'; var h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
+function fmtPace(ms){ if(!ms) return '—'; var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+sec.toString().padStart(2,'0')+' /km'; }
+function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualRun') return 'badge-run'; if(t==='Ride'||t==='VirtualRide') return 'badge-ride'; return 'badge-hike'; }
+
+function calcBonus(km) {
+  var sorted = CONFIG.bonus.slice().sort(function(a,b){ return b.km-a.km; });
+  for (var i=0; i<sorted.length; i++) {
+    var bkm = Number(sorted[i].km)||0;
+    var bpts = Number(sorted[i].points)||0;
+    if (km >= bkm) return bpts;
+  }
+  return 0;
+}
+
+function calcPoints(acts, athleteId) {
+  var byDay = {};
+  acts.filter(function(a){ return a.strava_athlete_id==athleteId; }).forEach(function(a) {
+    var d = (a.activity_date||'').split('T')[0];
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(a);
+  });
+  var totalKm=0, distPts=0, bonusPts=0;
+  Object.keys(byDay).forEach(function(day) {
+    var dayKm=0;
+    byDay[day].forEach(function(a){ dayKm += (parseFloat(a.distance_meters)||0)/1000; });
+    dayKm = parseFloat(dayKm.toFixed(4));
+    totalKm += dayKm;
+    distPts  += parseFloat((dayKm * CONFIG.basePer_km).toFixed(2));
+    bonusPts += calcBonus(dayKm);
+  });
+  return { totalKm: parseFloat(totalKm.toFixed(2)), distPts: parseFloat(distPts.toFixed(2)), bonusPts, challengePts: 0, totalPts: parseFloat((distPts+bonusPts).toFixed(2)) };
+}
+
+function getMedal(pts, gender) {
+  var g = (gender||'').toLowerCase();
+  var m = CONFIG.medals;
+  var gold   = g==='female' ? m.gold.female   : m.gold.male;
+  var silver = g==='female' ? m.silver.female : m.silver.male;
+  var bronze = g==='female' ? m.bronze.female : m.bronze.male;
+  if (pts >= gold)   return {label:'🥇 Gold Medal',   cls:'medal-gold',   level:'gold',   threshold:gold};
+  if (pts >= silver) return {label:'🥈 Silver Medal', cls:'medal-silver', level:'silver', threshold:silver};
+  if (pts >= bronze) return {label:'🥉 Bronze Medal', cls:'medal-bronze', level:'bronze', threshold:bronze};
+  return {label:'Working toward Bronze', cls:'medal-none', level:'none', threshold:bronze};
+}
+
+function filterForBoard(regList, p) {
+  var g = (p.gender||'').toLowerCase();
+  var s = (p.shift||'').toLowerCase();
+  if (s.includes('day') && (g==='female'))        return 'dayshift-female';
+  if (s.includes('day') && (g==='male'||g==='m')) return 'dayshift-male';
+  if (s.includes('night'))                         return 'nightshift-all';
+  return 'all';
+}
+
+function renderDashboard(data) {
+  var p    = data.participant;
+  var mine = data.activities;
+  var all  = data.allActs;
+  var regs = data.regList;
+  var ath  = data.athlete;
+
+  // Header
+  document.getElementById('athlete-avatar').src    = ath.profile || '';
+  document.getElementById('athlete-avatar').style.display = 'block';
+  document.getElementById('athlete-name-header').textContent = ath.firstname + ' ' + ath.lastname;
+  document.getElementById('athlete-name-header').style.display = 'block';
+  document.getElementById('btn-logout').style.display = 'block';
+
+  // Hero
+  document.getElementById('hero-avatar').src  = ath.profile || '';
+  document.getElementById('hero-name').textContent  = p.full_name || (ath.firstname+' '+ath.lastname);
+  document.getElementById('hero-team').textContent  = (p.leaderboard_team||'—') + ' · ' + (p.shift||'—') + ' · ' + (p.gender||'—');
+
+  // Calculate my points from valid activities
+  var validMine = mine.filter(function(a){ return !a.is_flagged; });
+  var pts = calcPoints(validMine, ath.id);
+  var medal = getMedal(pts.totalPts, p.gender);
+
+  // Medal hero
+  var medalEl = document.getElementById('hero-medal');
+  medalEl.textContent = medal.label;
+  medalEl.className = 'medal-display ' + medal.cls;
+
+  // Stats
+  document.getElementById('st-activities').textContent = validMine.length;
+  document.getElementById('st-km').textContent         = pts.totalKm.toFixed(2) + ' km';
+  document.getElementById('st-total-pts').textContent  = pts.totalPts.toFixed(2);
+
+  // Points breakdown
+  document.getElementById('pts-dist').textContent      = pts.distPts.toFixed(2);
+  document.getElementById('pts-bonus').textContent     = pts.bonusPts;
+  document.getElementById('pts-challenge').textContent = pts.challengePts || '—';
+  document.getElementById('pts-total').textContent     = pts.totalPts.toFixed(2);
+
+  // Medal progress bars
+  var g = (p.gender||'').toLowerCase();
+  var m = CONFIG.medals;
+  var tiers = [
+    { name:'🥉 Bronze', threshold: g==='female'?m.bronze.female:m.bronze.male, fill:'fill-bronze' },
+    { name:'🥈 Silver', threshold: g==='female'?m.silver.female:m.silver.male, fill:'fill-silver' },
+    { name:'🥇 Gold',   threshold: g==='female'?m.gold.female:m.gold.male,     fill:'fill-gold'   }
+  ];
+  document.getElementById('medal-progress-rows').innerHTML = tiers.map(function(t) {
+    var pct = Math.min(100, Math.round((pts.totalPts / t.threshold) * 100));
+    var earned = pts.totalPts >= t.threshold;
+    return '<div class="medal-row">'
+      +'<div class="medal-icon">'+t.name.split(' ')[0]+'</div>'
+      +'<div class="medal-info">'
+      +'<div class="medal-name">'+t.name+' '+(earned?'✅':'')+'</div>'
+      +'<div class="medal-threshold">'+t.threshold+' pts required</div>'
+      +'<div class="progress-bar"><div class="progress-fill '+t.fill+'" style="width:'+pct+'%"></div></div>'
+      +'</div>'
+      +'<div class="medal-pts">'+pct+'%</div>'
+      +'</div>';
+  }).join('');
+
+  // Rank — calculate from all activities
+  var myBoard = filterForBoard(regs, p);
+  var boardRegs = regs.filter(function(r) {
+    var rg = (r.gender||'').toLowerCase();
+    var rs = (r.shift||'').toLowerCase();
+    if (myBoard==='dayshift-female') return rg==='female' && rs.includes('day');
+    if (myBoard==='dayshift-male')   return (rg==='male'||rg==='m') && rs.includes('day');
+    if (myBoard==='nightshift-all')  return rs.includes('night');
+    return true;
+  });
+  var boardScores = [];
+  boardRegs.forEach(function(r) {
+    var rActs = all.filter(function(a){ return a.strava_athlete_id==r.strava_athlete_id && !a.is_flagged; });
+    if (rActs.length === 0) return;
+    var rPts = calcPoints(rActs, r.strava_athlete_id);
+    boardScores.push({ id: r.strava_athlete_id, name: r.full_name, pts: rPts.totalPts });
+  });
+  boardScores.sort(function(a,b){ return b.pts - a.pts; });
+  var myRank = boardScores.findIndex(function(s){ return s.id == ath.id; }) + 1;
+  var boardLabel = myBoard==='dayshift-female'?'Dayshift Female':myBoard==='dayshift-male'?'Dayshift Male':'Nightshift All';
+
+  document.getElementById('st-rank').textContent       = myRank > 0 ? '#'+myRank : 'N/A';
+  document.getElementById('st-board-size').textContent = boardScores.length;
+  document.getElementById('rank-num').textContent      = myRank > 0 ? '#'+myRank : '—';
+  document.getElementById('rank-num').className        = 'rank-num-big'+(myRank===1?' r1':myRank===2?' r2':myRank===3?' r3':'');
+  document.getElementById('rank-label').textContent    = boardLabel + ' Leaderboard';
+  var above = myRank > 1 ? boardScores[myRank-2] : null;
+  var below = myRank < boardScores.length ? boardScores[myRank] : null;
+  var subText = myRank > 0
+    ? (above ? '▲ '+above.pts.toFixed(0)+' pts to overtake '+above.name : '🏆 You are leading!') + (below ? '  ·  ▼ '+below.pts.toFixed(0)+' pts ahead of '+below.name : '')
+    : 'Not yet on this leaderboard';
+  document.getElementById('rank-sub').textContent = subText;
+
+  // Activities table
+  document.getElementById('acts-count').textContent = '(' + mine.length + ' total)';
+  var juneActs = mine.filter(function(a){ return (a.activity_date||'').startsWith('2026-06'); });
+  document.getElementById('acts-body').innerHTML = juneActs.length
+    ? juneActs.map(function(a, i) {
+        var actUrl = 'https://www.strava.com/activities/' + a.strava_activity_id;
+        return '<tr>'
+          +'<td>'+(i+1)+'</td>'
+          +'<td><span class="badge '+(a.is_flagged?'badge-flag':'badge-valid')+'">'+(a.is_flagged?'🚩 '+( a.flag_reason||'Flagged'):'✅ Valid')+'</span></td>'
+          +'<td><a href="'+actUrl+'" target="_blank" class="act-link">'+(a.activity_name||'—')+'</a></td>'
+          +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
+          +'<td>'+fmtDate(a.activity_date)+'</td>'
+          +'<td>'+(a.distance_meters?(parseFloat(a.distance_meters)/1000).toFixed(2)+' km':'—')+'</td>'
+          +'<td>'+fmtDur(a.moving_time_seconds)+'</td>'
+          +'<td>'+fmtPace(a.avg_speed)+'</td>'
+          +'<td>'+(a.elevation_gain?parseFloat(a.elevation_gain).toFixed(0)+' m':'—')+'</td>'
+          +'<td>'+(a.steps?parseInt(a.steps).toLocaleString():'—')+'</td>'
+          +'<td>'+(a.calories?parseFloat(a.calories).toFixed(0):'—')+'</td>'
+          +'</tr>';
+      }).join('')
+    : '<tr><td colspan="11" style="text-align:center;padding:40px;color:#bbb">No activities in June 2026</td></tr>';
+
+  // Show dashboard
+  hide('loading-screen');
+  document.getElementById('dashboard').style.display = 'flex';
+}
+
+// ── OAuth flow ────────────────────────────────────────────────
+var redirectURI = window.location.origin + window.location.pathname;
+var authUrl = 'https://www.strava.com/oauth/authorize'
+  + '?client_id='    + STRAVA_CLIENT_ID
+  + '&redirect_uri=' + encodeURIComponent(redirectURI)
+  + '&response_type=code'
+  + '&scope=read,activity:read'
+  + '&state=portal';
+document.getElementById('strava-login-btn').href = authUrl;
+
+var params   = new URLSearchParams(window.location.search);
+var authCode = params.get('code');
+var state    = params.get('state');
+
+if (authCode && state === 'portal') {
+  setLoading('Verifying your Strava account...');
+  window.history.replaceState({}, '', window.location.pathname);
+
+  fetch(BACKEND_URL + '/my-data', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ code: authCode })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.success) {
+      if (data.error === 'not_registered') {
+        showError('🔒', 'Not registered', 'Your Strava account is not registered for Arcgate Walkathon 2026. Please contact your event organizer.');
+      } else {
+        showError('⚠️', 'Something went wrong', data.error || 'Please try again.');
+      }
+      return;
+    }
+    document.getElementById('loading-text').textContent = 'Calculating your points...';
+    renderDashboard(data);
+  })
+  .catch(function(e) {
+    showError('⚠️', 'Connection error', 'Could not reach the server. Please try again in a moment.');
+  });
+}
+</script>
+</body>
+</html>
