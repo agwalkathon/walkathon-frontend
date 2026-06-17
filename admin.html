@@ -3,211 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Walkathon 2026 — Admin</title>
+  <title>Walkathon Admin Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; }
-    .header { background: #1a1a2e; color: white; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
-    .header h1 { font-size: 22px; }
-    .tabs { display: flex; gap: 0; background: white; border-bottom: 2px solid #eee; padding: 0 24px; }
-    .tab { padding: 14px 20px; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
-    .tab.active { color: #FC4C02; border-bottom-color: #FC4C02; font-weight: 500; }
-    .content { padding: 24px; }
-    .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .header {
+      background: #1a1a2e;
+      color: white;
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header h1 { font-size: 20px; font-weight: 500; }
+    .header p { font-size: 13px; opacity: 0.6; margin-top: 2px; }
+    .btn-logout {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    .stats-bar {
+      background: white;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 16px 28px;
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat .val { font-size: 22px; font-weight: 600; color: #1a1a2e; }
+    .stat .lbl { font-size: 12px; color: #999; margin-top: 2px; }
+    .stat .val.orange { color: #FC4C02; }
+    .stat .val.red    { color: #e53935; }
+    .stat .val.green  { color: #2e7d32; }
+
+    .main { padding: 28px; }
+    .section-title { font-size: 13px; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .nav-card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .nav-card:hover { border-color: #FC4C02; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .nav-card .icon { font-size: 32px; margin-bottom: 12px; }
+    .nav-card .title { font-size: 16px; font-weight: 500; color: #1a1a2e; margin-bottom: 6px; }
+    .nav-card .desc { font-size: 13px; color: #888; line-height: 1.5; }
+    .nav-card .badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-red   { background: #ffebee; color: #c62828; }
+    .badge-green { background: #e8f5e9; color: #2e7d32; }
+    .badge-blue  { background: #e3f2fd; color: #1565c0; }
+    .badge-gray  { background: #f5f5f5; color: #555; }
+
+    .recent-section { background: white; border-radius: 14px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .recent-section h3 { font-size: 15px; color: #333; margin-bottom: 16px; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: #f8f8f8; padding: 12px 16px; text-align: left; font-size: 13px; color: #666; border-bottom: 1px solid #eee; }
-    td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+    th { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 10px 12px; font-size: 14px; border-bottom: 1px solid #f8f8f8; }
     tr:last-child td { border-bottom: none; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-    .badge-clean    { background: #e8f5e9; color: #2e7d32; }
-    .badge-flagged  { background: #ffebee; color: #c62828; }
-    .badge-walk { background: #e8f5e9; color: #2e7d32; }
-    .badge-run  { background: #e3f2fd; color: #1565c0; }
-    .btn { padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
-    .btn-approve { background: #e8f5e9; color: #2e7d32; }
-    .btn-reject  { background: #ffebee; color: #c62828; }
-    .flag-reason { font-size: 12px; color: #e53935; margin-top: 4px; }
-    .stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-    .stat-card { background: white; border-radius: 12px; padding: 16px 20px; flex: 1; min-width: 140px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .stat-card .value { font-size: 24px; font-weight: 600; }
-    .stat-card .label { font-size: 13px; color: #888; margin-top: 4px; }
-    .red { color: #e53935; }
-    .green { color: #2e7d32; }
-    .loading { text-align: center; padding: 48px; color: #999; }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+    .pill-walk { background: #e8f5e9; color: #2e7d32; }
+    .pill-run  { background: #e3f2fd; color: #1565c0; }
+    .pill-ride { background: #fff3e0; color: #e65100; }
+    .pill-hike { background: #f3e5f5; color: #6a1b9a; }
+    .loading { text-align: center; padding: 32px; color: #bbb; }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🛡️ Walkathon Admin Panel</h1>
-  <span style="font-size:13px;opacity:0.6">Restricted access</span>
+  <div class="header-left">
+    <div>
+      <h1>🏆 Walkathon 2026 — Admin</h1>
+      <p>Event management dashboard</p>
+    </div>
+  </div>
+  <button class="btn-logout" onclick="logout()">Sign out</button>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('flagged')">🚩 Flagged activities</div>
-  <div class="tab" onclick="switchTab('all')">📋 All activities</div>
-  <div class="tab" onclick="switchTab('participants')">👥 Participants</div>
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat"><div class="val orange" id="s-participants">—</div><div class="lbl">Participants</div></div>
+  <div class="stat"><div class="val green"  id="s-activities">—</div><div class="lbl">Total activities</div></div>
+  <div class="stat"><div class="val orange" id="s-km">—</div><div class="lbl">Total km</div></div>
+  <div class="stat"><div class="val red"    id="s-flagged">—</div><div class="lbl">Flagged</div></div>
+  <div class="stat"><div class="val green"  id="s-today">—</div><div class="lbl">Today's activities</div></div>
 </div>
 
-<div class="content">
-  <div class="stats">
-    <div class="stat-card"><div class="value green" id="stat-clean">—</div><div class="label">Clean activities</div></div>
-    <div class="stat-card"><div class="value red" id="stat-flagged">—</div><div class="label">Flagged activities</div></div>
-    <div class="stat-card"><div class="value" id="stat-participants">—</div><div class="label">Registered participants</div></div>
-    <div class="stat-card"><div class="value" id="stat-total-km">—</div><div class="label">Total km</div></div>
+<div class="main">
+  <p class="section-title">Pages</p>
+
+  <!-- Nav cards -->
+  <div class="nav-grid">
+
+    <a href="activities.html" class="nav-card">
+      <div class="icon">🔍</div>
+      <div class="title">Search Activities</div>
+      <div class="desc">Filter by date range, activity type and athlete name. View all metrics.</div>
+      <span class="badge badge-blue">Public view</span>
+    </a>
+
+    <a href="leaderboard.html" class="nav-card">
+      <div class="icon">🏆</div>
+      <div class="title">Leaderboard</div>
+      <div class="desc">Rankings by distance, pace, elevation and more. Real-time updates.</div>
+      <span class="badge badge-green">Live</span>
+    </a>
+
+    <a href="flagged.html" class="nav-card">
+      <div class="icon">🚩</div>
+      <div class="title">Flagged Activities</div>
+      <div class="desc">Review suspicious activities. Clear or delete with one click.</div>
+      <span class="badge badge-red" id="flagged-badge">Loading...</span>
+    </a>
+
+    <a href="participants.html" class="nav-card">
+      <div class="icon">👥</div>
+      <div class="title">Participants</div>
+      <div class="desc">All registered participants, their Strava connection and activity count.</div>
+      <span class="badge badge-gray" id="participants-badge">Loading...</span>
+    </a>
+
   </div>
 
-  <div class="table-wrap" id="table-container">
+  <!-- Recent activities -->
+  <div class="recent-section">
+    <h3>⏱️ Recent activities</h3>
     <table>
-      <tbody><tr><td class="loading">Loading...</td></tr></tbody>
+      <thead>
+        <tr>
+          <th>Athlete</th>
+          <th>Activity</th>
+          <th>Type</th>
+          <th>Date & time</th>
+          <th>Distance</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="recent-body">
+        <tr><td colspan="6" class="loading">Loading...</td></tr>
+      </tbody>
     </table>
   </div>
 </div>
 
 <script>
-  const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
-
-  let currentTab = 'flagged';
-  let nameMap = {};
-
-  function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
-  function fmtDuration(s) { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}h ${m}m`:`${m}m`; }
-  function fmtSpeed(ms) { return ms ? (ms*3.6).toFixed(1)+' km/h' : '—'; }
-
-  function switchTab(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach((t,i) => {
-      t.classList.toggle('active', ['flagged','all','participants'][i] === tab);
-    });
-    loadData();
+  // ── Auth guard ───────────────────────────────────────────────
+  const session = JSON.parse(sessionStorage.getItem('wk_admin') || '{}');
+  if (!session.loggedIn || session.expires < Date.now()) {
+    window.location.href = 'admin-login.html';
   }
 
-  async function loadData() {
-    document.getElementById('table-container').innerHTML =
-      '<table><tbody><tr><td class="loading">Loading...</td></tr></tbody></table>';
+  function logout() {
+    sessionStorage.removeItem('wk_admin');
+    window.location.href = 'admin-login.html';
+  }
+
+  const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+  const HEADERS = { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` };
+
+  function fmtDate(d) {
+    return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  function fmtTime(d) {
+    return new Date(d).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+  function pillClass(t) {
+    if (t==='Walk') return 'pill-walk';
+    if (t==='Run' || t==='VirtualRun') return 'pill-run';
+    if (t==='Ride') return 'pill-ride';
+    return 'pill-hike';
+  }
+
+  async function loadDashboard() {
+    const today = new Date().toISOString().split('T')[0];
 
     const [actRes, partRes] = await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/activities?order=activity_date.desc`, {
-        headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
-      }),
-      fetch(`${SUPABASE_URL}/rest/v1/participants?select=strava_athlete_id,name,email,registered_at`, {
-        headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
-      })
+      fetch(`${SUPABASE_URL}/rest/v1/activities?order=activity_date.desc`, { headers: HEADERS }),
+      fetch(`${SUPABASE_URL}/rest/v1/participants?select=strava_athlete_id,name`, { headers: HEADERS })
     ]);
 
     const activities   = await actRes.json();
     const participants = await partRes.json();
 
-    nameMap = {};
+    const nameMap = {};
     participants.forEach(p => nameMap[p.strava_athlete_id] = p.name);
 
-    // Update stats
-    const clean   = activities.filter(a => !a.is_flagged).length;
-    const flagged = activities.filter(a =>  a.is_flagged).length;
-    const totalKm = activities.reduce((s,a) => s + (a.distance_meters||0), 0) / 1000;
-    document.getElementById('stat-clean').textContent        = clean;
-    document.getElementById('stat-flagged').textContent      = flagged;
-    document.getElementById('stat-participants').textContent = participants.length;
-    document.getElementById('stat-total-km').textContent     = totalKm.toFixed(1) + ' km';
+    const totalKm  = activities.reduce((s,a) => s + (a.distance_meters||0), 0) / 1000;
+    const flagged  = activities.filter(a => a.is_flagged).length;
+    const todayAct = activities.filter(a => a.activity_date?.startsWith(today)).length;
 
-    if (currentTab === 'flagged')      renderFlagged(activities.filter(a => a.is_flagged));
-    else if (currentTab === 'all')     renderAll(activities);
-    else if (currentTab === 'participants') renderParticipants(participants);
-  }
+    document.getElementById('s-participants').textContent = participants.length;
+    document.getElementById('s-activities').textContent   = activities.length;
+    document.getElementById('s-km').textContent           = totalKm.toFixed(1) + ' km';
+    document.getElementById('s-flagged').textContent      = flagged;
+    document.getElementById('s-today').textContent        = todayAct;
 
-  function renderFlagged(activities) {
-    if (!activities.length) {
-      document.getElementById('table-container').innerHTML =
-        '<table><tbody><tr><td class="loading">🎉 No flagged activities!</td></tr></tbody></table>';
-      return;
-    }
-    document.getElementById('table-container').innerHTML = `
-      <table>
-        <thead><tr>
-          <th>Participant</th><th>Activity</th><th>Type</th><th>Date</th>
-          <th>Distance</th><th>Avg Speed</th><th>Flag reason</th><th>Action</th>
-        </tr></thead>
-        <tbody>${activities.map(a => `
-          <tr id="row-${a.id}">
-            <td>${nameMap[a.strava_athlete_id] || 'Unknown'}</td>
-            <td>${a.activity_name || '—'}</td>
-            <td><span class="badge badge-${(a.sport_type||'').toLowerCase()}">${a.sport_type||'—'}</span></td>
-            <td>${fmtDate(a.activity_date)}</td>
-            <td>${a.distance_meters ? (a.distance_meters/1000).toFixed(2)+' km' : '—'}</td>
-            <td>${fmtSpeed(a.avg_speed)}</td>
-            <td><span style="color:#e53935;font-size:13px">${a.flag_reason || '—'}</span></td>
-            <td style="display:flex;gap:6px">
-              <button class="btn btn-approve" onclick="clearFlag(${a.id})">✅ Clear</button>
-              <button class="btn btn-reject"  onclick="deleteActivity(${a.id})">🗑️ Delete</button>
+    document.getElementById('flagged-badge').textContent      = flagged + ' need review';
+    document.getElementById('participants-badge').textContent = participants.length + ' registered';
+
+    // Recent 10 activities
+    const recent = activities.slice(0, 10);
+    document.getElementById('recent-body').innerHTML = recent.length
+      ? recent.map(a => `
+          <tr>
+            <td>
+              <a href="https://www.strava.com/athletes/${a.strava_athlete_id}"
+                 target="_blank"
+                 style="color:#FC4C02;text-decoration:none;font-weight:500">
+                ${nameMap[a.strava_athlete_id] || 'Unknown'}
+              </a>
             </td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
-  }
-
-  function renderAll(activities) {
-    document.getElementById('table-container').innerHTML = `
-      <table>
-        <thead><tr>
-          <th>#</th><th>Participant</th><th>Activity</th><th>Type</th>
-          <th>Date</th><th>Distance</th><th>Duration</th><th>Avg Speed</th><th>Status</th>
-        </tr></thead>
-        <tbody>${activities.map((a,i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td>${nameMap[a.strava_athlete_id] || 'Unknown'}</td>
             <td>${a.activity_name || '—'}</td>
-            <td><span class="badge badge-${(a.sport_type||'').toLowerCase()}">${a.sport_type||'—'}</span></td>
-            <td>${fmtDate(a.activity_date)}</td>
+            <td><span class="pill ${pillClass(a.sport_type)}">${a.sport_type||'—'}</span></td>
+            <td>${fmtDate(a.activity_date)} ${fmtTime(a.activity_date)}</td>
             <td>${a.distance_meters ? (a.distance_meters/1000).toFixed(2)+' km' : '—'}</td>
-            <td>${a.moving_time_seconds ? fmtDuration(a.moving_time_seconds) : '—'}</td>
-            <td>${fmtSpeed(a.avg_speed)}</td>
-            <td><span class="badge ${a.is_flagged ? 'badge-flagged' : 'badge-clean'}">${a.is_flagged ? '🚩 Flagged' : '✅ Clean'}</span></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
+            <td>${a.is_flagged
+              ? '<span style="color:#e53935;font-size:13px">🚩 Flagged</span>'
+              : '<span style="color:#2e7d32;font-size:13px">✅ Clean</span>'}</td>
+          </tr>`).join('')
+      : '<tr><td colspan="6" class="loading">No activities yet</td></tr>';
   }
 
-  function renderParticipants(participants) {
-    document.getElementById('table-container').innerHTML = `
-      <table>
-        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Registered</th><th>Athlete ID</th></tr></thead>
-        <tbody>${participants.map((p,i) => `
-          <tr>
-            <td>${i+1}</td>
-            <td>${p.name || '—'}</td>
-            <td>${p.email || '—'}</td>
-            <td>${fmtDate(p.registered_at)}</td>
-            <td style="font-family:monospace;font-size:13px">${p.strava_athlete_id}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>`;
-  }
-
-  async function clearFlag(id) {
-    await fetch(`${SUPABASE_URL}/rest/v1/activities?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: {
-        apikey: SUPABASE_ANON,
-        Authorization: `Bearer ${SUPABASE_ANON}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ is_flagged: false, flag_reason: 'Manually cleared by admin' })
-    });
-    document.getElementById(`row-${id}`).remove();
-  }
-
-  async function deleteActivity(id) {
-    if (!confirm('Delete this activity permanently?')) return;
-    await fetch(`${SUPABASE_URL}/rest/v1/activities?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` }
-    });
-    document.getElementById(`row-${id}`).remove();
-  }
-
-  loadData();
+  loadDashboard();
 </script>
 </body>
 </html>
