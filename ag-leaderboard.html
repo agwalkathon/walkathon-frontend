@@ -536,22 +536,23 @@ function calcPoints(acts, athleteId, gender) {
     if (!eligible) return;
 
     if (c.activity_scope === 'daily') {
-      // Check each day's TOTAL distance against challenge criteria
-      Object.keys(byDay).forEach(function(day) {
-        if (earnedChallenges.has(key)) return; // already earned this challenge
+      // Check SPECIFIC days defined by challenge date range
+      // Challenge is awarded AT MOST ONCE — for the specific day(s) in the challenge window
+      var sportTypes = c.sport_types || ['Walk','Run','Hike','Ride'];
+      var days = Object.keys(byDay).filter(function(d) {
+        return d >= c.start_date && d <= c.end_date;
+      });
+      // Check each qualifying day — stop as soon as one day qualifies (award once)
+      for (var di = 0; di < days.length; di++) {
+        var day = days[di];
         var dayActs = byDay[day];
-        // Check date range
-        if (day < c.start_date || day > c.end_date) return;
-        // Check sport types — at least one activity matches
-        var sportTypes = c.sport_types || ['Walk','Run','Hike','Ride'];
         var hasMatchingSport = dayActs.some(function(a){ return sportTypes.includes(a.sport_type); });
-        if (!hasMatchingSport) return;
-        // Sum total distance for the day (only matching sport types)
+        if (!hasMatchingSport) continue;
+        // Sum total distance for the day
         var dayTotalKm = 0;
         dayActs.forEach(function(a){
           if (sportTypes.includes(a.sport_type)) dayTotalKm += (a.distance_meters||0)/1000;
         });
-        // Apply distance type check on daily total
         var qualifies = false;
         if (c.distance_type === 'fixed' || c.distance_type === 'range') {
           qualifies = dayTotalKm >= c.distance_min - 0.1 && dayTotalKm <= c.distance_max + 0.1;
@@ -562,8 +563,9 @@ function calcPoints(acts, athleteId, gender) {
           earnedChallenges.add(key);
           totalChallenge += c.bonus_points;
           challengeNames.push(c.name);
+          break; // award ONCE only — stop checking other days
         }
-      });
+      }
     } else {
       // Single activity scope — check each activity individually
       acts.filter(function(a){ return a.strava_athlete_id===athleteId; }).forEach(function(a) {
