@@ -151,8 +151,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field"><label>Port</label><input type="number" id="smtp-port" placeholder="587" value="587"></div>
           <div class="field"><label>Username / Email</label><input type="text" id="smtp-user" placeholder="you@company.com"></div>
           <div class="field"><label>Password / App Password</label><input type="password" id="smtp-pass" placeholder="••••••••••••"></div>
-          <div class="field"><label>From Name</label><input type="text" id="smtp-from-name" placeholder="Arcgate Walkathon 2026"></div>
-          <div class="field"><label>From Email</label><input type="text" id="smtp-from-email" placeholder="walkathon@arcgate.com"></div>
+          <div class="field"><label>From Name</label><input type="text" id="smtp-from_name" placeholder="Arcgate Walkathon 2026"></div>
+          <div class="field"><label>From Email</label><input type="text" id="smtp-from_email" placeholder="walkathon@arcgate.com"></div>
           <div class="field"><label>Encryption</label>
             <select id="smtp-enc">
               <option value="tls">TLS (port 587 — recommended)</option>
@@ -192,7 +192,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <div class="field"><label>Email Template</label>
-            <select id="job-template">
+            <select id="job-tpl">
               <option value="">— Select template —</option>
             </select>
           </div>
@@ -214,7 +214,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn btn-primary" onclick="saveJob()">💾 Save Job</button>
+          <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()">💾 Save Job</button>
           <button class="btn btn-ghost" onclick="previewRecipients()">👥 Preview Recipients</button>
           <span id="job-saved" style="display:none;color:#2e7d32;font-size:13px">✅ Job saved!</span>
         </div>
@@ -275,9 +275,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn btn-primary" onclick="saveTemplate()">💾 Save Template</button>
-          <button class="btn btn-ghost" onclick="previewTemplate()">👁 Preview</button>
-          <span id="tpl-saved" style="display:none;color:#2e7d32;font-size:13px">✅ Saved!</span>
+          <button class="btn btn-primary" id="tpl-save-btn" onclick="saveTemplate()">💾 Save Template</button>
+          <button class="btn btn-ghost" onclick="previewCurrentTpl()">👁 Preview</button>
+          <span id="tpl-status" style="display:none"></span>
         </div>
       </div>
     </div>
@@ -311,7 +311,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <div class="field"><label>Template</label>
-            <select id="send-template">
+            <select id="send-tpl">
               <option value="">— Select template —</option>
             </select>
           </div>
@@ -375,435 +375,490 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-var SUPABASE_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
-var SUPABASE_ANON=atob(['ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW1wb1pHZHJibU53YTNKMGRIWmxiWFozZFd0aklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzT0RFMk56Z3lOak1zSW1WNGNDSTZNakE1TnpJMU5ESTJNMzAuZDdtdlhPWURxNUc0YXFzMU1iYzZIRk5nVEJsUWs0QjZhaDBlYWhFX3laRQ=='].join(''));
-var HDR={apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'};
+var SB = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+var H = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json' };
 
-function authGuard(){var s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}');if(!s.loggedIn||s.expires<Date.now())window.location.href='admin-login.html';}
-function logout(){sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
+function authGuard() {
+  var s = JSON.parse(sessionStorage.getItem('wk_admin') || '{}');
+  if (!s.loggedIn || s.expires < Date.now()) window.location.href = 'admin-login.html';
+}
+function logout() { sessionStorage.removeItem('wk_admin'); window.location.href = 'admin-login.html'; }
 authGuard();
 
-// ── Tab switching ──────────────────────────────────────────
+// ── Supabase helpers ───────────────────────────────────
+async function dbGet(table, query) {
+  query = query || '';
+  var r = await fetch(SB + '/rest/v1/' + table + query, { headers: H });
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.message || d.hint || JSON.stringify(d));
+  return d;
+}
+async function dbInsert(table, data) {
+  var r = await fetch(SB + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+    body: JSON.stringify(data)
+  });
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.message || d.hint || JSON.stringify(d));
+  return Array.isArray(d) ? d[0] : d;
+}
+async function dbUpdate(table, query, data) {
+  var r = await fetch(SB + '/rest/v1/' + table + query, {
+    method: 'PATCH',
+    headers: Object.assign({}, H, { 'Prefer': 'return=representation' }),
+    body: JSON.stringify(data)
+  });
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.message || d.hint || JSON.stringify(d));
+  return d;
+}
+async function dbDelete(table, query) {
+  var r = await fetch(SB + '/rest/v1/' + table + query, { method: 'DELETE', headers: H });
+  if (!r.ok) { var d = await r.json(); throw new Error(d.message || JSON.stringify(d)); }
+}
+
+// ── UI helpers ─────────────────────────────────────────
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function setStatus(id, type, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'inline';
+  el.style.padding = '8px 14px';
+  el.style.borderRadius = '8px';
+  el.style.fontSize = '13px';
+  el.style.fontWeight = '500';
+  if (type === 'ok') { el.style.background = '#e8f5e9'; el.style.color = '#2e7d32'; }
+  if (type === 'err') { el.style.background = '#ffebee'; el.style.color = '#c62828'; }
+  if (type === 'wait') { el.style.background = '#fff8e1'; el.style.color = '#e65100'; }
+  el.textContent = msg;
+  if (type === 'ok') setTimeout(function() { el.style.display = 'none'; }, 4000);
+}
+function setBtnLoading(id, loading, originalText) {
+  var btn = document.getElementById(id);
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.textContent = loading ? 'Saving...' : originalText;
+}
+
+// ── Tab switching ──────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach(function(b){
-    b.classList.toggle('active', b.getAttribute('data-tab')===name);
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-tab') === name);
   });
-  document.querySelectorAll('.tab-pane').forEach(function(p){
-    p.classList.toggle('active', p.id==='tab-'+name);
+  document.querySelectorAll('.tab-pane').forEach(function(p) {
+    p.classList.toggle('active', p.id === 'tab-' + name);
   });
-  if(name==='jobs')      { safeRun(loadJobs); safeRun(function(){loadEventOptions('job-event')}); safeRun(function(){loadTemplateOptions('job-template')}); }
-  if(name==='templates') { safeRun(loadTemplates); }
-  if(name==='send')      { safeRun(function(){loadEventOptions('send-event')}); safeRun(function(){loadTemplateOptions('send-template')}); safeRun(loadHistory); }
-  if(name==='smtp')      { safeRun(loadSmtp); }
+  if (name === 'smtp')      loadSmtp();
+  if (name === 'templates') loadTemplates();
+  if (name === 'jobs')      { loadTemplateSelect('job-tpl'); loadEventSelect('job-event'); loadJobs(); }
+  if (name === 'send')      { loadTemplateSelect('send-tpl'); loadEventSelect('send-event'); loadHistory(); }
 }
 
-function safeRun(fn) {
-  try { var r = fn(); if (r && r.catch) r.catch(function(e){ console.warn('Tab load error:', e.message); }); }
-  catch(e) { console.warn('Tab load error:', e.message); }
-}
-
-// ── Supabase helpers ───────────────────────────────────────
-async function sbGet(path) {
-  var r = await fetch(SUPABASE_URL+'/rest/v1/'+path, {headers:HDR});
-  return await r.json();
-}
-async function sbPost(path, data) {
-  var r = await fetch(SUPABASE_URL+'/rest/v1/'+path, {method:'POST',headers:Object.assign({},HDR,{'Prefer':'return=representation'}),body:JSON.stringify(data)});
-  return await r.json();
-}
-async function sbPatch(path, data) {
-  var r = await fetch(SUPABASE_URL+'/rest/v1/'+path, {method:'PATCH',headers:Object.assign({},HDR,{'Prefer':'return=representation'}),body:JSON.stringify(data)});
-  return await r.json();
-}
-async function sbDelete(path) {
-  await fetch(SUPABASE_URL+'/rest/v1/'+path, {method:'DELETE',headers:HDR});
-}
-function showSaved(id) { var el=document.getElementById(id); el.style.display='inline'; setTimeout(function(){el.style.display='none'},2500); }
-
-// ── SMTP ───────────────────────────────────────────────────
+// ── SMTP Config ────────────────────────────────────────
 async function loadSmtp() {
   try {
-    var rows = await sbGet("smtp_config?select=*&order=id.desc&limit=1");
-    if (Array.isArray(rows) && rows[0]) {
+    var rows = await dbGet('smtp_config', '?select=*&limit=1');
+    if (rows && rows[0]) {
       var s = rows[0];
-      ['host','port','user','pass','from-name','from-email','enc','reply'].forEach(function(k){
-        var el = document.getElementById('smtp-'+k);
-        if (el && s[k] !== undefined) el.value = s[k];
+      var fields = ['host','port','user','pass','from_name','from_email','enc','reply'];
+      fields.forEach(function(k) {
+        var el = document.getElementById('smtp-' + k);
+        if (el && s[k] != null) el.value = s[k];
       });
     }
-  } catch(e) { console.warn('loadSmtp:', e.message); }
-}
-async function saveSmtp() {
-  var btn = document.getElementById('smtp-save-btn');
-  var st  = document.getElementById('smtp-status');
-
-  // Show saving state
-  btn.disabled = true;
-  btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block"></span> Saving...</span>';
-  st.style.display = 'none';
-
-  var s = {};
-  ['host','port','user','pass','from-name','from-email','enc','reply'].forEach(function(k){
-    var el = document.getElementById('smtp-'+k);
-    if (el) s[k] = el.value;
-  });
-
-  try {
-    var existing = await sbGet("smtp_config?select=id&limit=1");
-    var result;
-    if (Array.isArray(existing) && existing.length > 0) {
-      result = await sbPatch("smtp_config?id=eq."+existing[0].id, s);
-    } else {
-      result = await sbPost("smtp_config", s);
-    }
-    if (result && result.code) throw new Error(result.message || result.hint || result.code);
-
-    // ✅ Success
-    btn.disabled = false;
-    btn.innerHTML = '💾 Save SMTP Settings';
-    st.style.display = 'inline';
-    st.style.background = '#e8f5e9';
-    st.style.color = '#2e7d32';
-    st.textContent = '✅ Settings saved successfully!';
-    setTimeout(function(){ st.style.display='none'; }, 4000);
-
   } catch(e) {
-    // ❌ Failed
-    btn.disabled = false;
-    btn.innerHTML = '💾 Save SMTP Settings';
-    st.style.display = 'inline';
-    st.style.background = '#ffebee';
-    st.style.color = '#c62828';
-    st.textContent = '❌ Save failed — ' + e.message;
+    console.warn('loadSmtp:', e.message);
+  }
+}
+
+async function saveSmtp() {
+  setBtnLoading('smtp-save-btn', true, '💾 Save SMTP Settings');
+  setStatus('smtp-status', 'wait', '⏳ Saving...');
+  var fields = ['host','port','user','pass','from_name','from_email','enc','reply'];
+  var data = {};
+  fields.forEach(function(k) {
+    var el = document.getElementById('smtp-' + k);
+    if (el) data[k] = el.value;
+  });
+  data.port = parseInt(data.port) || 587;
+  try {
+    var existing = await dbGet('smtp_config', '?select=id&limit=1');
+    if (existing && existing.length > 0) {
+      await dbUpdate('smtp_config', '?id=eq.' + existing[0].id, data);
+    } else {
+      await dbInsert('smtp_config', data);
+    }
+    setStatus('smtp-status', 'ok', '✅ SMTP settings saved!');
+  } catch(e) {
+    setStatus('smtp-status', 'err', '❌ Save failed: ' + e.message);
     console.error('saveSmtp:', e);
   }
+  setBtnLoading('smtp-save-btn', false, '💾 Save SMTP Settings');
 }
+
 async function testSmtp() {
-  document.getElementById('smtp-status').textContent = '⏳ Sending test email...';
-  // Save first
+  setStatus('smtp-status', 'wait', '⏳ Sending test email...');
   await saveSmtp();
-  // Call backend test endpoint
   try {
     var r = await fetch('https://walkathon-backend-hv9j.onrender.com/test-email', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({to: document.getElementById('smtp-user').value})
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: document.getElementById('smtp-user').value })
     });
     var d = await r.json();
-    document.getElementById('smtp-status').textContent = d.success ? '✅ Test email sent!' : '❌ '+d.error;
+    setStatus('smtp-status', d.success ? 'ok' : 'err',
+      d.success ? '✅ Test email sent! Check your inbox.' : '❌ ' + d.error);
   } catch(e) {
-    document.getElementById('smtp-status').textContent = '❌ Backend unreachable: '+e.message;
+    setStatus('smtp-status', 'err', '❌ Backend error: ' + e.message);
   }
 }
 
-// ── Load event options ─────────────────────────────────────
-async function loadEventOptions(selectId) {
-  var rows = await sbGet("registration?select=event_name&order=event_name");
-  var unique = [...new Set(rows.filter(function(r){return r.event_name;}).map(function(r){return r.event_name;}))];
-  var sel = document.getElementById(selectId);
-  // keep first option
-  while (sel.options.length > 1) sel.remove(1);
-  unique.forEach(function(ev){
-    var opt = document.createElement('option');
-    opt.value = opt.textContent = ev;
-    sel.appendChild(opt);
-  });
+// ── Templates ──────────────────────────────────────────
+async function loadTemplates() {
+  var list = document.getElementById('tpls-list');
+  list.innerHTML = '<div style="padding:20px;color:#aaa">Loading...</div>';
+  try {
+    var rows = await dbGet('email_templates', '?order=created_at.desc');
+    document.getElementById('tpls-count').textContent = rows.length;
+    if (!rows.length) {
+      list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No templates yet. Add one above.</div>';
+      return;
+    }
+    list.innerHTML = rows.map(function(t) {
+      return '<div class="tpl-card">'
+        + '<div class="tpl-head">'
+        + '<span class="tpl-name">' + esc(t.name) + '</span>'
+        + '<div style="display:flex;gap:8px">'
+        + '<button class="btn btn-ghost btn-sm" onclick="editTpl(' + t.id + ')">✏️ Edit</button>'
+        + '<button class="btn btn-ghost btn-sm" onclick="previewTpl(' + t.id + ')">👁 Preview</button>'
+        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteTpl(' + t.id + ')">🗑</button>'
+        + '</div></div>'
+        + '<div class="tpl-desc">' + esc(t.description || '') + '</div>'
+        + '<div style="font-size:12px;color:#666;margin-bottom:6px">Subject: <strong>' + esc(t.subject || '') + '</strong></div>'
+        + '<div class="tpl-preview">' + esc((t.body_html || '').substring(0, 200)) + '...</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
+  }
 }
 
-// ── Templates ─────────────────────────────────────────────
-async function loadTemplates() {
-  var rows = await sbGet("email_templates?order=created_at.desc");
-  var list = document.getElementById('tpls-list');
-  document.getElementById('tpls-count').textContent = rows.length || 0;
-  if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No templates yet. Add one above.</div>'; return; }
-  list.innerHTML = rows.map(function(t){
-    return '<div class="tpl-card">'
-      +'<div class="tpl-head">'
-      +'<span class="tpl-name">'+esc(t.name)+'</span>'
-      +'<div style="display:flex;gap:8px">'
-      +'<button class="btn btn-ghost btn-sm" onclick="editTemplate('+t.id+')">✏️ Edit</button>'
-      +'<button class="btn btn-ghost btn-sm" onclick="showTplPreview('+t.id+')">👁 Preview</button>'
-      +'<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteTemplate('+t.id+')">🗑</button>'
-      +'</div></div>'
-      +'<div class="tpl-desc">'+esc(t.description||'')+'</div>'
-      +'<div style="font-size:12px;color:#666;margin-bottom:6px">Subject: <strong>'+esc(t.subject||'')+'</strong></div>'
-      +'<div class="tpl-preview">'+esc((t.body_html||'').substring(0,200))+'...</div>'
-      +'</div>';
-  }).join('');
-}
-async function loadTemplateOptions(selectId) {
-  var rows = await sbGet("email_templates?select=id,name&order=name");
-  var sel = document.getElementById(selectId);
-  while (sel.options.length > 1) sel.remove(1);
-  rows.forEach(function(t){
-    var opt = document.createElement('option');
-    opt.value = t.id; opt.textContent = t.name;
-    sel.appendChild(opt);
-  });
-}
 async function saveTemplate() {
   var name = document.getElementById('tpl-name').value.trim();
   var subj = document.getElementById('tpl-subject').value.trim();
   var body = document.getElementById('tpl-body').value.trim();
   var desc = document.getElementById('tpl-desc').value.trim();
-  if (!name || !body) { alert('Template name and HTML body are required.'); return; }
+  if (!name) { alert('Template name is required.'); return; }
+  if (!body) { alert('HTML body is required.'); return; }
+  setBtnLoading('tpl-save-btn', true, '💾 Save Template');
+  setStatus('tpl-status', 'wait', '⏳ Saving...');
   try {
-    var result = await sbPost("email_templates", {name:name, subject:subj, body_html:body, description:desc});
-    if (result && result.code) throw new Error(result.message || result.code);
-    showSaved('tpl-saved');
-    document.getElementById('tpl-name').value='';
-    document.getElementById('tpl-subject').value='';
-    document.getElementById('tpl-body').value='';
-    document.getElementById('tpl-desc').value='';
+    var editId = document.getElementById('tpl-save-btn').getAttribute('data-edit-id');
+    if (editId) {
+      await dbUpdate('email_templates', '?id=eq.' + editId, { name: name, subject: subj, body_html: body, description: desc });
+      document.getElementById('tpl-save-btn').removeAttribute('data-edit-id');
+    } else {
+      await dbInsert('email_templates', { name: name, subject: subj, body_html: body, description: desc });
+    }
+    setStatus('tpl-status', 'ok', '✅ Template saved!');
+    document.getElementById('tpl-name').value = '';
+    document.getElementById('tpl-subject').value = '';
+    document.getElementById('tpl-body').value = '';
+    document.getElementById('tpl-desc').value = '';
     loadTemplates();
   } catch(e) {
-    alert('❌ Save failed: ' + e.message + '\n\nMake sure you ran the SQL to create the email_templates table in Supabase.');
-    console.error('saveTemplate error:', e);
+    setStatus('tpl-status', 'err', '❌ Save failed: ' + e.message);
+    console.error('saveTemplate:', e);
   }
+  setBtnLoading('tpl-save-btn', false, '💾 Save Template');
 }
-async function editTemplate(id) {
-  var rows = await sbGet("email_templates?id=eq."+id);
-  if (!rows[0]) return;
-  var t = rows[0];
-  document.getElementById('tpl-name').value = t.name||'';
-  document.getElementById('tpl-subject').value = t.subject||'';
-  document.getElementById('tpl-body').value = t.body_html||'';
-  document.getElementById('tpl-desc').value = t.description||'';
-  switchTab('templates');
-  window.scrollTo(0,0);
+
+async function editTpl(id) {
+  try {
+    var rows = await dbGet('email_templates', '?id=eq.' + id);
+    if (!rows[0]) return;
+    var t = rows[0];
+    document.getElementById('tpl-name').value = t.name || '';
+    document.getElementById('tpl-subject').value = t.subject || '';
+    document.getElementById('tpl-body').value = t.body_html || '';
+    document.getElementById('tpl-desc').value = t.description || '';
+    document.getElementById('tpl-save-btn').setAttribute('data-edit-id', id);
+    document.getElementById('tpl-save-btn').textContent = '💾 Update Template';
+    switchTab('templates');
+    window.scrollTo(0, 0);
+  } catch(e) { alert('Error: ' + e.message); }
 }
-async function deleteTemplate(id) {
+
+async function deleteTpl(id) {
   if (!confirm('Delete this template?')) return;
-  await sbDelete("email_templates?id=eq."+id);
-  loadTemplates();
+  try {
+    await dbDelete('email_templates', '?id=eq.' + id);
+    loadTemplates();
+  } catch(e) { alert('Delete failed: ' + e.message); }
 }
-async function showTplPreview(id) {
-  var rows = await sbGet("email_templates?id=eq."+id);
-  if (!rows[0]) return;
-  document.getElementById('modal-tpl-name').textContent = rows[0].name;
-  var frame = document.getElementById('tpl-frame');
-  frame.srcdoc = rows[0].body_html || '<p>No HTML body</p>';
-  document.getElementById('tpl-modal').style.display = 'flex';
+
+async function previewTpl(id) {
+  try {
+    var rows = await dbGet('email_templates', '?id=eq.' + id);
+    if (!rows[0]) return;
+    document.getElementById('modal-tpl-name').textContent = rows[0].name;
+    document.getElementById('tpl-frame').srcdoc = rows[0].body_html || '<p>No content</p>';
+    document.getElementById('tpl-modal').style.display = 'flex';
+  } catch(e) { alert('Error: ' + e.message); }
 }
-function previewTemplate() {
+
+function previewCurrentTpl() {
   var body = document.getElementById('tpl-body').value;
   if (!body) { alert('Enter HTML body first.'); return; }
-  document.getElementById('modal-tpl-name').textContent = 'Preview — '+document.getElementById('tpl-name').value;
+  document.getElementById('modal-tpl-name').textContent = 'Preview';
   document.getElementById('tpl-frame').srcdoc = body;
   document.getElementById('tpl-modal').style.display = 'flex';
 }
+
 function closeTplModal() { document.getElementById('tpl-modal').style.display = 'none'; }
+
 function insertVar(v) {
   var ta = document.getElementById('tpl-body');
   var pos = ta.selectionStart;
-  ta.value = ta.value.slice(0,pos)+v+ta.value.slice(ta.selectionEnd);
-  ta.focus(); ta.selectionStart = ta.selectionEnd = pos+v.length;
+  ta.value = ta.value.slice(0, pos) + v + ta.value.slice(ta.selectionEnd);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + v.length;
 }
 
-// ── Jobs ──────────────────────────────────────────────────
-async function loadJobs() {
-  var rows = await sbGet("email_jobs?order=created_at.desc");
-  var list = document.getElementById('jobs-list');
-  document.getElementById('jobs-count').textContent = rows.length || 0;
-  if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No jobs configured yet.</div>'; return; }
-  var tpls = await sbGet("email_templates?select=id,name");
-  var tplMap = {}; tpls.forEach(function(t){ tplMap[t.id]=t.name; });
-  list.innerHTML = rows.map(function(j){
-    var freqLabel = {manual:'Manual',daily:'Daily',weekly:'Weekly',weekly_monday:'Every Monday',weekly_friday:'Every Friday'}[j.frequency]||j.frequency;
-    var statusPill = j.status==='active'?'<span class="pill pill-green">● Active</span>':'<span class="pill pill-grey">⏸ Paused</span>';
-    return '<div class="job-card">'
-      +'<div class="job-info">'
-      +'<div class="job-title">'+esc(j.name)+'</div>'
-      +'<div class="job-meta">'
-      +'<span>📅 '+freqLabel+(j.send_time?' at '+j.send_time:'')+'</span>'
-      +'<span>📝 '+(tplMap[j.template_id]||'No template')+'</span>'
-      +'<span>🎯 '+(j.event_name||'All participants')+'</span>'
-      +(j.last_sent_at?'<span>Last sent: '+new Date(j.last_sent_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+'</span>':'')
-      +'</div></div>'
-      +'<div style="display:flex;align-items:center;gap:10px">'
-      +statusPill
-      +'<div class="job-actions">'
-      +'<button class="btn btn-ghost btn-sm" onclick="toggleJob('+j.id+',\''+j.status+'\')">'+( j.status==='active'?'⏸ Pause':'▶ Resume')+'</button>'
-      +'<button class="btn btn-sm" style="background:#fff3e0;color:#e65100" onclick="deleteJob('+j.id+')">🗑</button>'
-      +'</div></div>'
-      +'</div>';
-  }).join('');
-}
-async function saveJob() {
-  var name = document.getElementById('job-name').value.trim();
-  var event = document.getElementById('job-event').value;
-  var tplId = document.getElementById('job-template').value;
-  var freq  = document.getElementById('job-freq').value;
-  var time  = document.getElementById('job-time').value;
-  var status= document.getElementById('job-status').value;
-  if (!name) { alert('Job name is required.'); return; }
-  if (!tplId) { alert('Please select a template first from the Templates tab.'); return; }
+async function loadTemplateSelect(selectId) {
   try {
-    var result = await sbPost("email_jobs", {
-      name: name,
-      event_name: event||null,
-      template_id: parseInt(tplId),
-      frequency: freq,
-      send_time: time,
-      status: status
+    var rows = await dbGet('email_templates', '?select=id,name&order=name');
+    var sel = document.getElementById(selectId);
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    rows.forEach(function(t) {
+      var o = document.createElement('option');
+      o.value = t.id; o.textContent = t.name;
+      sel.appendChild(o);
     });
-    if (result && result.code) throw new Error(result.message || result.code);
-    showSaved('job-saved');
-    document.getElementById('job-name').value='';
-    loadJobs();
+  } catch(e) { console.warn('loadTemplateSelect:', e.message); }
+}
+
+// ── Events dropdown ────────────────────────────────────
+async function loadEventSelect(selectId) {
+  try {
+    var rows = await dbGet('registration', '?select=event_name&order=event_name');
+    var unique = [];
+    var seen = {};
+    rows.forEach(function(r) {
+      if (r.event_name && !seen[r.event_name]) { seen[r.event_name] = 1; unique.push(r.event_name); }
+    });
+    var sel = document.getElementById(selectId);
+    if (!sel) return;
+    while (sel.options.length > 1) sel.remove(1);
+    unique.forEach(function(ev) {
+      var o = document.createElement('option');
+      o.value = o.textContent = ev;
+      sel.appendChild(o);
+    });
+  } catch(e) { console.warn('loadEventSelect:', e.message); }
+}
+
+// ── Jobs ───────────────────────────────────────────────
+async function loadJobs() {
+  var list = document.getElementById('jobs-list');
+  list.innerHTML = '<div style="padding:20px;color:#aaa">Loading...</div>';
+  try {
+    var rows = await dbGet('email_jobs', '?order=created_at.desc');
+    var tpls = await dbGet('email_templates', '?select=id,name');
+    var tm = {};
+    tpls.forEach(function(t) { tm[t.id] = t.name; });
+    document.getElementById('jobs-count').textContent = rows.length;
+    if (!rows.length) {
+      list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No jobs yet. Create one above.</div>';
+      return;
+    }
+    var freqMap = { manual: 'Manual', daily: 'Daily', weekly: 'Weekly', weekly_monday: 'Every Monday', weekly_friday: 'Every Friday' };
+    list.innerHTML = rows.map(function(j) {
+      var pill = j.status === 'active'
+        ? '<span class="pill pill-green">● Active</span>'
+        : '<span class="pill pill-grey">⏸ Paused</span>';
+      return '<div class="job-card">'
+        + '<div class="job-info">'
+        + '<div class="job-title">' + esc(j.name) + '</div>'
+        + '<div class="job-meta">'
+        + '<span>📅 ' + (freqMap[j.frequency] || j.frequency) + (j.send_time ? ' at ' + j.send_time : '') + '</span>'
+        + '<span>📝 ' + esc(tm[j.template_id] || 'No template') + '</span>'
+        + '<span>🎯 ' + esc(j.event_name || 'All participants') + '</span>'
+        + '</div></div>'
+        + '<div style="display:flex;align-items:center;gap:10px">'
+        + pill
+        + '<button class="btn btn-ghost btn-sm" onclick="toggleJob(' + j.id + ',\'' + j.status + '\')">'
+        + (j.status === 'active' ? '⏸ Pause' : '▶ Resume') + '</button>'
+        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteJob(' + j.id + ')">🗑</button>'
+        + '</div></div>';
+    }).join('');
   } catch(e) {
-    alert('❌ Save failed: ' + e.message + '\n\nMake sure you ran the SQL to create the email_jobs table in Supabase.');
-    console.error('saveJob error:', e);
+    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
   }
 }
-async function toggleJob(id, currentStatus) {
-  var newStatus = currentStatus==='active' ? 'paused' : 'active';
-  await sbPatch("email_jobs?id=eq."+id, {status: newStatus});
-  loadJobs();
+
+async function saveJob() {
+  var name   = document.getElementById('job-name').value.trim();
+  var event  = document.getElementById('job-event').value;
+  var tplId  = document.getElementById('job-tpl').value;
+  var freq   = document.getElementById('job-freq').value;
+  var time   = document.getElementById('job-time').value;
+  var status = document.getElementById('job-status').value;
+  if (!name) { alert('Job name is required.'); return; }
+  if (!tplId) { alert('Please select a template. Go to Templates tab first.'); return; }
+  setBtnLoading('job-save-btn', true, '💾 Save Job');
+  setStatus('job-status', 'wait', '⏳ Saving...');
+  try {
+    await dbInsert('email_jobs', {
+      name: name, event_name: event || null,
+      template_id: parseInt(tplId),
+      frequency: freq, send_time: time, status: status
+    });
+    setStatus('job-status', 'ok', '✅ Job saved!');
+    document.getElementById('job-name').value = '';
+    loadJobs();
+  } catch(e) {
+    setStatus('job-status', 'err', '❌ Save failed: ' + e.message);
+    console.error('saveJob:', e);
+  }
+  setBtnLoading('job-save-btn', false, '💾 Save Job');
 }
+
+async function toggleJob(id, current) {
+  try {
+    await dbUpdate('email_jobs', '?id=eq.' + id, { status: current === 'active' ? 'paused' : 'active' });
+    loadJobs();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
 async function deleteJob(id) {
   if (!confirm('Delete this job?')) return;
-  await sbDelete("email_jobs?id=eq."+id);
-  loadJobs();
+  try {
+    await dbDelete('email_jobs', '?id=eq.' + id);
+    loadJobs();
+  } catch(e) { alert('Delete failed: ' + e.message); }
 }
 
-// ── Recipients preview ────────────────────────────────────
+// ── Recipients helpers ─────────────────────────────────
 async function getRecipients(eventName) {
-  var url = "registration?select=strava_athlete_id,full_name,email,event_name";
-  if (eventName) url += "&event_name=eq."+encodeURIComponent(eventName);
-  var rows = await sbGet(url);
-  return rows.filter(function(r){ return r.email && r.email.includes('@'); });
+  var q = '?select=strava_athlete_id,full_name,email,event_name,leaderboard_team';
+  if (eventName) q += '&event_name=eq.' + encodeURIComponent(eventName);
+  var rows = await dbGet('registration', q);
+  return rows.filter(function(r) { return r.email && r.email.indexOf('@') > 0; });
 }
+
 async function previewRecipients() {
   var eventName = document.getElementById('job-event').value;
-  var recips = await getRecipients(eventName);
-  document.getElementById('recip-count').textContent = recips.length + ' recipients' + (eventName?' for event: '+eventName:' (all events)');
-  document.getElementById('recip-body').innerHTML = recips.slice(0,30).map(function(r,i){
-    return '<tr><td style="color:#aaa">'+(i+1)+'</td><td>'+esc(r.full_name||'—')+'</td><td>'+esc(r.email||'—')+'</td><td>'+esc(r.event_name||'—')+'</td></tr>';
-  }).join('');
-  if (recips.length>30) document.getElementById('recip-body').innerHTML += '<tr><td colspan="4" style="text-align:center;color:#888;font-size:12px">…and '+(recips.length-30)+' more</td></tr>';
-  document.getElementById('recip-preview').style.display = 'block';
-}
-async function previewSend() {
-  var eventName = document.getElementById('send-event').value;
-  var recips = await getRecipients(eventName);
-  document.getElementById('send-recip-count').textContent = recips.length + ' recipients';
-  document.getElementById('send-recip-body').innerHTML = recips.slice(0,20).map(function(r,i){
-    return '<tr><td style="color:#aaa">'+(i+1)+'</td><td>'+esc(r.full_name||'—')+'</td><td>'+esc(r.email||'—')+'</td><td>'+esc(r.event_name||'—')+'</td></tr>';
-  }).join('');
-  document.getElementById('send-recip-preview').style.display = 'block';
+  try {
+    var recips = await getRecipients(eventName);
+    document.getElementById('recip-count').textContent = recips.length + ' recipients' + (eventName ? ' for: ' + eventName : ' (all events)');
+    document.getElementById('recip-body').innerHTML = recips.slice(0, 30).map(function(r, i) {
+      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'—') + '</td><td>' + esc(r.email||'—') + '</td><td>' + esc(r.event_name||'—') + '</td></tr>';
+    }).join('') + (recips.length > 30 ? '<tr><td colspan="4" style="text-align:center;color:#888">…and ' + (recips.length-30) + ' more</td></tr>' : '');
+    document.getElementById('recip-preview').style.display = 'block';
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
-// ── Send Now ──────────────────────────────────────────────
+// ── Send Now ───────────────────────────────────────────
+async function previewSend() {
+  var eventName = document.getElementById('send-event').value;
+  try {
+    var recips = await getRecipients(eventName);
+    document.getElementById('send-recip-count').textContent = recips.length + ' recipients';
+    document.getElementById('send-recip-body').innerHTML = recips.slice(0, 20).map(function(r, i) {
+      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'—') + '</td><td>' + esc(r.email||'—') + '</td><td>' + esc(r.event_name||'—') + '</td></tr>';
+    }).join('');
+    document.getElementById('send-recip-preview').style.display = 'block';
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
 async function startSend(testOnly) {
-  var tplId = document.getElementById('send-template').value;
+  var tplId     = document.getElementById('send-tpl').value;
   var eventName = document.getElementById('send-event').value;
   var testEmail = document.getElementById('send-test-email').value.trim();
   if (!tplId) { alert('Please select a template.'); return; }
   if (testOnly && !testEmail) { alert('Enter a test email address.'); return; }
 
-  var btn = document.getElementById('send-btn');
-  btn.disabled = true;
-
   var logEl = document.getElementById('send-log');
-  logEl.classList.add('show');
+  logEl.className = 'send-log show';
   logEl.innerHTML = '';
-  var prog = document.getElementById('send-prog');
-  prog.classList.add('show');
-  var fill = document.getElementById('send-prog-fill');
-  var pct  = document.getElementById('send-prog-pct');
-  var lbl  = document.getElementById('send-prog-label');
+  document.getElementById('send-prog').className = 'prog-wrap show';
 
   function log(msg, cls) {
-    logEl.innerHTML += '<div class="'+(cls||'')+'">'+msg+'</div>';
+    logEl.innerHTML += '<div' + (cls ? ' class="' + cls + '"' : '') + '>' + msg + '</div>';
     logEl.scrollTop = logEl.scrollHeight;
   }
 
   try {
-    // Load template
-    var tpls = await sbGet("email_templates?id=eq."+tplId);
-    if (!tpls[0]) { log('❌ Template not found', 'log-err'); btn.disabled=false; return; }
-    var tpl = tpls[0];
-    log('📝 Template: '+tpl.name);
+    var tpls = await dbGet('email_templates', '?id=eq.' + tplId);
+    if (!tpls[0]) { log('❌ Template not found', 'log-err'); return; }
+    log('📝 Template: ' + tpls[0].name);
 
-    // Load recipients
-    var recips = testOnly ? [{full_name:'Test',email:testEmail,event_name:'Test'}] : await getRecipients(eventName);
-    log('👥 Recipients: '+recips.length+(eventName?' (event: '+eventName+')':''));
+    var recips = testOnly ? [{ full_name: 'Test', email: testEmail, event_name: 'Test' }] : await getRecipients(eventName);
+    log('👥 Recipients: ' + recips.length);
 
-    if (!recips.length) { log('⚠️ No recipients with email addresses found.','log-warn'); btn.disabled=false; return; }
+    if (!recips.length) { log('⚠️ No recipients with valid email addresses.', 'log-warn'); return; }
 
-    // Call backend send endpoint
-    log('🚀 Sending via SMTP...');
+    log('🚀 Sending via backend...');
     var r = await fetch('https://walkathon-backend-hv9j.onrender.com/send-email', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        recipients: recips,
-        subject: tpl.subject,
-        body_html: tpl.body_html,
-        test_only: testOnly,
-        test_email: testEmail
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipients: recips, subject: tpls[0].subject, body_html: tpls[0].body_html, test_only: testOnly, test_email: testEmail })
     });
     var result = await r.json();
-
     if (result.success) {
-      var sent = result.sent || recips.length;
-      fill.style.width='100%'; pct.textContent='100%';
-      lbl.textContent = '✅ Done';
-      log('');
-      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'log-info');
-      log('✅ Sent: '+sent);
-      if (result.failed) log('❌ Failed: '+result.failed, 'log-err');
-      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'log-info');
-
-      // Log to send history
-      await sbPost("email_send_history", {
-        template_id: parseInt(tplId),
-        event_name: eventName||null,
-        recipients_count: sent,
-        failed_count: result.failed||0,
-        test_mode: testOnly,
-        status: 'sent'
-      });
+      document.getElementById('send-prog-fill').style.width = '100%';
+      document.getElementById('send-prog-pct').textContent = '100%';
+      log('━━━━━━━━━━━━━━━━━━━━', 'log-info');
+      log('✅ Sent: ' + result.sent);
+      if (result.failed) log('❌ Failed: ' + result.failed, 'log-err');
+      log('━━━━━━━━━━━━━━━━━━━━', 'log-info');
+      await dbInsert('email_send_history', { template_id: parseInt(tplId), event_name: eventName || null, recipients_count: result.sent, failed_count: result.failed || 0, test_mode: testOnly, status: 'sent' });
       loadHistory();
     } else {
-      log('❌ Send failed: '+(result.error||'Unknown error'), 'log-err');
-      log('💡 Make sure SMTP settings are saved and your backend is running.', 'log-warn');
+      log('❌ Send failed: ' + (result.error || 'Unknown error'), 'log-err');
     }
   } catch(e) {
-    log('❌ Error: '+e.message, 'log-err');
-    log('💡 Backend may not have the /send-email endpoint yet.', 'log-warn');
+    log('❌ Error: ' + e.message, 'log-err');
   }
-
-  btn.disabled = false;
-}
 }
 
-// ── Send History ──────────────────────────────────────────
+// ── Send History ───────────────────────────────────────
 async function loadHistory() {
-  var rows = await sbGet("email_send_history?order=sent_at.desc&limit=20");
   var list = document.getElementById('history-list');
-  if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No emails sent yet.</div>'; return; }
-  var tpls = await sbGet("email_templates?select=id,name");
-  var tplMap = {}; tpls.forEach(function(t){ tplMap[t.id]=t.name; });
-  list.innerHTML = '<table class="recip-table"><thead><tr><th>Date</th><th>Template</th><th>Event</th><th>Sent</th><th>Failed</th><th>Mode</th></tr></thead><tbody>'+
-    rows.map(function(h){
-      return '<tr>'
-        +'<td>'+new Date(h.sent_at||h.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})+'</td>'
-        +'<td>'+(tplMap[h.template_id]||'—')+'</td>'
-        +'<td>'+(h.event_name||'All')+'</td>'
-        +'<td style="color:#2e7d32;font-weight:600">'+(h.recipients_count||0)+'</td>'
-        +'<td style="color:'+( h.failed_count>0?'#c62828':'#888')+'">'+( h.failed_count||0)+'</td>'
-        +'<td>'+(h.test_mode?'<span class="pill pill-blue">Test</span>':'<span class="pill pill-green">Live</span>')+'</td>'
-        +'</tr>';
-    }).join('')+'</tbody></table>';
+  list.innerHTML = '<div style="padding:20px;color:#aaa">Loading...</div>';
+  try {
+    var rows = await dbGet('email_send_history', '?order=sent_at.desc&limit=20');
+    if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:32px;color:#bbb">No emails sent yet.</div>'; return; }
+    var tpls = await dbGet('email_templates', '?select=id,name');
+    var tm = {};
+    tpls.forEach(function(t) { tm[t.id] = t.name; });
+    list.innerHTML = '<table class="recip-table"><thead><tr><th>Date</th><th>Template</th><th>Event</th><th>Sent</th><th>Failed</th><th>Mode</th></tr></thead><tbody>'
+      + rows.map(function(h) {
+        return '<tr>'
+          + '<td>' + new Date(h.sent_at || h.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</td>'
+          + '<td>' + esc(tm[h.template_id] || '—') + '</td>'
+          + '<td>' + esc(h.event_name || 'All') + '</td>'
+          + '<td style="color:#2e7d32;font-weight:600">' + (h.recipients_count || 0) + '</td>'
+          + '<td style="color:' + (h.failed_count > 0 ? '#c62828' : '#888') + '">' + (h.failed_count || 0) + '</td>'
+          + '<td>' + (h.test_mode ? '<span class="pill pill-blue">Test</span>' : '<span class="pill pill-green">Live</span>') + '</td>'
+          + '</tr>';
+      }).join('')
+      + '</tbody></table>';
+  } catch(e) {
+    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
+  }
 }
 
-function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);}
+// ── Init ───────────────────────────────────────────────
+loadSmtp();
 
-// Init — wrapped so errors never block tab clicks
-safeRun(loadSmtp);
 </script>
 </body>
 </html>
