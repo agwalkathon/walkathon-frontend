@@ -366,43 +366,67 @@ async function confirmStatus() {
 document.getElementById('flag-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
 
-function editDist(cell, actId, currentM) {
-  var currentKm = (parseFloat(currentM)||0)/1000;
-  cell.innerHTML = '<input class="edit-input" type="number" step="0.01" value="'+currentKm.toFixed(2)+'" onblur="saveDist(this,'+actId+')" onkeydown="if(event.key===\'Enter\')this.blur();if(event.key===\'Escape\')location.reload()" autofocus>';
-  cell.querySelector('input').focus();
+// Double-click edit — uses data attributes to avoid quote escaping
+document.addEventListener('dblclick', function(e) {
+  var cell = e.target.closest('td[data-edit]');
+  if (!cell) return;
+  var type = cell.getAttribute('data-edit');
+  var actId = cell.getAttribute('data-id');
+  var current = cell.getAttribute('data-val');
+  if (type === 'dist') startEditDist(cell, actId, current);
+  if (type === 'type') startEditType(cell, actId, current);
+});
+
+function startEditDist(cell, actId, currentM) {
+  var km = (parseFloat(currentM)||0)/1000;
+  cell.innerHTML = '<input class="edit-input" type="number" step="0.01" value="'+km.toFixed(2)+'" id="ei-'+actId+'">';
+  var inp = cell.querySelector('input');
+  inp.focus(); inp.select();
+  inp.addEventListener('blur', function(){ saveDist(cell, actId, inp.value); });
+  inp.addEventListener('keydown', function(e){
+    if (e.key==='Enter') inp.blur();
+    if (e.key==='Escape') { cell.innerHTML = km.toFixed(2)+' km'; }
+  });
 }
-async function saveDist(input, actId) {
-  var km = parseFloat(input.value) || 0;
-  var meters = Math.round(km * 1000);
-  var cell = input.parentElement;
-  cell.innerHTML = '<span style="color:#E8622A">Saving...</span>';
-  try {
-    var resp = await fetch(SUPABASE_URL+'/rest/v1/activities?id=eq.'+actId, {
-      method:'PATCH', headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'},
-      body: JSON.stringify({distance_meters: meters})
-    });
-    cell.innerHTML = km.toFixed(2)+' km';
-    cell.setAttribute('ondblclick','editDist(this,'+actId+','+meters+')');
-  } catch(e) { cell.innerHTML = 'Error'; }
-}
-function editType(cell, actId, currentType) {
-  var types = ['Walk','Run','Hike','Ride','VirtualRun','VirtualRide','MountainBikeRide'];
-  var opts = types.map(function(t){ return '<option value="'+t+'"'+(t===currentType?' selected':'')+'>'+t+'</option>'; }).join('');
-  cell.innerHTML = '<select class="edit-select" onblur="saveType(this,'+actId+')" onkeydown="if(event.key===\'Enter\')this.blur()"><option value="">Select...</option>'+opts+'</select>';
-  cell.querySelector('select').focus();
-}
-async function saveType(sel, actId) {
-  var newType = sel.value;
-  if (!newType) { location.reload(); return; }
-  var cell = sel.parentElement;
-  cell.innerHTML = '<span style="color:#E8622A">Saving...</span>';
+
+async function saveDist(cell, actId, val) {
+  var km = parseFloat(val)||0;
+  var meters = Math.round(km*1000);
+  cell.innerHTML = '<span style="color:#E8622A;font-size:11px">Saving...</span>';
   try {
     await fetch(SUPABASE_URL+'/rest/v1/activities?id=eq.'+actId, {
-      method:'PATCH', headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'},
-      body: JSON.stringify({sport_type: newType})
+      method:'PATCH',
+      headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'},
+      body:JSON.stringify({distance_meters:meters})
     });
+    cell.setAttribute('data-val', meters);
+    cell.innerHTML = km.toFixed(2)+' km';
+  } catch(e) { cell.innerHTML = 'Error'; }
+}
+
+function startEditType(cell, actId, current) {
+  var types = ['Walk','Run','Hike','Ride','VirtualRun','VirtualRide','MountainBikeRide'];
+  var opts = types.map(function(t){
+    return '<option value="'+t+'"'+(t===current?' selected':'')+'>'+t+'</option>';
+  }).join('');
+  cell.innerHTML = '<select class="edit-select"><option value="">— Select —</option>'+opts+'</select>';
+  var sel = cell.querySelector('select');
+  sel.focus();
+  sel.addEventListener('blur', function(){ saveType(cell, actId, sel.value); });
+  sel.addEventListener('change', function(){ sel.blur(); });
+}
+
+async function saveType(cell, actId, newType) {
+  if (!newType) { cell.innerHTML = cell.getAttribute('data-val')||'—'; return; }
+  cell.innerHTML = '<span style="color:#E8622A;font-size:11px">Saving...</span>';
+  try {
+    await fetch(SUPABASE_URL+'/rest/v1/activities?id=eq.'+actId, {
+      method:'PATCH',
+      headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON,'Content-Type':'application/json'},
+      body:JSON.stringify({sport_type:newType})
+    });
+    cell.setAttribute('data-val', newType);
     cell.innerHTML = '<span class="badge '+bc(newType)+'">'+newType+'</span>';
-    cell.setAttribute('ondblclick','editType(this,'+actId+',\''+newType+'\')');
   } catch(e) { cell.innerHTML = 'Error'; }
 }
 
@@ -498,10 +522,10 @@ async function loadActivities() {
         +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+(r?.full_name||'Unknown')+'</a></td>'
         +'<td style="font-size:12px;color:#888">'+(r?.leaderboard_team||'—')+'</td>'
         +'<td style="max-width:130px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+(a.activity_name||'')+'" style="display:inline-block;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(a.activity_name||'—')+'</a></td>'
-        +'<td class="editable" ondblclick="editType(this,'+a.id+',\''+( a.sport_type||'')+'\'\')" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
+        +'<td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
         +'<td>'+fmtDate(a.activity_date)+'</td>'
         +'<td>'+fmtTime(a.activity_date)+'</td>'
-        +'<td class="editable" ondblclick="editDist(this,'+a.id+','+( a.distance_meters||0)+')" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
+        +'<td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
         +'<td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td>'
         +'<td>'+fmtPS(a.avg_speed,a.sport_type)+'</td>'
         +'<td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td>'
