@@ -527,58 +527,69 @@ function calcPoints(acts, athleteId, gender) {
   totalDistKm  = parseFloat(totalDistKm.toFixed(2));
   totalDistPts = parseFloat(totalDistPts.toFixed(2));
 
-  // Challenge bonus — respects activity_scope (single vs daily total)
-  CHALLENGES.forEach(function(c) {
-    var key = c.id;
-    if (earnedChallenges.has(key)) return;
-    var eligible = c.eligible==='all' || c.eligible===(gender||'').toLowerCase() ||
-      (c.eligible==='dayshift') || (c.eligible==='nightshift');
-    if (!eligible) return;
+  // Challenge bonus — each challenge awarded AT MOST ONCE per athlete
+  for (var ci = 0; ci < CHALLENGES.length; ci++) {
+    var c = CHALLENGES[ci];
+    var key = 'ch_' + (c.id || ci); // unique string key
+    if (earnedChallenges.has(key)) continue; // already awarded
+
+    var eligible = c.eligible === 'all'
+      || c.eligible === (gender || '').toLowerCase()
+      || c.eligible === 'dayshift'
+      || c.eligible === 'nightshift';
+    if (!eligible) continue;
+
+    var awarded = false;
+    var cSportTypes = Array.isArray(c.sport_types) && c.sport_types.length
+      ? c.sport_types : ['Walk','Run','Hike','Ride'];
 
     if (c.activity_scope === 'daily') {
-      // Challenge awarded AT MOST ONCE across all days in window
-      var sportTypes = c.sport_types || ['Walk','Run','Hike','Ride'];
-      var days = Object.keys(byDay).filter(function(d) {
+      // Find days within challenge window
+      var cDays = Object.keys(byDay).filter(function(d) {
         return d >= c.start_date && d <= c.end_date;
       });
-      console.log('[Challenge] "'+c.name+'" athlete='+athleteId+' days_in_window='+JSON.stringify(days)+' already_earned='+earnedChallenges.has(key));
-      for (var di = 0; di < days.length; di++) {
-        var day = days[di];
-        var dayActs = byDay[day];
-        var sportTypes2 = c.sport_types || ['Walk','Run','Hike','Ride'];
-        var hasMatchingSport = dayActs.some(function(a){ return sportTypes2.includes(a.sport_type); });
+      // Also check IST offset days (activity stored as UTC, date may shift by -1)
+      var cDaysIST = Object.keys(byDay).filter(function(d) {
+        // Add 1 day to handle UTC→IST shift: June 13 UTC = June 14 IST
+        var next = new Date(d + 'T00:00:00Z');
+        next.setDate(next.getDate() + 1);
+        var nextStr = next.toISOString().split('T')[0];
+        return nextStr >= c.start_date && nextStr <= c.end_date && !cDays.includes(d);
+      });
+      var allCDays = cDays.concat(cDaysIST);
+
+      for (var di = 0; di < allCDays.length; di++) {
+        if (awarded) break;
+        var day = allCDays[di];
+        var dayActs = byDay[day] || [];
+        var hasMatchingSport = dayActs.some(function(a){ return cSportTypes.includes(a.sport_type); });
         if (!hasMatchingSport) continue;
         var dayTotalKm = 0;
         dayActs.forEach(function(a){
-          if (sportTypes2.includes(a.sport_type)) dayTotalKm += (a.distance_meters||0)/1000;
+          if (cSportTypes.includes(a.sport_type)) dayTotalKm += (a.distance_meters || 0) / 1000;
         });
         var qualifies = false;
         if (c.distance_type === 'fixed' || c.distance_type === 'range') {
           qualifies = dayTotalKm >= c.distance_min - 0.1 && dayTotalKm <= c.distance_max + 0.1;
-        } else {
+        } else { // extended (min+)
           qualifies = dayTotalKm >= c.distance_min;
         }
-        console.log('[Challenge] "'+c.name+'" day='+day+' dayTotalKm='+dayTotalKm.toFixed(2)+' min='+c.distance_min+' qualifies='+qualifies+' earnedAlready='+earnedChallenges.has(key));
-        if (qualifies && !earnedChallenges.has(key)) {
-          earnedChallenges.add(key);
-          totalChallenge += c.bonus_points;
-          challengeNames.push(c.name);
-          console.log('[Challenge] ✅ AWARDED "'+c.name+'" +'+c.bonus_points+' totalChallenge now='+totalChallenge);
-          break;
-        }
+        if (qualifies) { awarded = true; }
       }
     } else {
-      // Single activity scope — check each activity individually
-      acts.filter(function(a){ return a.strava_athlete_id===athleteId; }).forEach(function(a) {
-        if (earnedChallenges.has(key)) return;
-        if (checkChallenge(a, c)) {
-          earnedChallenges.add(key);
-          totalChallenge += c.bonus_points;
-          challengeNames.push(c.name);
-        }
-      });
+      // Single activity scope — first matching activity wins
+      var myActs = acts.filter(function(a){ return a.strava_athlete_id === athleteId; });
+      for (var ai = 0; ai < myActs.length; ai++) {
+        if (checkChallenge(myActs[ai], c)) { awarded = true; break; }
+      }
     }
-  });
+
+    if (awarded) {
+      earnedChallenges.add(key);
+      totalChallenge += Number(c.bonus_points) || 0;
+      challengeNames.push(c.name);
+    }
+  }
 
   // Add manual bonus from activities
   var totalManual = 0;
