@@ -573,11 +573,28 @@ function renderDashboard(data) {
   showScreen('dashboard-screen');
 }
 
-// Check session set by index.html login
+// Check session set by index.html, then load dashboard
 var storedSession = JSON.parse(sessionStorage.getItem('wk_user') || '{}');
 if (!storedSession.loggedIn || storedSession.expires < Date.now()) {
-  // Not logged in — send to index
   window.location.replace('index.html');
+} else {
+  // Session valid — load full dashboard data
+  setLoading('Loading your data...');
+  fetch(BACKEND_URL + '/my-data-session', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ athlete_id: storedSession.athleteId })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (!data.success) {
+      sessionStorage.removeItem('wk_user');
+      window.location.replace('index.html');
+      return;
+    }
+    renderDashboard(data);
+  })
+  .catch(function(){ showError('⚠️','Connection error','Could not reach the server. Please try again.'); });
 }
 
 // ══ LEADERBOARD TAB ════════════════════════════════════════
