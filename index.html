@@ -2,324 +2,126 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#111827">
   <title>Arcgate Walkathon 2026</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --brand:#E8622A; --brand-dark:#c4511f; --brand-light:rgba(232,98,42,0.12);
-      --dark:#111827; --dark2:#1f2937;
-      --text:#111827; --text2:#6b7280;
-      --border:#e5e7eb; --bg:#f9fafb; --white:#ffffff;
-      --success:#16a34a; --success-bg:#f0fdf4;
-      --error:#dc2626; --error-bg:#fef2f2;
-      --radius:16px; --radius-sm:12px;
-      --shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
-    }
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-    html,body{height:100%;}
-    body{
-      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-      background:var(--dark);
-      color:white;
-      min-height:100dvh;
-      display:flex;
-      flex-direction:column;
-      -webkit-font-smoothing:antialiased;
-    }
-
-    /* ── Header ── */
-    .app-header{
-      padding:16px 20px;
-      padding-top:max(16px,env(safe-area-inset-top));
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .app-header img{height:34px;object-fit:contain;}
-    .admin-link{font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;padding:6px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;}
-
-    /* ── Hero ── */
-    .hero{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:32px 24px;
-      text-align:center;
-      position:relative;
-      overflow:hidden;
-    }
-    .hero::before{
-      content:'';
-      position:absolute;
-      top:-80px;right:-80px;
-      width:300px;height:300px;
-      border-radius:50%;
-      background:radial-gradient(circle,rgba(232,98,42,0.2) 0%,transparent 65%);
-      pointer-events:none;
-    }
-    .hero::after{
-      content:'';
-      position:absolute;
-      bottom:-60px;left:-60px;
-      width:240px;height:240px;
-      border-radius:50%;
-      background:radial-gradient(circle,rgba(232,98,42,0.12) 0%,transparent 65%);
-      pointer-events:none;
-    }
-    .hero-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      background:var(--brand-light);
-      border:1px solid rgba(232,98,42,0.3);
-      color:var(--brand);
-      font-size:11px;
-      font-weight:600;
-      padding:5px 14px;
-      border-radius:20px;
-      letter-spacing:0.8px;
-      text-transform:uppercase;
-      margin-bottom:24px;
-    }
-    .hero h1{
-      font-size:34px;
-      font-weight:800;
-      line-height:1.15;
-      letter-spacing:-1px;
-      margin-bottom:12px;
-    }
-    .hero h1 em{color:var(--brand);font-style:normal;}
-    .hero-sub{
-      font-size:15px;
-      color:rgba(255,255,255,0.45);
-      line-height:1.65;
-      margin-bottom:40px;
-      max-width:300px;
-    }
-
-    /* ── Stats ── */
-    .stats-row{
-      display:flex;
-      gap:0;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.1);
-      border-radius:var(--radius-sm);
-      overflow:hidden;
-      margin-bottom:40px;
-      width:100%;
-      max-width:360px;
-    }
-    .stat-s{
-      flex:1;
-      padding:12px 8px;
-      text-align:center;
-      border-right:1px solid rgba(255,255,255,0.08);
-    }
-    .stat-s:last-child{border-right:none;}
-    .stat-s .sv{font-size:16px;font-weight:800;color:var(--brand);}
-    .stat-s .sl{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;}
-
-    /* ── Login box ── */
-    .login-box{
-      width:100%;
-      max-width:360px;
-    }
-    .btn-strava{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:12px;
-      width:100%;
-      padding:18px;
-      background:var(--brand);
-      color:white;
-      border:none;
-      border-radius:var(--radius-sm);
-      font-size:16px;
-      font-weight:700;
-      text-decoration:none;
-      cursor:pointer;
-      font-family:inherit;
-      box-shadow:0 4px 24px rgba(232,98,42,0.4);
-      transition:all 0.2s;
-      position:relative;
-    }
-    .btn-strava:active{transform:scale(0.97);background:var(--brand-dark);}
-    .btn-strava svg{width:22px;height:22px;fill:white;flex-shrink:0;}
-
-    /* ── Processing ── */
+    body{font-family:'Inter',-apple-system,sans-serif;background:#111827;color:white;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;-webkit-font-smoothing:antialiased;}
+    img.logo{height:40px;margin-bottom:36px;}
+    h1{font-size:32px;font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:10px;line-height:1.2;}
+    h1 em{color:#E8622A;font-style:normal;}
+    p.sub{font-size:14px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.6;margin-bottom:40px;max-width:300px;}
+    .stats{display:flex;gap:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;margin-bottom:40px;width:100%;max-width:360px;}
+    .stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,0.08);}
+    .stat:last-child{border-right:none;}
+    .stat .v{font-size:15px;font-weight:800;color:#E8622A;}
+    .stat .l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;}
+    .box{width:100%;max-width:360px;}
+    .btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px;background:#E8622A;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(232,98,42,0.4);}
+    .btn:active{transform:scale(0.97);}
+    .btn svg{width:22px;height:22px;fill:white;flex-shrink:0;}
     @keyframes spin{to{transform:rotate(360deg);}}
-    .processing{
-      display:none;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding:18px;
-      font-size:14px;
-      color:rgba(255,255,255,0.5);
-    }
-    .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.15);border-top-color:var(--brand);border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
-
-    /* ── Messages ── */
-    .msg{display:none;margin-top:14px;padding:14px 16px;border-radius:var(--radius-sm);font-size:13px;line-height:1.55;}
-    .msg-success{background:var(--success-bg);color:var(--success);border:1px solid #bbf7d0;}
-    .msg-error{background:var(--error-bg);color:var(--error);border:1px solid #fecaca;}
-
-    /* ── Note ── */
-    .login-note{
-      margin-top:16px;
-      font-size:11px;
-      color:rgba(255,255,255,0.25);
-      text-align:center;
-      line-height:1.8;
-    }
-    .login-note a{color:var(--brand);text-decoration:none;opacity:0.8;}
-
-    /* ── Leaderboard link ── */
-    .lb-link{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-top:16px;
-      padding:14px 18px;
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:var(--radius-sm);
-      text-decoration:none;
-      color:rgba(255,255,255,0.7);
-      font-size:14px;
-      font-weight:500;
-      transition:background 0.15s;
-    }
-    .lb-link:active{background:rgba(255,255,255,0.09);}
-    .lb-link .icon{font-size:20px;}
-    .lb-link .arr{margin-left:auto;opacity:0.3;font-size:16px;}
-
-    /* ── Footer ── */
-    .app-footer{
-      text-align:center;
-      padding:16px 20px;
-      padding-bottom:max(16px,env(safe-area-inset-bottom));
-      font-size:11px;
-      color:rgba(255,255,255,0.2);
-    }
-    .app-footer a{color:var(--brand);text-decoration:none;margin:0 6px;opacity:0.7;}
+    .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
+    .proc{display:none;align-items:center;justify-content:center;gap:10px;padding:18px;font-size:14px;color:rgba(255,255,255,0.5);}
+    .err{display:none;margin-top:14px;padding:14px;border-radius:10px;font-size:13px;line-height:1.5;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+    .note{margin-top:16px;font-size:11px;color:rgba(255,255,255,0.2);text-align:center;line-height:1.8;}
+    .note a{color:#E8622A;text-decoration:none;opacity:0.8;}
+    footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:12px;font-size:11px;color:rgba(255,255,255,0.2);}
+    footer a{color:#E8622A;text-decoration:none;margin:0 6px;opacity:0.7;}
   </style>
 </head>
 <body>
-
-<div class="app-header">
-  <img src="aw_logo_dark.png" alt="Arcgate Walkathon">
-
-</div>
-
-<div class="hero">
-  <div class="hero-badge">🏃 Arcgate · June 2026</div>
+  <img src="aw_logo_dark.png" class="logo" alt="Arcgate Walkathon">
   <h1>Walk. Run.<br><em>Win together.</em></h1>
-  <p class="hero-sub">Join 500+ colleagues on the live leaderboard. Connect Strava once — that's it.</p>
+  <p class="sub">Join 500+ colleagues on the live leaderboard.</p>
 
-  <div class="stats-row">
-    <div class="stat-s"><div class="sv">500+</div><div class="sl">Athletes</div></div>
-    <div class="stat-s"><div class="sv">June</div><div class="sl">Period</div></div>
-    <div class="stat-s"><div class="sv">6</div><div class="sl">Teams</div></div>
-    <div class="stat-s"><div class="sv">Live</div><div class="sl">Board</div></div>
+  <div class="stats">
+    <div class="stat"><div class="v">500+</div><div class="l">Athletes</div></div>
+    <div class="stat"><div class="v">June</div><div class="l">Period</div></div>
+    <div class="stat"><div class="v">6</div><div class="l">Teams</div></div>
+    <div class="stat"><div class="v">Live</div><div class="l">Board</div></div>
   </div>
 
-  <div class="login-box">
-    <a id="strava-btn" href="#" class="btn-strava">
+  <div class="box">
+    <a id="btn" href="#" class="btn">
       <svg viewBox="0 0 24 24"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
       Sign in with Strava
     </a>
-
-    <div class="processing" id="processing">
-      <div class="spinner"></div>
-      <span id="processing-text">Connecting your account...</span>
-    </div>
-    <div class="msg msg-success" id="msg-success"></div>
-    <div class="msg msg-error"   id="msg-error"></div>
-
-    <p class="login-note">
-      Approved participants only · Read-only access · Never posts to Strava
-    </p>
-
+    <div class="proc" id="proc"><div class="spinner"></div><span id="proc-text">Connecting...</span></div>
+    <div class="err" id="err"></div>
+    <p class="note">Approved participants only · Read-only · Never posts to Strava<br><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
   </div>
-</div>
 
-<div class="app-footer">
-  © 2026 Arcgate Walkathon &nbsp;·&nbsp;
-  <a href="privacy.html">Privacy</a>
-  <a href="terms.html">Terms</a> &nbsp;·&nbsp;
-  <a href="admin-login.html">Admin</a>
-</div>
+  <footer><a href="admin-login.html">Admin</a></footer>
 
 <script>
-var STRAVA_CLIENT_ID = '29159';
-var BACKEND_URL = 'https://walkathon-backend-hv9j.onrender.com';
-var EVENT_CODE  = 'walkathon2026';
-var params      = new URLSearchParams(window.location.search);
-var authCode    = params.get('code');
-var redirectURI = window.location.origin + window.location.pathname;
-var authUrl = 'https://www.strava.com/oauth/authorize'
-  + '?client_id=' + STRAVA_CLIENT_ID
-  + '&redirect_uri=' + encodeURIComponent(redirectURI)
-  + '&response_type=code&scope=read,activity:read&state=walkathon2026';
-document.getElementById('strava-btn').href = authUrl;
+var CLIENT_ID = '29159';
+var BACKEND   = 'https://walkathon-backend-hv9j.onrender.com';
+var EVENT     = 'walkathon2026';
 
-function showMsg(type, html) {
-  ['msg-success','msg-error'].forEach(function(id){ document.getElementById(id).style.display='none'; });
-  var el = document.getElementById(type); el.innerHTML = html; el.style.display = 'block';
+// Build Strava auth URL — redirect_uri is THIS page (index.html)
+var REDIRECT  = window.location.origin + window.location.pathname;
+var AUTH_URL  = 'https://www.strava.com/oauth/authorize'
+  + '?client_id='    + CLIENT_ID
+  + '&redirect_uri=' + encodeURIComponent(REDIRECT)
+  + '&response_type=code'
+  + '&scope=read,activity:read'
+  + '&state='        + EVENT;
+document.getElementById('btn').href = AUTH_URL;
+
+function showErr(msg) {
+  document.getElementById('proc').style.display = 'none';
+  document.getElementById('btn').style.display  = 'flex';
+  var el = document.getElementById('err');
+  el.innerHTML = msg;
+  el.style.display = 'block';
 }
-function setProcessing(show, text) {
-  document.getElementById('processing-text').textContent = text||'Processing...';
-  document.getElementById('processing').style.display = show ? 'flex' : 'none';
-  document.getElementById('strava-btn').style.display  = show ? 'none' : 'flex';
+function showProc(text) {
+  document.getElementById('btn').style.display  = 'none';
+  document.getElementById('proc').style.display = 'flex';
+  document.getElementById('proc-text').textContent = text;
 }
 
-
-
-if (authCode) {
-  setProcessing(true, 'Connecting your account...');
-  fetch(BACKEND_URL + '/register', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ code: authCode, event_code: EVENT_CODE })
+// Handle OAuth callback
+var code = new URLSearchParams(window.location.search).get('code');
+if (code) {
+  window.history.replaceState({}, '', window.location.pathname);
+  showProc('Connecting your account...');
+  fetch(BACKEND + '/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ code: code, event_code: EVENT })
   })
   .then(function(r){ return r.json(); })
   .then(function(d) {
-    setProcessing(false);
     if (d.success) {
-      var role = d.role || 'user';
-      var session = { loggedIn:true, role:role, athleteId:d.athlete_id, name:d.name, expires:Date.now()+(8*60*60*1000) };
-      sessionStorage.setItem('wk_user', JSON.stringify(session));
-      if (role === 'admin') {
-        sessionStorage.setItem('wk_admin', JSON.stringify(session));
+      // Store minimal session + the original code for portal to use
+      sessionStorage.setItem('wk_user', JSON.stringify({
+        loggedIn: true,
+        role: d.role || 'user',
+        athleteId: d.athlete_id,
+        name: d.name,
+        stravaCode: code,
+        expires: Date.now() + (8 * 60 * 60 * 1000)
+      }));
+      if (d.role === 'admin') {
+        sessionStorage.setItem('wk_admin', JSON.stringify({loggedIn:true,role:'admin',expires:Date.now()+(8*60*60*1000)}));
         window.location.replace('admin.html');
       } else {
-        // Pass code to portal.html so it can load full dashboard data via /my-data
-        window.location.replace('portal.html?code=' + encodeURIComponent(authCode) + '&state=portal');
+        showProc('Loading your dashboard...');
+        window.location.replace('portal.html');
       }
     } else if (d.error === 'not_registered') {
-      showMsg('msg-error', '⛔ <strong>Not registered.</strong><br>Contact your event admin to get approved first.');
+      showErr('⛔ <strong>Not registered.</strong><br>Your account is not in the participant list. Contact your event admin.');
     } else {
-      showMsg('msg-error', '❌ <strong>Login failed.</strong><br>Please try again.');
+      showErr('❌ <strong>Login failed.</strong><br>Please try again.');
     }
   })
-  .catch(function(){
-    setProcessing(false);
-    showMsg('msg-error', '❌ Connection error. Please try again.');
-  });
+  .catch(function(){ showErr('❌ Connection error. Please try again.'); });
 }
 </script>
 </body>
