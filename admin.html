@@ -82,7 +82,10 @@
 </div>
 <div class="page-bar">
   <h1>🏠 Admin Dashboard</h1>
-  <span style="font-size:13px;opacity:0.5">Arcgate Walkathon 2026</span>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span id="realtime-badge" style="font-size:12px;color:rgba(255,255,255,.75);background:rgba(255,255,255,.12);padding:4px 10px;border-radius:12px">🔄 Connecting...</span>
+    <span style="font-size:13px;opacity:0.5">Arcgate Walkathon 2026</span>
+  </div>
 </div>
 <div class="content">
   <div class="stats-grid">
@@ -128,50 +131,39 @@ function bc(t) { if(t==='Walk') return 'badge-walk'; if(t==='Run'||t==='VirtualR
 authGuard();
 async function load() {
   const today = new Date().toISOString().split('T')[0];
-  // Fetch stats efficiently
-  const [countR, regR, connR, recentR] = await Promise.all([
-    fetch(SUPABASE_URL+'/rest/v1/activities?select=id', {
-      headers: {...HDR, 'Prefer':'count=exact', 'Range-Unit':'items', 'Range':'0-0'}
-    }),
+  // All stats in ONE parallel batch — fast, no loops
+  const [countR, distR, flagR, todayR, regR, connR, recentR] = await Promise.all([
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=id&is_deleted=eq.false',
+      {headers:{...HDR,'Prefer':'count=exact','Range-Unit':'items','Range':'0-0'}}),
+    fetch(SUPABASE_URL+'/rest/v1/rpc/sum_distance',{method:'POST',headers:{...HDR,'Content-Type':'application/json'},body:'{}'}),
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=id&is_deleted=eq.false&is_flagged=eq.true',
+      {headers:{...HDR,'Prefer':'count=exact','Range-Unit':'items','Range':'0-0'}}),
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=id&is_deleted=eq.false&activity_date=gte.'+today+'T00:00:00&activity_date=lte.'+today+'T23:59:59',
+      {headers:{...HDR,'Prefer':'count=exact','Range-Unit':'items','Range':'0-0'}}),
     fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name',{headers:HDR}),
     fetch(SUPABASE_URL+'/rest/v1/participants?select=strava_athlete_id',{headers:HDR}),
-    fetch(SUPABASE_URL+'/rest/v1/activities?order=activity_date.desc&limit=200',{headers:HDR})
+    fetch(SUPABASE_URL+'/rest/v1/activities?select=id,strava_activity_id,strava_athlete_id,activity_name,sport_type,activity_date,distance_meters,avg_speed,is_flagged&is_deleted=eq.false&order=activity_date.desc&limit=10',
+      {headers:HDR})
   ]);
-  const regs=await regR.json(), conn=await connR.json();
-  const acts=await recentR.json();
-  // Get total count from Content-Range header
-  const contentRange = countR.headers.get('content-range') || '';
-  const totalCount = parseInt(contentRange.split('/')[1]) || acts.length;
-
-  // Fetch ALL distance_meters using pagination for accurate total km
-  let allDist = 0;
-  let distFrom = 0;
-  while (true) {
-    const distR = await fetch(
-      SUPABASE_URL+'/rest/v1/activities?select=distance_meters&is_deleted=eq.false',
-      { headers: {...HDR, 'Range-Unit':'items', 'Range': distFrom+'-'+(distFrom+999)} }
-    );
-    const distPage = await distR.json();
-    if (!Array.isArray(distPage) || distPage.length === 0) break;
-    distPage.forEach(a => { allDist += Number(a.distance_meters) || 0; });
-    if (distPage.length < 1000) break;
-    distFrom += 1000;
-  }
-  const totalKm = allDist / 1000;
-  const nm={}; regs.forEach(r=>nm[r.strava_athlete_id]=r.full_name);
-  // km now calculated via pagination above
-  const fl=acts.filter(a=>a.is_flagged&&!a.is_deleted).length;
-  const td=acts.filter(a=>a.activity_date?.startsWith(today)).length;
-  document.getElementById('s-participants').textContent=regs.length;
+  const regs=await regR.json(), conn=await connR.json(), acts=await recentR.json();
+  // Parse counts from Content-Range headers (no extra fetch needed)
+  const totalCount = parseInt((countR.headers.get('content-range')||'').split('/')[1]) || 0;
+  const flagCount  = parseInt((flagR.headers.get('content-range')||'').split('/')[1]) || 0;
+  const todayCount = parseInt((todayR.headers.get('content-range')||'').split('/')[1]) || 0;
+  // Total KM from SQL function (single fast query)
+  let totalKm = 0;
+  try { const d=await distR.json(); totalKm=(Number(d)||0)/1000; } catch(e){}
+  const nm={}; if(Array.isArray(regs)) regs.forEach(r=>nm[r.strava_athlete_id]=r.full_name);
+  document.getElementById('s-participants').textContent=Array.isArray(regs)?regs.length:0;
   document.getElementById('s-activities').textContent=totalCount;
   document.getElementById('s-km').textContent=totalKm.toFixed(1)+' km';
-  document.getElementById('s-flagged').textContent=fl;
-  document.getElementById('s-today').textContent=td;
-  document.getElementById('s-connected').textContent=conn.length;
-  document.getElementById('flag-badge').textContent=fl?fl+' need review':'✅ All clear';
-  document.getElementById('flag-badge').className='badge '+(fl?'badge-flag':'badge-active');
-  document.getElementById('part-badge').textContent=conn.length+' connected';
-  const recent=acts.filter(a=>!a.is_deleted).slice(0,10);
+  document.getElementById('s-flagged').textContent=flagCount;
+  document.getElementById('s-today').textContent=todayCount;
+  document.getElementById('s-connected').textContent=Array.isArray(conn)?conn.length:0;
+  document.getElementById('flag-badge').textContent=flagCount?flagCount+' need review':'✅ All clear';
+  document.getElementById('flag-badge').className='badge '+(flagCount?'badge-flag':'badge-active');
+  document.getElementById('part-badge').textContent=(Array.isArray(conn)?conn.length:0)+' connected';
+  const recent=Array.isArray(acts)?acts.slice(0,10):[];
   document.getElementById('recent-body').innerHTML=recent.length
     ?recent.map(a=>`<tr>
         <td><a href="https://www.strava.com/athletes/${a.strava_athlete_id}" target="_blank" class="ath">${nm[a.strava_athlete_id]||'Unknown'}</a></td>
@@ -185,6 +177,48 @@ async function load() {
     :'<tr class="loading-row"><td colspan="7">No activities yet</td></tr>';
 }
 load();
+
+// ── Supabase Realtime — auto-refresh recent activities on new insert ──
+(function startRealtime() {
+  // Use Supabase Realtime v2 broadcast via WebSocket
+  const wsUrl = 'wss://jhdgkncpkrttvemvwukc.supabase.co/realtime/v1/websocket?vsn=1.0.0&apikey='+SUPABASE_ANON;
+  let ws, pingInterval;
+  function connect() {
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onopen = function() {
+        // Join the activities channel
+        ws.send(JSON.stringify({topic:'realtime:public:activities',event:'phx_join',payload:{},ref:'1'}));
+        // Keep-alive ping every 25s
+        pingInterval = setInterval(function(){
+          if(ws.readyState===1) ws.send(JSON.stringify({topic:'phoenix',event:'heartbeat',payload:{},ref:'hb'}));
+        }, 25000);
+      };
+      ws.onmessage = function(evt) {
+        try {
+          var msg = JSON.parse(evt.data);
+          // New INSERT or UPDATE on activities table → reload dashboard
+          if(msg.topic && msg.topic.startsWith('realtime:public:activities') &&
+             msg.event === 'phx_reply' && msg.payload && msg.payload.status === 'ok') {
+            // Subscription confirmed
+            document.getElementById('realtime-badge').textContent = '🟢 Live';
+          }
+          if(msg.event === 'postgres_changes') {
+            document.getElementById('realtime-badge').textContent = '⚡ New activity!';
+            setTimeout(function(){ load(); document.getElementById('realtime-badge').textContent='🟢 Live'; }, 800);
+          }
+        } catch(e) {}
+      };
+      ws.onclose = function() {
+        clearInterval(pingInterval);
+        document.getElementById('realtime-badge').textContent = '🔴 Reconnecting...';
+        setTimeout(connect, 5000); // auto-reconnect
+      };
+      ws.onerror = function() { ws.close(); };
+    } catch(e) {}
+  }
+  connect();
+})();
 </script>
 </body>
 </html>
