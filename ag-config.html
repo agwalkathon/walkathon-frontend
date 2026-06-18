@@ -210,8 +210,7 @@
     <div class="section-body" id="body-flagrules">
 
       <!-- Rules Form -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px">
-
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px;align-items:end">
         <div class="field">
           <label>Date From</label>
           <input type="date" id="fr-date-from">
@@ -231,58 +230,25 @@
           </select>
         </div>
         <div class="field">
-          <label>Min Distance (km)</label>
-          <input type="number" id="fr-dist-min" placeholder="e.g. 0.5" step="0.1" min="0">
+          <label>Distance Min (km)</label>
+          <input type="number" id="fr-dist-min" placeholder="e.g. 21" step="0.1" min="0">
         </div>
         <div class="field">
-          <label>Max Distance (km)</label>
-          <input type="number" id="fr-dist-max" placeholder="e.g. 50" step="0.1" min="0">
+          <label>Distance Max (km)</label>
+          <input type="number" id="fr-dist-max" placeholder="e.g. 100" step="0.1" min="0">
+        </div>
+        <div class="field">
+          <label>Pace Min (min/km)</label>
+          <input type="number" id="fr-pace1-min" placeholder="e.g. 4" step="0.5" min="0">
+        </div>
+        <div class="field">
+          <label>Pace Max (min/km)</label>
+          <input type="number" id="fr-pace1-max" placeholder="e.g. 5" step="0.5" min="0">
         </div>
       </div>
-
-      <!-- Pace Rules -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:12px">
-          Pace Rules <span style="font-size:12px;font-weight:400;color:#888">(flag if pace is outside any of these ranges — leave blank to skip)</span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
-          <div style="background:#f9f9f9;border-radius:10px;padding:14px">
-            <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:10px">Pace Range 1</div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <div class="field" style="flex:1"><label>Min (min/km)</label><input type="number" id="fr-pace1-min" placeholder="e.g. 4" step="0.5" min="0"></div>
-              <span style="color:#888;margin-top:18px">–</span>
-              <div class="field" style="flex:1"><label>Max (min/km)</label><input type="number" id="fr-pace1-max" placeholder="e.g. 20" step="0.5" min="0"></div>
-              
-            </div>
-          </div>
-          <div style="background:#f9f9f9;border-radius:10px;padding:14px">
-            <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:10px">Pace Range 2</div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <div class="field" style="flex:1"><label>Min (min/km)</label><input type="number" id="fr-pace2-min" placeholder="e.g. 2" step="0.5" min="0"></div>
-              <span style="color:#888;margin-top:18px">–</span>
-              <div class="field" style="flex:1"><label>Max (min/km)</label><input type="number" id="fr-pace2-max" placeholder="e.g. 6" step="0.5" min="0"></div>
-              
-            </div>
-          </div>
-          <div style="background:#f9f9f9;border-radius:10px;padding:14px">
-            <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:10px">Pace Range 3</div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <div class="field" style="flex:1"><label>Min (min/km)</label><input type="number" id="fr-pace3-min" placeholder="" step="0.5" min="0"></div>
-              <span style="color:#888;margin-top:18px">–</span>
-              <div class="field" style="flex:1"><label>Max (min/km)</label><input type="number" id="fr-pace3-max" placeholder="" step="0.5" min="0"></div>
-              
-            </div>
-          </div>
-          <div style="background:#f9f9f9;border-radius:10px;padding:14px">
-            <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:10px">Pace Range 4</div>
-            <div style="display:flex;gap:10px;align-items:center">
-              <div class="field" style="flex:1"><label>Min (min/km)</label><input type="number" id="fr-pace4-min" placeholder="" step="0.5" min="0"></div>
-              <span style="color:#888;margin-top:18px">–</span>
-              <div class="field" style="flex:1"><label>Max (min/km)</label><input type="number" id="fr-pace4-max" placeholder="" step="0.5" min="0"></div>
-              
-            </div>
-          </div>
-        </div>
+      <div style="font-size:12px;color:#888;margin-bottom:16px;background:#f5f5f5;padding:10px 14px;border-radius:8px;line-height:1.7">
+        <strong>Distance:</strong> Flags activities where distance is between Min and Max km &nbsp;·&nbsp;
+        <strong>Pace:</strong> Flags activities where pace is between Min and Max min/km (e.g. 4–5 flags suspiciously fast walkers)
       </div>
 
       <!-- Preview + Action -->
@@ -358,20 +324,13 @@ var flagPreviewData = [];
 
 function getPaceRules() {
   var rules = [];
-  [1,2,3,4].forEach(function(n) {
-    var minVal = document.getElementById('fr-pace'+n+'-min').value.trim();
-    var maxVal = document.getElementById('fr-pace'+n+'-max').value.trim();
-    var minPace = minVal !== '' ? parseFloat(minVal) : null;
-    var maxPace = maxVal !== '' ? parseFloat(maxVal) : null;
-    // Need at least one of min or max
-    if (minPace !== null || maxPace !== null) {
-      rules.push({
-        minPace: minPace, // min pace (fastest) — flag if faster than this
-        maxPace: maxPace, // max pace (slowest) — flag if slower than this
-        reason: 'Manual Review - Pace Issue'
-      });
-    }
-  });
+  var minVal = document.getElementById('fr-pace1-min').value.trim();
+  var maxVal = document.getElementById('fr-pace1-max').value.trim();
+  var minPace = minVal !== '' ? parseFloat(minVal) : null;
+  var maxPace = maxVal !== '' ? parseFloat(maxVal) : null;
+  if (minPace !== null || maxPace !== null) {
+    rules.push({ minPace: minPace, maxPace: maxPace });
+  }
   return rules;
 }
 
@@ -446,17 +405,17 @@ async function fetchFlagCandidates() {
       }
     }
 
-    // Pace rules — flag if pace is OUTSIDE the valid range
-    // e.g. min=4, max=20 → flag if pace < 4 (too fast) or > 20 (too slow)
+    // Pace filter — flag if pace IS within the suspicious range
+    // e.g. min=4, max=5 → flag activities with pace between 4–5 min/km (too fast for a walk)
     if (hasPaceFilter && a.avg_speed && a.avg_speed > 0) {
       var paceMinkm = paceFromSpeed(a.avg_speed); // min/km
       for (var ri = 0; ri < paceRules.length; ri++) {
         var rule = paceRules[ri];
-        var tooFast = rule.minPace !== null && paceMinkm < rule.minPace;
-        var tooSlow = rule.maxPace !== null && paceMinkm > rule.maxPace;
-        if (tooFast || tooSlow) {
+        var aboveMin = rule.minPace === null || paceMinkm >= rule.minPace;
+        var belowMax = rule.maxPace === null || paceMinkm <= rule.maxPace;
+        if (aboveMin && belowMax) {
           flagReasons.push('Manual Review - Pace Issue');
-          break; // one pace flag per activity is enough
+          break;
         }
       }
     }
