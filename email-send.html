@@ -423,9 +423,9 @@ function showSaved(id) { var el=document.getElementById(id); el.style.display='i
 // ── SMTP ───────────────────────────────────────────────────
 async function loadSmtp() {
   try {
-    var rows = await sbGet("leaderboard_config?config_key=eq.smtp_settings&select=config_value");
-    if (Array.isArray(rows) && rows[0] && rows[0].config_value) {
-      var s = rows[0].config_value;
+    var rows = await sbGet("smtp_config?select=*&order=id.desc&limit=1");
+    if (Array.isArray(rows) && rows[0]) {
+      var s = rows[0];
       ['host','port','user','pass','from-name','from-email','enc','reply'].forEach(function(k){
         var el = document.getElementById('smtp-'+k);
         if (el && s[k] !== undefined) el.value = s[k];
@@ -449,12 +449,12 @@ async function saveSmtp() {
   });
 
   try {
-    var existing = await sbGet("leaderboard_config?config_key=eq.smtp_settings");
+    var existing = await sbGet("smtp_config?select=id&limit=1");
     var result;
     if (Array.isArray(existing) && existing.length > 0) {
-      result = await sbPatch("leaderboard_config?config_key=eq.smtp_settings", {config_value: s});
+      result = await sbPatch("smtp_config?id=eq."+existing[0].id, s);
     } else {
-      result = await sbPost("leaderboard_config", {config_key: 'smtp_settings', config_value: s});
+      result = await sbPost("smtp_config", s);
     }
     if (result && result.code) throw new Error(result.message || result.hint || result.code);
 
