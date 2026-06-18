@@ -536,34 +536,35 @@ function calcPoints(acts, athleteId, gender) {
     if (!eligible) return;
 
     if (c.activity_scope === 'daily') {
-      // Check SPECIFIC days defined by challenge date range
-      // Challenge is awarded AT MOST ONCE — for the specific day(s) in the challenge window
+      // Challenge awarded AT MOST ONCE across all days in window
       var sportTypes = c.sport_types || ['Walk','Run','Hike','Ride'];
       var days = Object.keys(byDay).filter(function(d) {
         return d >= c.start_date && d <= c.end_date;
       });
-      // Check each qualifying day — stop as soon as one day qualifies (award once)
+      console.log('[Challenge] "'+c.name+'" athlete='+athleteId+' days_in_window='+JSON.stringify(days)+' already_earned='+earnedChallenges.has(key));
       for (var di = 0; di < days.length; di++) {
         var day = days[di];
         var dayActs = byDay[day];
-        var hasMatchingSport = dayActs.some(function(a){ return sportTypes.includes(a.sport_type); });
+        var sportTypes2 = c.sport_types || ['Walk','Run','Hike','Ride'];
+        var hasMatchingSport = dayActs.some(function(a){ return sportTypes2.includes(a.sport_type); });
         if (!hasMatchingSport) continue;
-        // Sum total distance for the day
         var dayTotalKm = 0;
         dayActs.forEach(function(a){
-          if (sportTypes.includes(a.sport_type)) dayTotalKm += (a.distance_meters||0)/1000;
+          if (sportTypes2.includes(a.sport_type)) dayTotalKm += (a.distance_meters||0)/1000;
         });
         var qualifies = false;
         if (c.distance_type === 'fixed' || c.distance_type === 'range') {
           qualifies = dayTotalKm >= c.distance_min - 0.1 && dayTotalKm <= c.distance_max + 0.1;
-        } else { // extended (min+)
+        } else {
           qualifies = dayTotalKm >= c.distance_min;
         }
-        if (qualifies) {
+        console.log('[Challenge] "'+c.name+'" day='+day+' dayTotalKm='+dayTotalKm.toFixed(2)+' min='+c.distance_min+' qualifies='+qualifies+' earnedAlready='+earnedChallenges.has(key));
+        if (qualifies && !earnedChallenges.has(key)) {
           earnedChallenges.add(key);
           totalChallenge += c.bonus_points;
           challengeNames.push(c.name);
-          break; // award ONCE only — stop checking other days
+          console.log('[Challenge] ✅ AWARDED "'+c.name+'" +'+c.bonus_points+' totalChallenge now='+totalChallenge);
+          break;
         }
       }
     } else {
