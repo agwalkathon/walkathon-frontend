@@ -39,11 +39,31 @@
     /* Table */
     .card { background: white; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; }
-    th { background: #fafafa; padding: 11px 14px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
-    td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fdfcfb; }
+    /* Card-style leaderboard */
+    .lb-cards { width: 100%; }
+    .lb-card { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.15s; }
+    .lb-card:hover { background: #fdfcfb; }
+    .lb-card.top1 { border-left: 4px solid #FFD700; background: linear-gradient(90deg,rgba(255,215,0,0.04),transparent); }
+    .lb-card.top2 { border-left: 4px solid #C0C0C0; background: linear-gradient(90deg,rgba(192,192,192,0.04),transparent); }
+    .lb-card.top3 { border-left: 4px solid #CD7F32; background: linear-gradient(90deg,rgba(205,127,50,0.04),transparent); }
+    .lb-rank { font-size: 15px; font-weight: 800; color: #bbb; width: 36px; text-align: center; flex-shrink: 0; }
+    .lb-rank.r1 { color: #FFD700; } .lb-rank.r2 { color: #C0C0C0; } .lb-rank.r3 { color: #CD7F32; }
+    .lb-main { flex: 1; min-width: 0; }
+    .lb-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+    .lb-name { font-size: 15px; font-weight: 700; color: #1A1A1A; }
+    .lb-meta { font-size: 12px; color: #999; display: flex; gap: 12px; flex-wrap: wrap; }
+    .lb-meta span { display: flex; align-items: center; gap: 4px; }
+    .lb-pts { font-size: 22px; font-weight: 800; color: #E8622A; text-align: right; flex-shrink: 0; }
+    .lb-pts-label { font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; text-align: right; }
+    .medal-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .medal-pill.medal-gold   { background: #FFF9E6; color: #B8860B; border: 1px solid #FFD700; }
+    .medal-pill.medal-silver { background: #F5F5F5; color: #666;    border: 1px solid #C0C0C0; }
+    .medal-pill.medal-bronze { background: #FFF0E6; color: #8B4513; border: 1px solid #CD7F32; }
+    .medal-pill.medal-none   { background: #f9f9f9; color: #bbb;    border: 1px solid #eee; font-size:10px; }
+    .expand-card { display: none; background: #fafafa; border-bottom: 2px solid #E8622A; }
+    .expand-card table { width: 100%; border-collapse: collapse; }
+    .expand-card th { background: #f0f0f0; padding: 7px 20px; font-size: 11px; color: #888; text-align: left; letter-spacing: 0.4px; }
+    .expand-card td { padding: 8px 20px; font-size: 12px; color: #555; border-bottom: 1px solid #f0f0f0; }
 
     /* Rank */
     .rank { font-weight: 700; font-size: 16px; color: #ccc; min-width: 36px; display: inline-block; text-align: center; }
@@ -210,7 +230,6 @@
         
       </div>
       <div class="filter-actions">
-        <button class="btn-clear" onclick="clearFilters()">Clear</button>
         <button class="btn-refresh" onclick="doRefresh()">🔄 Refresh</button>
         <a href="ag-config.html" class="btn-config">⚙️ Config</a>
       </div>
@@ -222,25 +241,10 @@
 
   <!-- Leaderboard table -->
   <div class="card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Participant</th>
-            <th>Team</th>
-            <th>Distance (km)</th>
-            <th>Distance Points</th>
-            <th>Bonus Points</th>
-            <th>Challenge Bonus</th>
-            <th>Total Points</th>
-            <th>Medal</th>
-          </tr>
-        </thead>
-        <tbody id="lb-body">
-          <tr><td colspan="9"><div class="loading-wrap"><div class="spinner"></div>Loading leaderboard...</div></td></tr>
-        </tbody>
-      </table>
+    <div class="lb-cards" id="lb-body">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:60px;color:#bbb">
+        <div class="spinner"></div>Loading leaderboard...
+      </div>
     </div>
   </div>
 </div>
@@ -531,12 +535,15 @@ function calcPoints(acts, athleteId, gender) {
 
 var allActivities = [];
 
-function doRefresh() {
+async function doRefresh() {
+  var btn = document.querySelector('.btn-refresh');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block"></span>Loading...</span>'; }
   allData = {};
   allActivities = [];
-  // Clear any expanded rows
   document.querySelectorAll('.expand-row').forEach(function(r){ r.remove(); });
-  loadAll();
+  document.getElementById('lb-body').innerHTML = '<tr><td colspan="9"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:60px"><div style="width:32px;height:32px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin 0.8s linear infinite"></div><span style="color:#888;font-size:14px">Refreshing leaderboard...</span></div></td></tr>';
+  await loadAll();
+  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 Refresh'; }
 }
  // global for sport filter
 
@@ -592,7 +599,7 @@ function renderBoard(rows, board) {
     });
     teamNames.forEach(function(teamName) {
       // Team header row
-      renderedRows.push('<tr style="background:#f5f5f5"><td colspan="9" style="padding:10px 14px;font-weight:700;color:#1A1A1A;font-size:14px;border-top:2px solid #E8622A">🏙️ '+teamName+'</td></tr>');
+      renderedRows.push('<div style="background:#f5f5f5;padding:10px 20px;font-weight:700;color:#1A1A1A;font-size:14px;border-top:2px solid #E8622A"' >🏙️ '+teamName+'</div>');
       teams[teamName].forEach(function(row, i) {
         renderedRows.push(buildRow(row, i));
       });
@@ -603,10 +610,10 @@ function renderBoard(rows, board) {
     });
   }
   document.getElementById('lb-body').innerHTML = renderedRows.join('');
-  // Attach click listeners to all rows
-  document.querySelectorAll('.lb-row[data-athlete]').forEach(function(tr) {
-    tr.addEventListener('click', function() {
-      toggleExpand(tr.getAttribute('data-athlete'), tr.getAttribute('data-gender'), tr);
+  // Attach click listeners to all cards
+  document.querySelectorAll('.lb-card[data-athlete]').forEach(function(card) {
+    card.addEventListener('click', function() {
+      toggleExpand(card.getAttribute('data-athlete'), card.getAttribute('data-gender'), card);
     });
   });
 }
@@ -618,8 +625,8 @@ function toggleExpand(athleteId, gender, trEl) {
 
   if (existing) {
     // Toggle visibility
-    if (existing.style.display === 'table-row') {
-      existing.style.display = 'none';
+    if (existing.style.display === 'block') {
+      existing.style.display = 'none'; return;
     } else {
       existing.style.display = 'table-row';
     }
@@ -629,12 +636,12 @@ function toggleExpand(athleteId, gender, trEl) {
   // Create expand row with loader
   var expRow = document.createElement('tr');
   expRow.id = expId;
-  expRow.className = 'expand-row';
-  expRow.style.display = 'table-row';
-  expRow.innerHTML = '<td colspan="9"><div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#888;font-size:13px"><div style="width:18px;height:18px;border:2px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin 0.8s linear infinite"></div>Loading daily breakdown...</div></td>';
+  expRow.className = 'expand-card';
+  expRow.style.display = 'block';
+  expRow.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#888;font-size:13px"><div style="width:18px;height:18px;border:2px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin 0.8s linear infinite"></div>Loading daily breakdown...</div>';
 
   // Insert after the clicked row
-  trEl.parentNode.insertBefore(expRow, trEl.nextSibling);
+  trEl.parentNode.insertBefore(expRow, trEl.nextSibling); expRow.style.display='block';
 
   // Build daily data
   var myActs = (allActivities||[]).filter(function(a){
@@ -651,7 +658,7 @@ function toggleExpand(athleteId, gender, trEl) {
 
   var days = Object.keys(byDay).sort();
   if (!days.length) {
-    expRow.innerHTML = '<td colspan="9"><div style="padding:16px;color:#bbb;text-align:center;font-size:13px">No daily data available</div></td>';
+    expRow.innerHTML = '<div style="padding:16px;color:#bbb;text-align:center;font-size:13px">No daily data available</div>';
     return;
   }
 
@@ -672,7 +679,7 @@ function toggleExpand(athleteId, gender, trEl) {
     });
     var tp = parseFloat((dp+bp+cp).toFixed(2));
     return '<tr style="background:#fafafa">'
-      +'<td style="padding:8px 14px;font-size:12px;color:#888">'+day+'</td>'
+      +'<td style="padding:8px 14px;font-size:12px;color:#888">'+day+'</div>'
       +'<td style="padding:8px 14px;font-size:12px">'+dayKm.toFixed(2)+' km</td>'
       +'<td style="padding:8px 14px;font-size:12px;color:#E8622A;font-weight:600">+'+dp.toFixed(2)+'</td>'
       +'<td style="padding:8px 14px;font-size:12px;color:#E8622A;font-weight:600">+'+bp+'</td>'
@@ -681,7 +688,7 @@ function toggleExpand(athleteId, gender, trEl) {
       +'</tr>';
   }).join('');
 
-  expRow.innerHTML = '<td colspan="9" style="padding:0">'
+  expRow.innerHTML = '<div>'
     +'<table style="width:100%;border-collapse:collapse">'
     +'<thead><tr style="background:#f0f0f0">'
     +'<th style="padding:8px 14px;font-size:11px;color:#888;text-align:left;letter-spacing:0.5px">DATE</th>'
@@ -696,29 +703,35 @@ function toggleExpand(athleteId, gender, trEl) {
 }
 
 function buildRow(row, i) {
-    var topCls = i===0 ? 'top1' : i===1 ? 'top2' : '';
-    var p = row.p, pts = row.pts;
-    var medal = getMedal(pts.totalPts, p.gender);
-    var rankCls = i===0?'r1':i===1?'r2':i===2?'r3':'';
-    var medal_icon = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
-    var chalHtml = pts.challengePts > 0
-      ? '<strong style="color:#1565c0;font-size:14px">+'+pts.challengePts+'</strong>'
-      : '<span style="color:#ddd">—</span>';
-    var athleteId = row.p.strava_athlete_id;
-    var gender = (row.p.gender||'').toLowerCase();
-    return '<tr class="lb-row '+topCls+'" data-athlete="'+athleteId+'" data-gender="'+gender+'" style="cursor:pointer"> '
-      +'<td><span class="rank '+rankCls+'">'+medal_icon+'</span></td>'
-      +'<td><strong>'+p.full_name+'</strong></td>'
-      +'<td style="font-size:12px;color:#888">'+( p.leaderboard_team||'—')+'</td>'
-      +'<td><strong>'+(parseFloat(pts.distKm)||0).toFixed(2)+'</strong></td>'
-      +'<td><span class="pts">'+(parseFloat(pts.distPts)||0).toFixed(2)+'</span></td>'
-      +'<td><span class="pts">'+(parseInt(pts.bonusPts)||0)+'</span></td>'
-      +'<td>'+chalHtml+'</td>'
-      +'<td><strong class="pts" style="font-size:15px">'+(parseFloat(pts.totalPts)||0).toFixed(2)+'</strong></td>'
-      +'<td><span class="medal '+medal.cls+'">'+medal.label+'</span></td>'
-      +'</tr>'
-    ;
+  var topCls = i===0 ? 'top1' : i===1 ? 'top2' : i===2 ? 'top3' : '';
+  var p = row.p, pts = row.pts;
+  var medal = getMedal(pts.totalPts, p.gender);
+  var rankCls = i===0?'r1':i===1?'r2':i===2?'r3':'';
+  var rankLabel = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+  var athleteId = p.strava_athlete_id;
+  var gender = (p.gender||'').toLowerCase();
+
+  return '<div class="lb-card '+topCls+'" data-athlete="'+athleteId+'" data-gender="'+gender+'">'
+    + '<div class="lb-rank '+rankCls+'">'+rankLabel+'</div>'
+    + '<div class="lb-main">'
+    +   '<div class="lb-name-row">'
+    +     '<span class="lb-name">'+p.full_name+'</span>'
+    +     '<span class="medal-pill '+medal.cls+'">'+medal.label+'</span>'
+    +   '</div>'
+    +   '<div class="lb-meta">'
+    +     '<span>🏙️ '+(p.leaderboard_team||'—')+'</span>'
+    +     '<span>📏 Distance: <strong>'+pts.distKm.toFixed(2)+' KM</strong></span>'
+    +     '<span>⚡ Bonus: <strong>+'+pts.bonusPts+'</strong></span>'
+    +     (pts.challengePts > 0 ? '<span>🎯 Challenge Bonus: <strong>+'+pts.challengePts+'</strong></span>' : '')
+    +   '</div>'
+    + '</div>'
+    + '<div style="text-align:right">'
+    +   '<div class="lb-pts">'+fmtIndian(pts.totalPts)+'</div>'
+    +   '<div class="lb-pts-label">Total PTS</div>'
+    + '</div>'
+    + '</div>';
 }
+
 
 function updateStats(rows, board) {
   var golds=0, silvers=0, bronzes=0, km=0, pts=0;
@@ -734,8 +747,8 @@ function updateStats(rows, board) {
   document.getElementById('stat-gold').textContent   = golds;
   document.getElementById('stat-silver').textContent = silvers;
   document.getElementById('stat-bronze').textContent = bronzes;
-  document.getElementById('stat-km').textContent     = km.toFixed(1)+' km';
-  document.getElementById('stat-pts').textContent    = pts.toLocaleString();
+  document.getElementById('stat-km').textContent     = fmtIndian(km)+' km';
+  document.getElementById('stat-pts').textContent    = fmtIndianInt(pts);
 }
 
 loadAll();
