@@ -256,6 +256,32 @@
 </div>
 
 <script>
+
+// ── Indian number format ─────────────────────────────────────
+function fmtIndian(n) {
+  var num = parseFloat(n) || 0;
+  var fixed = num.toFixed(1);
+  var parts = fixed.split('.');
+  var intPart = parts[0];
+  var dec = parts[1];
+  if (intPart.length <= 3) return intPart + '.' + dec;
+  var last3 = intPart.slice(-3);
+  var rem = intPart.slice(0, -3);
+  var result = '';
+  while (rem.length > 2) { result = ',' + rem.slice(-2) + result; rem = rem.slice(0,-2); }
+  return rem + ',' + result.slice(1) + ',' + last3 + '.' + dec;
+}
+function fmtIndianInt(n) {
+  var num = Math.round(parseFloat(n)) || 0;
+  var s = String(num);
+  if (s.length <= 3) return s;
+  var last3 = s.slice(-3);
+  var rem = s.slice(0, -3);
+  var result = '';
+  while (rem.length > 2) { result = ',' + rem.slice(-2) + result; rem = rem.slice(0,-2); }
+  return rem + (result ? result : '') + ',' + last3;
+}
+
 var SB_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 var HDR = { apikey: SB_ANON, Authorization: 'Bearer '+SB_ANON };
