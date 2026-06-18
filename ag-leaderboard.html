@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AG Leaderboards — Arcgate Walkathon 2026</title>
   <style>
@@ -89,6 +90,40 @@
     .result-info { font-size: 13px; color: #888; margin-bottom: 12px; }
     .site-footer { background: #1A1A1A; color: #666; text-align: center; padding: 16px 28px; font-size: 12px; margin-top: auto; }
     .site-footer a { color: #E8622A; text-decoration: none; margin: 0 8px; }
+
+    /* ── Mobile responsive ────────────────────────────────── */
+    @media (max-width: 768px) {
+      .site-header { padding: 10px 16px; }
+      .site-header nav { display: none; } /* hide nav on mobile - use hamburger */
+      .page-bar { padding: 14px 16px; }
+      .page-bar h1 { font-size: 16px; }
+      .content { padding: 14px 16px; }
+      .stats-grid { gap: 10px; }
+      .stat-card { min-width: 100px; padding: 12px 14px; }
+      .stat-card .val { font-size: 20px; }
+      .filter-bar, .filter-strip { padding: 14px 16px; }
+      .filter-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .filter-group select, .filter-group input { font-size: 14px; }
+      .filter-left { gap: 8px; }
+      table { font-size: 12px; }
+      th, td { padding: 8px 10px; }
+      .site-footer { padding: 14px 16px; font-size: 11px; }
+    }
+    @media (max-width: 480px) {
+      .filter-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; display: grid; }
+      .hero h1 { font-size: 28px; }
+      .hero p { font-size: 14px; }
+    }
+
+    .lb-row { cursor: pointer; }
+    .lb-row:hover td { background: #fffaf7 !important; }
+    .expand-row { display: none; background: #fafafa; }
+    .expand-row td { padding: 0; border-bottom: 2px solid #E8622A; }
+    .day-table { width: 100%; border-collapse: collapse; }
+    .day-table th { background: #f0f0f0; padding: 7px 14px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #e8e8e8; }
+    .day-table td { padding: 7px 14px; font-size: 12px; border-bottom: 1px solid #f0f0f0; color: #555; }
+    .day-table tr:last-child td { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -327,7 +362,7 @@ async function loadActivities() {
   var baseUrl = SB_URL+'/rest/v1/activities?is_deleted=eq.false'
     +'&activity_date=gte.2026-06-01T00:00:00'
     +'&activity_date=lte.2026-06-30T23:59:59'
-    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id,is_flagged'
+    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id,is_flagged,manual_bonus'
     +'&order=id.asc';
   var allActs = [];
   var pageSize = 1000;
@@ -478,13 +513,20 @@ function calcPoints(acts, athleteId, gender) {
     });
   });
 
+  // Add manual bonus from activities
+  var totalManual = 0;
+  acts.filter(function(a){ return a.strava_athlete_id===athleteId && !a.is_flagged; }).forEach(function(a){
+    totalManual += parseFloat(a.manual_bonus)||0;
+  });
+  totalChallenge += totalManual;
+
   return {
-    distKm:      totalDistKm,
-    distPts:     totalDistPts,
-    bonusPts:    totalBonus,
-    challengePts:totalChallenge,
-    totalPts:    totalDistPts + totalBonus + totalChallenge,
-    challenges:  challengeNames
+    distKm:       totalDistKm,
+    distPts:      totalDistPts,
+    bonusPts:     totalBonus,
+    challengePts: totalChallenge,
+    totalPts:     parseFloat((totalDistPts + totalBonus + totalChallenge).toFixed(2)),
+    challenges:   challengeNames
   };
 }
 
@@ -555,6 +597,57 @@ function renderBoard(rows, board) {
   document.getElementById('lb-body').innerHTML = renderedRows.join('');
 }
 
+function toggleExpand(rowId, athleteId, gender) {
+  var expRow = document.getElementById('exp-'+rowId);
+  if (!expRow) return;
+  if (expRow.style.display === 'table-row') {
+    expRow.style.display = 'none';
+    return;
+  }
+  expRow.style.display = 'table-row';
+  if (expRow.getAttribute('data-loaded')) return;
+  expRow.setAttribute('data-loaded','1');
+
+  // Build daily breakdown from allActivities
+  var myActs = (allActivities||[]).filter(function(a){
+    return a.strava_athlete_id==athleteId && !a.is_flagged &&
+      (a.activity_date||'').startsWith('2026-06');
+  });
+  var byDay = {};
+  myActs.forEach(function(a){
+    var d=(a.activity_date||'').split('T')[0];
+    if(!byDay[d]) byDay[d]=[];
+    byDay[d].push(a);
+  });
+  var days = Object.keys(byDay).sort();
+  if(!days.length){ expRow.querySelector('td').innerHTML='<div style="padding:16px;color:#bbb;text-align:center">No daily data available</div>'; return; }
+
+  var g = gender||'';
+  var rows = days.map(function(day){
+    var dayKm=0;
+    byDay[day].forEach(function(a){ dayKm+=(parseFloat(a.distance_meters)||0)/1000; });
+    dayKm=parseFloat(dayKm.toFixed(2));
+    var base=parseFloat(CONFIG.basePer_km)||1;
+    var dp=parseFloat((dayKm*base).toFixed(2));
+    var bp=calcBonus(dayKm);
+    // Check challenge bonus for this day
+    var cp=0, cnames=[];
+    byDay[day].forEach(function(a){
+      CHALLENGES.forEach(function(c){
+        if(checkChallenge(a,c)){ cp+=c.bonus_points; cnames.push(c.name); }
+      });
+    });
+    var tp=dp+bp+cp;
+    return '<tr><td>'+day+'</td><td>'+dayKm.toFixed(2)+' km</td><td>+'+dp.toFixed(2)+'</td><td>+'+bp+'</td><td>'+(cp>0?'+'+cp:'—')+'</td><td><strong>+'+tp.toFixed(2)+'</strong></td></tr>';
+  }).join('');
+
+  expRow.querySelector('td').innerHTML =
+    '<table class="day-table">'
+    +'<thead><tr><th>Date</th><th>Distance (km)</th><th>Distance Points</th><th>Bonus Points</th><th>Challenge Bonus</th><th>Total Points</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'</table>';
+}
+
 function buildRow(row, i) {
     var topCls = i===0 ? 'top1' : i===1 ? 'top2' : '';
     var p = row.p, pts = row.pts;
@@ -564,7 +657,8 @@ function buildRow(row, i) {
     var chalHtml = pts.challengePts > 0
       ? '<div>+'+pts.challengePts+'<br><span class="challenge-badge">'+pts.challenges.join(', ')+'</span></div>'
       : '<span style="color:#ddd">—</span>';
-    return '<tr class="'+topCls+'">' 
+    var rowId='r'+i+'_'+row.p.strava_athlete_id;
+    return '<tr class="lb-row '+topCls+'" onclick="toggleExpand(\''+rowId+'\',\''+row.p.strava_athlete_id+'\',\''+((row.p.gender||'').toLowerCase())+'\'">' 
       +'<td><span class="rank '+rankCls+'">'+medal_icon+'</span></td>'
       +'<td><strong>'+p.full_name+'</strong></td>'
       +'<td style="font-size:12px;color:#888">'+( p.leaderboard_team||'—')+'</td>'
@@ -574,7 +668,8 @@ function buildRow(row, i) {
       +'<td>'+chalHtml+'</td>'
       +'<td><strong class="pts" style="font-size:15px">'+(parseFloat(pts.totalPts)||0).toFixed(2)+'</strong></td>'
       +'<td><span class="medal '+medal.cls+'">'+medal.label+'</span></td>'
-      +'</tr>';
+      +'</tr>'
+    +'<tr class="expand-row" id="exp-'+rowId+'"><td colspan="9"><div style="padding:12px;color:#bbb;text-align:center;font-size:13px">Loading...</div></td></tr>';
 }
 
 function updateStats(rows, board) {
