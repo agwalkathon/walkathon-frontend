@@ -27,36 +27,24 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="logo-wrap">
-    <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
-  </div>
+  <div class="logo-wrap"><img src="aw_logo.jpg" alt="Arcgate Walkathon 2026"></div>
   <div class="card">
     <div class="icon-wrap">🛡️</div>
     <h1>Admin Access</h1>
     <p class="sub">Restricted to event organizers only</p>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="email" autocomplete="off">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="password">
-    </div>
+    <div class="field"><label>Email</label><input type="email" id="email" autocomplete="off"></div>
+    <div class="field"><label>Password</label><input type="password" id="password"></div>
     <button class="btn-login" id="login-btn">Sign in</button>
     <div class="error-msg" id="err">❌ Invalid email or password</div>
   </div>
-  <div class="footer">
-    <a href="index.html">← Back to home</a>
-  </div>
+  <div class="footer"><a href="index.html">← Back to home</a></div>
 </div>
 <script>
-  // Check if already logged in
   var s = JSON.parse(sessionStorage.getItem('wk_admin') || '{}');
-  if (s.loggedIn && s.expires > Date.now()) {
+  if (s.loggedIn && s.expires > Date.now() && (s.role === 'admin' || s.manualAdmin === true)) {
     window.location.href = 'admin.html';
   }
 
-  // Simple login check
   document.getElementById('login-btn').addEventListener('click', function() {
     var email = document.getElementById('email').value.trim().toLowerCase();
     var pass  = document.getElementById('password').value;
@@ -64,6 +52,9 @@
     if (token === 'cHJhQGFyY2dhdGUuY29tOlByYWthc2hAMTIz') {
       sessionStorage.setItem('wk_admin', JSON.stringify({
         loggedIn: true,
+        role: 'admin',
+        manualAdmin: true,
+        name: 'Manual Admin',
         expires: Date.now() + 8 * 60 * 60 * 1000
       }));
       window.location.href = 'admin.html';
@@ -72,11 +63,8 @@
     }
   });
 
-  // Allow Enter key
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      document.getElementById('login-btn').click();
-    }
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
   });
 </script>
 </body>
