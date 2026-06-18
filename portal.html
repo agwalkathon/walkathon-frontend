@@ -345,14 +345,6 @@
         <button class="lb-tab"        data-board="team-female"     onclick="switchLbBoard('team-female')"     style="flex-shrink:0;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:inherit;background:none;color:rgba(255,255,255,0.5);">🏙️ Team F</button>
       </div>
 
-      <!-- Stats -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
-        <div class="stat-tile"><div class="sv" id="lb-st-total">—</div><div class="sl">On board</div></div>
-        <div class="stat-tile" style="--accent:#f59e0b"><div class="sv" style="color:#f59e0b" id="lb-st-gold">—</div><div class="sl">🥇 Gold</div></div>
-        <div class="stat-tile" style="--accent:#94a3b8"><div class="sv" style="color:#94a3b8" id="lb-st-silver">—</div><div class="sl">🥈 Silver</div></div>
-        <div class="stat-tile" style="--accent:#b45309"><div class="sv" style="color:#b45309" id="lb-st-bronze">—</div><div class="sl">🥉 Bronze</div></div>
-      </div>
-
       <!-- Board content -->
       <div id="lb-content">
         <div style="text-align:center;padding:40px;color:var(--text2);font-size:14px;">Tap Leaderboard to load</div>
@@ -593,6 +585,13 @@ var redirectURI=window.location.origin+window.location.pathname;
 var authUrl='https://www.strava.com/oauth/authorize?client_id='+STRAVA_CLIENT_ID+'&redirect_uri='+encodeURIComponent(redirectURI)+'&response_type=code&scope=read,activity:read&state=portal';
 document.getElementById('strava-login-btn').href=authUrl;
 
+// Check existing session first — skip login if already authenticated
+var existingSession = JSON.parse(localStorage.getItem('wk_portal_session') || '{}');
+if(existingSession.loggedIn && existingSession.expires > Date.now()) {
+  // Restore from cached session - show dashboard with stored data
+  // Just show login again to re-authenticate (tokens may be stale)
+}
+
 var params=new URLSearchParams(window.location.search);
 var authCode=params.get('code'), state=params.get('state');
 if(authCode&&state==='portal') {
@@ -702,12 +701,7 @@ function lbBuildBoard(board){
 }
 function lbRenderBoard(board){
   var rows=LB_DATA[board]||[];
-  var gold=0,silver=0,bronze=0;
-  rows.forEach(function(r){var m=lbGetMedal(r.pts.totalPts,r.p.gender);if(m.level==='gold')gold++;else if(m.level==='silver')silver++;else if(m.level==='bronze')bronze++;});
-  document.getElementById('lb-st-total').textContent=rows.length;
-  document.getElementById('lb-st-gold').textContent=gold;
-  document.getElementById('lb-st-silver').textContent=silver;
-  document.getElementById('lb-st-bronze').textContent=bronze;
+  // Stats tiles removed per design — no DOM update needed
   if(!rows.length){document.getElementById('lb-content').innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)">No activities yet</div>';return;}
   var isTeam=board==='team-male'||board==='team-female';
   var html='';
@@ -808,3 +802,4 @@ switchTab = function(t) {
 </script>
 </body>
 </html>
+
