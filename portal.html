@@ -216,13 +216,13 @@
 
     <!-- LEADERBOARD -->
     <div class="tab" id="tab-lb">
-      <div class="sec-hdr" style="margin-top:4px"><h3>🏆 Leaderboard</h3><button onclick="lbRefresh()" style="font-size:11px;color:var(--brand);background:none;border:none;cursor:pointer;font-weight:600;">↺ Refresh</button></div>
+      <div class="sec-hdr" style="margin-top:4px"><h3>🏆 Leaderboard</h3><button id="btn-lb-refresh" style="font-size:11px;color:var(--brand);background:none;border:none;cursor:pointer;font-weight:600;">↺ Refresh</button></div>
       <div class="lb-board-tabs">
-        <button class="lb-tab on" data-b="dayshift-male"   onclick="lbSwitch('dayshift-male')">👨 Day M</button>
-        <button class="lb-tab"    data-b="dayshift-female" onclick="lbSwitch('dayshift-female')">👩 Day F</button>
-        <button class="lb-tab"    data-b="nightshift-all"  onclick="lbSwitch('nightshift-all')">🌙 Night</button>
-        <button class="lb-tab"    data-b="team-male"       onclick="lbSwitch('team-male')">🏙️ Team M</button>
-        <button class="lb-tab"    data-b="team-female"     onclick="lbSwitch('team-female')">🏙️ Team F</button>
+        <button class="lb-tab on" data-b="dayshift-male">👨 Day M</button>
+        <button class="lb-tab"    data-b="dayshift-female">👩 Day F</button>
+        <button class="lb-tab"    data-b="nightshift-all">🌙 Night</button>
+        <button class="lb-tab"    data-b="team-male">🏙️ Team M</button>
+        <button class="lb-tab"    data-b="team-female">🏙️ Team F</button>
       </div>
       <div class="card" id="lb-content">
         <div class="lb-loading"><div class="sm-spin"></div>Loading...</div>
@@ -238,7 +238,7 @@
         <div class="pt-row"><span class="pt-lbl">Shift</span> <span style="font-size:13px;color:var(--text)" id="pr-shift">—</span></div>
         <div class="pt-row"><span class="pt-lbl">Gender</span><span style="font-size:13px;color:var(--text)" id="pr-gender">—</span></div>
       </div>
-      <button class="signout" onclick="signOut()">Sign out</button>
+      <button class="signout" id="btn-signout">Sign out</button>
       <div style="margin-top:14px;text-align:center;font-size:11px;color:var(--text2);">
         <a href="privacy.html" style="color:var(--brand);text-decoration:none">Privacy</a> ·
         <a href="terms.html"   style="color:var(--brand);text-decoration:none">Terms</a>
@@ -248,242 +248,507 @@
   </div><!-- /scroll -->
 
   <nav class="nav">
-    <button class="nav-btn on" id="nb-home" onclick="showTab('home')"><span class="ic">🏠</span>Home</button>
-    <button class="nav-btn"    id="nb-acts" onclick="showTab('acts')"><span class="ic">🏃</span>Activities</button>
-    <button class="nav-btn"    id="nb-lb"   onclick="showTab('lb')"><span class="ic">🏆</span>Leaderboard</button>
-    <button class="nav-btn"    id="nb-profile" onclick="showTab('profile')"><span class="ic">👤</span>Profile</button>
+    <button class="nav-btn on" id="nb-home"><span class="ic">🏠</span>Home</button>
+    <button class="nav-btn"    id="nb-acts"><span class="ic">🏃</span>Activities</button>
+    <button class="nav-btn"    id="nb-lb">  <span class="ic">🏆</span>Leaderboard</button>
+    <button class="nav-btn"    id="nb-profile"><span class="ic">👤</span>Profile</button>
   </nav>
 </div>
 
 <script>
-var BACKEND = 'https://walkathon-backend-hv9j.onrender.com';
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+var SB      = 'https://jhdgkncpkrttvemvwukc.supabase.co';
+var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+var SB_HDR  = { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON };
 var CFG = {
-  medals:{bronze:{male:125,female:100},silver:{male:200,female:150},gold:{male:300,female:250}},
-  bonus:[{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}],
-  base:1
+  medals: { bronze:{male:125,female:100}, silver:{male:200,female:150}, gold:{male:300,female:250} },
+  bonus:  [{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}],
+  base: 1
 };
-var LB_DATA={}, LB_BOARD='dayshift-male', LB_REG=[], LB_ACTS=[], LB_LOADED=false, LB_DAYS=[];
+var LB_BOARD   = 'dayshift-male';
+var LB_DATA    = {};
+var LB_REG     = [];
+var LB_ACTS    = [];
+var LB_DAYS    = [];
+var LB_LOADED  = false;
 
-// ── Screens ──
-function showScreen(id){
-  ['s-loading','s-error'].forEach(function(s){document.getElementById(s).classList.remove('on');});
+// ═══════════════════════════════════════════════
+//  SCREEN HELPERS
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  ['s-loading','s-error'].forEach(function(s){ document.getElementById(s).classList.remove('on'); });
   document.getElementById('s-dash').classList.remove('on');
-  var el=document.getElementById(id);
-  if(el){el.classList.add('on');}
+  document.getElementById(id).classList.add('on');
 }
-function showErr(icon,title,msg){
-  document.getElementById('err-icon').textContent=icon;
-  document.getElementById('err-title').textContent=title;
-  document.getElementById('err-msg').textContent=msg;
+function showErr(icon, title, msg) {
+  document.getElementById('err-icon').textContent  = icon;
+  document.getElementById('err-title').textContent = title;
+  document.getElementById('err-msg').textContent   = msg;
   showScreen('s-error');
 }
-function setLoad(txt){ document.getElementById('load-txt').textContent=txt||'Loading...'; showScreen('s-loading'); }
-
-// ── Tabs ──
-function showTab(t){
-  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('on');});
-  document.querySelectorAll('.nav-btn').forEach(function(el){el.classList.remove('on');});
-  document.getElementById('tab-'+t).classList.add('on');
-  document.getElementById('nb-'+t).classList.add('on');
-  if(t==='lb'&&!LB_LOADED) lbLoad();
+function setLoad(txt) {
+  document.getElementById('load-txt').textContent = txt || 'Loading...';
+  showScreen('s-loading');
 }
 
-// ── Helpers ──
-function fmtDate(d){return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}
-function fmtDur(s){if(!s)return'—';var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?h+'h '+m+'m':m+'m';}
-function fmtPace(ms){if(!ms)return'—';var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60);return min+':'+String(sec).padStart(2,'0')+'/km';}
-function sportIco(t){if(t==='Walk')return{e:'🚶',c:'ico-walk'};if(t==='Run'||t==='VirtualRun')return{e:'🏃',c:'ico-run'};if(t==='Hike')return{e:'🥾',c:'ico-hike'};return{e:'🚴',c:'ico-ride'};}
-function bonus(km){var s=CFG.bonus.slice().sort(function(a,b){return b.km-a.km;});for(var i=0;i<s.length;i++){if(km>=s[i].km)return s[i].pts;}return 0;}
-function medal(pts,g){var gd=(g||'').toLowerCase(),m=CFG.medals;var go=gd==='female'?m.gold.female:m.gold.male,si=gd==='female'?m.silver.female:m.silver.male,br=gd==='female'?m.bronze.female:m.bronze.male;if(pts>=go)return{l:'🥇 Gold',b:'mb-gold',lm:'lm-g',lv:'gold'};if(pts>=si)return{l:'🥈 Silver',b:'mb-silver',lm:'lm-s',lv:'silver'};if(pts>=br)return{l:'🥉 Bronze',b:'mb-bronze',lm:'lm-b',lv:'bronze'};return{l:'Working toward Bronze',b:'mb-none',lm:'lm-n',lv:'none'};}
-function calcPts(acts,id){
-  var byDay={};
-  acts.filter(function(a){return a.strava_athlete_id==id&&!a.is_flagged;}).forEach(function(a){
-    var d=(a.activity_date||'').split('T')[0];if(!d)return;
-    if(!byDay[d])byDay[d]=[];byDay[d].push(a);
-  });
-  var km=0,dp=0,bp=0,cp=0;
-  Object.keys(byDay).forEach(function(day){
-    var raw=0;byDay[day].forEach(function(a){raw+=(parseFloat(a.distance_meters)||0)/1000;});
-    raw=parseFloat(raw.toFixed(4));
-    var isSpec=LB_DAYS.indexOf(day)!==-1;
-    var dk=(!isSpec&&raw>21)?21:raw;dk=parseFloat(dk.toFixed(4));
-    km+=dk;dp+=parseFloat((dk*CFG.base).toFixed(2));bp+=bonus(dk);
-  });
-  acts.filter(function(a){return a.strava_athlete_id==id&&!a.is_flagged;}).forEach(function(a){cp+=parseFloat(a.manual_bonus)||0;});
-  return{km:parseFloat(km.toFixed(2)),dp:parseFloat(dp.toFixed(2)),bp:bp,cp:cp,tp:parseFloat((dp+bp+cp).toFixed(2)),byDay:byDay};
+// ═══════════════════════════════════════════════
+//  TAB SWITCHING  (event-listener pattern — no inline onclick)
+// ═══════════════════════════════════════════════
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach(function(el){ el.classList.remove('on'); });
+  document.querySelectorAll('.nav-btn').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('tab-' + t).classList.add('on');
+  document.getElementById('nb-' + t).classList.add('on');
+  if (t === 'lb' && !LB_LOADED) lbLoad();
+}
+document.getElementById('nb-home').addEventListener('click',    function(){ showTab('home'); });
+document.getElementById('nb-acts').addEventListener('click',    function(){ showTab('acts'); });
+document.getElementById('nb-lb').addEventListener('click',      function(){ showTab('lb'); });
+document.getElementById('nb-profile').addEventListener('click', function(){ showTab('profile'); });
+document.getElementById('btn-signout').addEventListener('click', signOut);
+document.getElementById('btn-lb-refresh').addEventListener('click', lbRefresh);
+
+// Leaderboard sub-tabs
+document.querySelectorAll('.lb-tab').forEach(function(btn) {
+  btn.addEventListener('click', function() { lbSwitch(btn.getAttribute('data-b')); });
+});
+
+// ═══════════════════════════════════════════════
+//  UTILITY HELPERS
+// ═══════════════════════════════════════════════
+function fmtDate(d){ return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
+function fmtDur(s){ if(!s) return '—'; var h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
+function fmtPace(ms){ if(!ms) return '—'; var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+String(sec).padStart(2,'0')+'/km'; }
+function sportIco(t){
+  if(t==='Walk') return {e:'🚶',c:'ico-walk'};
+  if(t==='Run'||t==='VirtualRun') return {e:'🏃',c:'ico-run'};
+  if(t==='Hike') return {e:'🥾',c:'ico-hike'};
+  return {e:'🚴',c:'ico-ride'};
+}
+function bonus(km){
+  var s=CFG.bonus.slice().sort(function(a,b){return b.km-a.km;});
+  for(var i=0;i<s.length;i++){ if(km>=s[i].km) return s[i].pts; }
+  return 0;
+}
+function medal(pts, g) {
+  var gd=(g||'').toLowerCase(), m=CFG.medals;
+  var go=gd==='female'?m.gold.female:m.gold.male;
+  var si=gd==='female'?m.silver.female:m.silver.male;
+  var br=gd==='female'?m.bronze.female:m.bronze.male;
+  if(pts>=go) return {l:'🥇 Gold',   b:'mb-gold',   lm:'lm-g', lv:'gold'};
+  if(pts>=si) return {l:'🥈 Silver', b:'mb-silver', lm:'lm-s', lv:'silver'};
+  if(pts>=br) return {l:'🥉 Bronze', b:'mb-bronze', lm:'lm-b', lv:'bronze'};
+  return {l:'Working toward Bronze', b:'mb-none', lm:'lm-n', lv:'none'};
 }
 
-// ── Render dashboard ──
-function render(data){
-  var p=data.participant, mine=data.activities, all=data.allActs, regs=data.regList, ath=data.athlete;
-  LB_REG=regs||[]; LB_ACTS=all||[];
+// ═══════════════════════════════════════════════
+//  SUPABASE FETCH (paginated)
+// ═══════════════════════════════════════════════
+async function sbFetch(url) {
+  var all = [], from = 0;
+  while (true) {
+    var sep = url.includes('?') ? '&' : '?';
+    var r = await fetch(url + sep + 'limit=1000&offset=' + from, {
+      headers: Object.assign({}, SB_HDR, { 'Range-Unit': 'items', 'Range': from + '-' + (from+999) })
+    });
+    if (!r.ok) break;
+    var p = await r.json();
+    if (!Array.isArray(p) || !p.length) break;
+    all = all.concat(p);
+    if (p.length < 1000) break;
+    from += 1000;
+  }
+  return all;
+}
+
+// ═══════════════════════════════════════════════
+//  POINTS CALCULATION
+// ═══════════════════════════════════════════════
+function calcPts(acts, id) {
+  var byDay = {};
+  acts.filter(function(a){ return a.strava_athlete_id == id && !a.is_flagged; })
+    .forEach(function(a) {
+      var d = (a.activity_date||'').split('T')[0];
+      if (!d) return;
+      if (!byDay[d]) byDay[d] = [];
+      byDay[d].push(a);
+    });
+  var km=0, dp=0, bp=0, cp=0;
+  Object.keys(byDay).forEach(function(day) {
+    var raw=0;
+    byDay[day].forEach(function(a){ raw += (parseFloat(a.distance_meters)||0)/1000; });
+    raw = parseFloat(raw.toFixed(4));
+    var isSpec = LB_DAYS.indexOf(day) !== -1;
+    var dk = (!isSpec && raw > 21) ? 21 : raw;
+    dk = parseFloat(dk.toFixed(4));
+    km += dk;
+    dp += parseFloat((dk * CFG.base).toFixed(2));
+    bp += bonus(dk);
+  });
+  acts.filter(function(a){ return a.strava_athlete_id == id && !a.is_flagged; })
+    .forEach(function(a){ cp += parseFloat(a.manual_bonus)||0; });
+  return {
+    km: parseFloat(km.toFixed(2)),
+    dp: parseFloat(dp.toFixed(2)),
+    bp: bp, cp: cp,
+    tp: parseFloat((dp+bp+cp).toFixed(2)),
+    byDay: byDay
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ═══════════════════════════════════════════════
+function render(data) {
+  var p    = data.participant;
+  var mine = data.activities;
+  var all  = data.allActs;
+  var regs = data.regList;
+  var ath  = data.athlete;
+  LB_REG  = regs || [];
+  LB_ACTS = all  || [];
 
   // Top bar
-  document.getElementById('av').src=ath.profile||'';
-  document.getElementById('t-name').textContent=p.full_name||(ath.firstname+' '+ath.lastname);
-  document.getElementById('t-sub').textContent=(p.leaderboard_team||'—')+' · '+(p.shift||'—');
+  document.getElementById('av').src = ath.profile || '';
+  document.getElementById('t-name').textContent = p.full_name || (ath.firstname + ' ' + ath.lastname);
+  document.getElementById('t-sub').textContent  = (p.leaderboard_team||'—') + ' · ' + (p.shift||'—');
 
-  var valid=mine.filter(function(a){return!a.is_flagged;});
-  var pts=calcPts(mine,ath.id);
-  var med=medal(pts.tp,p.gender);
+  var pts = calcPts(mine, ath.id);
+  var med = medal(pts.tp, p.gender);
 
   // Medal badge
-  var mb=document.getElementById('medal-badge');
-  mb.textContent=med.l; mb.className='medal-badge '+med.b;
+  var mb = document.getElementById('medal-badge');
+  mb.textContent = med.l;
+  mb.className   = 'medal-badge ' + med.b;
 
-  // Stats
-  document.getElementById('s-km').textContent=pts.km.toFixed(2)+' km';
-  document.getElementById('s-pts').textContent=pts.tp.toFixed(1);
-  document.getElementById('s-acts').textContent=valid.length;
+  // Stat tiles
+  var valid = mine.filter(function(a){ return !a.is_flagged; });
+  document.getElementById('s-km').textContent   = pts.km.toFixed(2) + ' km';
+  document.getElementById('s-pts').textContent  = pts.tp.toFixed(1);
+  document.getElementById('s-acts').textContent = valid.length;
 
-  // Rank
-  var myBoard=function(){var g=(p.gender||'').toLowerCase(),s=(p.shift||'').toLowerCase();if(g==='female'&&s.includes('day'))return'dayshift-female';if((g==='male'||g==='m')&&s.includes('day'))return'dayshift-male';if(s.includes('night'))return'nightshift-all';return'all';}();
-  var bRegs=regs.filter(function(r){var rg=(r.gender||'').toLowerCase(),rs=(r.shift||'').toLowerCase();if(myBoard==='dayshift-female')return rg==='female'&&rs.includes('day');if(myBoard==='dayshift-male')return(rg==='male'||rg==='m')&&rs.includes('day');if(myBoard==='nightshift-all')return rs.includes('night');return true;});
-  var scores=[];
-  bRegs.forEach(function(r){var rp=calcPts(all,r.strava_athlete_id);if(rp.tp>0)scores.push({id:r.strava_athlete_id,name:r.full_name,tp:rp.tp});});
-  scores.sort(function(a,b){return b.tp-a.tp;});
-  var rank=scores.findIndex(function(s){return s.id==ath.id;})+1;
-  document.getElementById('s-rank').textContent=rank>0?'#'+rank:'—';
-  var rn=document.getElementById('rank-num');
-  rn.textContent=rank>0?'#'+rank:'—';
-  rn.className='rank-num'+(rank===1?' r1':rank===2?' r2':rank===3?' r3':'');
-  var bLabel=myBoard==='dayshift-female'?'Dayshift Female':myBoard==='dayshift-male'?'Dayshift Male':'Nightshift';
-  document.getElementById('rank-label').textContent=bLabel+' Board';
-  var above=rank>1?scores[rank-2]:null, below=rank<scores.length?scores[rank]:null;
-  document.getElementById('rank-sub').textContent=rank>0?(above?'▲ '+above.tp.toFixed(0)+' pts to pass '+above.name:'🏆 You are leading!')+(below?' · ▼ '+below.tp.toFixed(0)+' pts ahead of '+below.name:''):'Not on this leaderboard yet';
+  // Rank calculation
+  var myBoard = (function() {
+    var g=(p.gender||'').toLowerCase(), s=(p.shift||'').toLowerCase();
+    if(g==='female'&&s.includes('day'))  return 'dayshift-female';
+    if((g==='male'||g==='m')&&s.includes('day')) return 'dayshift-male';
+    if(s.includes('night')) return 'nightshift-all';
+    return 'all';
+  })();
+  var bRegs = regs.filter(function(r) {
+    var rg=(r.gender||'').toLowerCase(), rs=(r.shift||'').toLowerCase();
+    if(myBoard==='dayshift-female') return rg==='female'&&rs.includes('day');
+    if(myBoard==='dayshift-male')   return(rg==='male'||rg==='m')&&rs.includes('day');
+    if(myBoard==='nightshift-all')  return rs.includes('night');
+    return true;
+  });
+  var scores = [];
+  bRegs.forEach(function(r) {
+    var rp = calcPts(all, r.strava_athlete_id);
+    if (rp.tp > 0) scores.push({id:r.strava_athlete_id, name:r.full_name, tp:rp.tp});
+  });
+  scores.sort(function(a,b){ return b.tp - a.tp; });
+  var rank = scores.findIndex(function(s){ return s.id == ath.id; }) + 1;
 
-  // Points
-  document.getElementById('pt-dist').textContent=pts.dp.toFixed(1);
-  document.getElementById('pt-bonus').textContent=pts.bp;
-  document.getElementById('pt-chal').textContent=pts.cp||'—';
-  document.getElementById('pt-total').textContent=pts.tp.toFixed(1);
+  document.getElementById('s-rank').textContent = rank > 0 ? '#' + rank : '—';
+  var rn = document.getElementById('rank-num');
+  rn.textContent = rank > 0 ? '#' + rank : '—';
+  rn.className = 'rank-num' + (rank===1?' r1':rank===2?' r2':rank===3?' r3':'');
+
+  var bLabel = myBoard==='dayshift-female'?'Dayshift Female':myBoard==='dayshift-male'?'Dayshift Male':'Nightshift';
+  document.getElementById('rank-label').textContent = bLabel + ' Board';
+  var above = rank>1 ? scores[rank-2] : null;
+  var below = rank<scores.length ? scores[rank] : null;
+  document.getElementById('rank-sub').textContent = rank>0
+    ? (above ? '▲ '+above.tp.toFixed(0)+' pts to pass '+above.name : '🏆 You are leading!')
+      + (below ? ' · ▼ '+below.tp.toFixed(0)+' pts ahead of '+below.name : '')
+    : 'Not on this leaderboard yet';
+
+  // Points breakdown
+  document.getElementById('pt-dist').textContent  = pts.dp.toFixed(1);
+  document.getElementById('pt-bonus').textContent = pts.bp;
+  document.getElementById('pt-chal').textContent  = pts.cp || '—';
+  document.getElementById('pt-total').textContent = pts.tp.toFixed(1);
 
   // Medal progress
-  var g=(p.gender||'').toLowerCase(),m=CFG.medals;
-  var tiers=[{n:'🥉 Bronze',t:g==='female'?m.bronze.female:m.bronze.male,c:'pf-b'},{n:'🥈 Silver',t:g==='female'?m.silver.female:m.silver.male,c:'pf-s'},{n:'🥇 Gold',t:g==='female'?m.gold.female:m.gold.male,c:'pf-g'}];
-  document.getElementById('medal-card').innerHTML=tiers.map(function(tier){
-    var pct=Math.min(100,Math.round((pts.tp/tier.t)*100));
-    return '<div class="med-row"><div class="med-em">'+tier.n.split(' ')[0]+'</div><div class="med-body"><div class="med-top"><span class="med-name">'+tier.n+(pts.tp>=tier.t?' ✅':'')+'</span><span class="med-pct">'+pct+'% · '+tier.t+' pts</span></div><div class="prog"><div class="prog-fill '+tier.c+'" style="width:'+pct+'%"></div></div></div></div>';
+  var g2=(p.gender||'').toLowerCase(), m2=CFG.medals;
+  var tiers=[
+    {n:'🥉 Bronze', t:g2==='female'?m2.bronze.female:m2.bronze.male, c:'pf-b'},
+    {n:'🥈 Silver', t:g2==='female'?m2.silver.female:m2.silver.male, c:'pf-s'},
+    {n:'🥇 Gold',   t:g2==='female'?m2.gold.female:m2.gold.male,     c:'pf-g'}
+  ];
+  document.getElementById('medal-card').innerHTML = tiers.map(function(tier) {
+    var pct = Math.min(100, Math.round((pts.tp/tier.t)*100));
+    return '<div class="med-row">'
+      +'<div class="med-em">'+tier.n.split(' ')[0]+'</div>'
+      +'<div class="med-body">'
+        +'<div class="med-top"><span class="med-name">'+tier.n+(pts.tp>=tier.t?' ✅':'')+'</span>'
+        +'<span class="med-pct">'+pct+'% · '+tier.t+' pts</span></div>'
+        +'<div class="prog"><div class="prog-fill '+tier.c+'" style="width:'+pct+'%"></div></div>'
+      +'</div></div>';
   }).join('');
 
-  // Activities
-  var juneActs=mine.filter(function(a){return(a.activity_date||'').startsWith('2026-06');});
-  document.getElementById('acts-count').textContent=juneActs.length+' activities';
-  document.getElementById('acts-list').innerHTML=juneActs.length?juneActs.map(function(a){
-    var si=sportIco(a.sport_type);
-    var km2=a.distance_meters?(parseFloat(a.distance_meters)/1000).toFixed(2)+' km':'—';
-    return '<a href="https://www.strava.com/activities/'+a.strava_activity_id+'" target="_blank" class="act-item">'
-      +'<div class="act-ico '+si.c+'">'+si.e+'</div>'
-      +'<div class="act-info"><div class="act-name">'+(a.activity_name||'Activity')+'</div><div class="act-meta">'+fmtDate(a.activity_date)+' · '+fmtDur(a.moving_time_seconds)+' · '+fmtPace(a.avg_speed)+'</div></div>'
-      +'<div class="act-right"><div class="act-km">'+km2+'</div><div class="act-badge '+(a.is_flagged?'ab-flag':'ab-ok')+'">'+(a.is_flagged?'🚩 Flagged':'✅ Valid')+'</div></div>'
-      +'</a>';
-  }).join(''):'<div class="empty"><div class="ei">🏃</div>No June activities yet</div>';
+  // Activities list
+  var juneActs = mine.filter(function(a){ return (a.activity_date||'').startsWith('2026-06'); });
+  document.getElementById('acts-count').textContent = juneActs.length + ' activities';
+  document.getElementById('acts-list').innerHTML = juneActs.length
+    ? juneActs.map(function(a) {
+        var si = sportIco(a.sport_type);
+        var km2 = a.distance_meters ? (parseFloat(a.distance_meters)/1000).toFixed(2)+' km' : '—';
+        return '<a href="https://www.strava.com/activities/'+a.strava_activity_id+'" target="_blank" class="act-item">'
+          +'<div class="act-ico '+si.c+'">'+si.e+'</div>'
+          +'<div class="act-info"><div class="act-name">'+(a.activity_name||'Activity')+'</div>'
+          +'<div class="act-meta">'+fmtDate(a.activity_date)+' · '+fmtDur(a.moving_time_seconds)+' · '+fmtPace(a.avg_speed)+'</div></div>'
+          +'<div class="act-right"><div class="act-km">'+km2+'</div>'
+          +'<div class="act-badge '+(a.is_flagged?'ab-flag':'ab-ok')+'">'+(a.is_flagged?'🚩 Flagged':'✅ Valid')+'</div></div>'
+          +'</a>';
+      }).join('')
+    : '<div class="empty"><div class="ei">🏃</div>No June activities yet</div>';
 
-  // Profile
-  document.getElementById('pr-name').textContent=p.full_name||(ath.firstname+' '+ath.lastname);
-  document.getElementById('pr-team').textContent=p.leaderboard_team||'—';
-  document.getElementById('pr-shift').textContent=p.shift||'—';
-  document.getElementById('pr-gender').textContent=p.gender||'—';
+  // Profile tab
+  document.getElementById('pr-name').textContent   = p.full_name || (ath.firstname + ' ' + ath.lastname);
+  document.getElementById('pr-team').textContent   = p.leaderboard_team || '—';
+  document.getElementById('pr-shift').textContent  = p.shift  || '—';
+  document.getElementById('pr-gender').textContent = p.gender || '—';
 
-  // Show dashboard
   showScreen('s-dash');
 }
 
-// ── Leaderboard ──
-var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
-var SB='https://jhdgkncpkrttvemvwukc.supabase.co';
-var SB_HDR={apikey:SB_ANON,Authorization:'Bearer '+SB_ANON};
-async function lbFetch(url){var all=[],from=0;while(true){var r=await fetch(url+(url.includes('?')?'&':'?')+'limit=1000&offset='+from,{headers:Object.assign({},SB_HDR,{'Range-Unit':'items','Range':from+'-'+(from+999)})});if(!r.ok)break;var p=await r.json();if(!Array.isArray(p)||!p.length)break;all=all.concat(p);if(p.length<1000)break;from+=1000;}return all;}
-async function lbLoad(){
-  document.getElementById('lb-content').innerHTML='<div class="lb-loading"><div class="sm-spin"></div>Loading...</div>';
-  try{
-    var sr=await fetch(SB+'/rest/v1/special_scoring_days?select=special_date',{headers:SB_HDR});
-    var sd=await sr.json(); LB_DAYS=Array.isArray(sd)?sd.map(function(x){return x.special_date;}):[]; 
-    // Use data already loaded from /my-data
-    if(LB_REG.length&&LB_ACTS.length){LB_LOADED=true;lbBuild(LB_BOARD);}
-    else{
-      var reg=await lbFetch(SB+'/rest/v1/registration?select=strava_athlete_id,full_name,gender,shift,leaderboard_team&order=full_name.asc');
-      var acts=await lbFetch(SB+'/rest/v1/activities?is_deleted=eq.false&is_flagged=eq.false&activity_date=gte.2026-06-01T00:00:00&activity_date=lte.2026-06-30T23:59:59&select=strava_athlete_id,distance_meters,sport_type,activity_date,manual_bonus&order=id.asc');
-      LB_REG=reg;LB_ACTS=acts;LB_LOADED=true;lbBuild(LB_BOARD);
+// ═══════════════════════════════════════════════
+//  LEADERBOARD
+// ═══════════════════════════════════════════════
+async function lbLoad() {
+  document.getElementById('lb-content').innerHTML =
+    '<div class="lb-loading"><div class="sm-spin"></div>Loading...</div>';
+  try {
+    var sr  = await fetch(SB + '/rest/v1/special_scoring_days?select=special_date', { headers: SB_HDR });
+    var sd  = await sr.json();
+    LB_DAYS = Array.isArray(sd) ? sd.map(function(x){ return x.special_date; }) : [];
+
+    if (LB_REG.length && LB_ACTS.length) {
+      LB_LOADED = true;
+      lbBuild(LB_BOARD);
+    } else {
+      var reg  = await sbFetch(SB + '/rest/v1/registration?select=strava_athlete_id,full_name,gender,shift,leaderboard_team&order=full_name.asc');
+      var acts = await sbFetch(SB + '/rest/v1/activities?is_deleted=eq.false&is_flagged=eq.false&activity_date=gte.2026-06-01T00:00:00&activity_date=lte.2026-06-30T23:59:59&select=strava_athlete_id,distance_meters,sport_type,activity_date,manual_bonus&order=id.asc');
+      LB_REG   = reg;
+      LB_ACTS  = acts;
+      LB_LOADED = true;
+      lbBuild(LB_BOARD);
     }
-  }catch(e){document.getElementById('lb-content').innerHTML='<div class="empty"><div class="ei">⚠️</div>'+e.message+'</div>';}
+  } catch(e) {
+    document.getElementById('lb-content').innerHTML =
+      '<div class="empty"><div class="ei">⚠️</div>' + e.message + '</div>';
+  }
 }
-function lbRefresh(){LB_LOADED=false;LB_DATA={};lbLoad();}
-function lbSwitch(b){LB_BOARD=b;document.querySelectorAll('.lb-tab').forEach(function(t){t.classList.toggle('on',t.getAttribute('data-b')===b);});if(LB_DATA[b])lbRender(b);else lbBuild(b);}
-function lbBuild(b){
-  var reg=LB_REG.filter(function(p){var g=(p.gender||'').toLowerCase(),s=(p.shift||'').toLowerCase();if(b==='dayshift-female')return g==='female'&&s.includes('day');if(b==='dayshift-male')return(g==='male'||g==='m')&&s.includes('day');if(b==='nightshift-all')return s.includes('night');if(b==='team-male')return g==='male'||g==='m';if(b==='team-female')return g==='female';return true;});
-  var rows=[];reg.forEach(function(p){var pts=calcPts(LB_ACTS,p.strava_athlete_id);if(pts.km>0)rows.push({p:p,pts:pts});});
-  rows.sort(function(a,b){return b.pts.tp-a.pts.tp;});LB_DATA[b]=rows;lbRender(b);
+function lbRefresh() { LB_LOADED = false; LB_DATA = {}; lbLoad(); }
+function lbSwitch(b) {
+  LB_BOARD = b;
+  document.querySelectorAll('.lb-tab').forEach(function(t){
+    t.classList.toggle('on', t.getAttribute('data-b') === b);
+  });
+  if (LB_DATA[b]) lbRender(b); else lbBuild(b);
 }
-function lbRender(b){
-  var rows=LB_DATA[b]||[];
-  if(!rows.length){document.getElementById('lb-content').innerHTML='<div class="empty"><div class="ei">🏃</div>No activities yet</div>';return;}
-  var isTeam=b==='team-male'||b==='team-female';
-  var html='';
-  if(isTeam){
-    var teams={};rows.forEach(function(r){var t=r.p.leaderboard_team||'No Team';if(!teams[t])teams[t]=[];teams[t].push(r);});
-    var tNames=Object.keys(teams).sort(function(a,b2){return teams[b2].reduce(function(s,r){return s+r.pts.tp;},0)-teams[a].reduce(function(s,r){return s+r.pts.tp;},0);});
-    tNames.forEach(function(tn){html+='<div class="team-hdr">🏙️ '+tn+'</div>';teams[tn].forEach(function(r,i){html+=lbRow(r,i,false);});});
-  }else{rows.forEach(function(r,i){html+=lbRow(r,i,true);});}
-  document.getElementById('lb-content').innerHTML=html;
+function lbBuild(b) {
+  var reg = LB_REG.filter(function(p) {
+    var g=(p.gender||'').toLowerCase(), s=(p.shift||'').toLowerCase();
+    if(b==='dayshift-female') return g==='female'&&s.includes('day');
+    if(b==='dayshift-male')   return(g==='male'||g==='m')&&s.includes('day');
+    if(b==='nightshift-all')  return s.includes('night');
+    if(b==='team-male')       return g==='male'||g==='m';
+    if(b==='team-female')     return g==='female';
+    return true;
+  });
+  var rows = [];
+  reg.forEach(function(p) {
+    var pts = calcPts(LB_ACTS, p.strava_athlete_id);
+    if (pts.km > 0) rows.push({p:p, pts:pts});
+  });
+  rows.sort(function(a,b){ return b.pts.tp - a.pts.tp; });
+  LB_DATA[b] = rows;
+  lbRender(b);
 }
-function lbRow(row,i,showR){
-  var p=row.p,pts=row.pts,aid=p.strava_athlete_id;
-  var med=medal(pts.tp,p.gender);
-  var tCls=i===0?'t1':i===1?'t2':i===2?'t3':'';
-  var rCls=i===0?'r1':i===1?'r2':i===2?'r3':'';
-  var rLbl=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
-  var byDay=pts.byDay||{};
-  var days=Object.keys(byDay).filter(function(d){return d.startsWith('2026-06');}).sort();
-  var dayHtml=days.map(function(day){
-    var raw=0;byDay[day].forEach(function(a){raw+=(parseFloat(a.distance_meters)||0)/1000;});
-    raw=parseFloat(raw.toFixed(4));
-    var isS=LB_DAYS.indexOf(day)!==-1,cap=!isS&&raw>21,dk=cap?21:raw;dk=parseFloat(dk.toFixed(2));
-    var dp2=parseFloat((dk*CFG.base).toFixed(2)),bp2=bonus(dk),tp2=parseFloat((dp2+bp2).toFixed(2));
-    var ds=day.replace('2026-','').replace('-','/');
-    return '<div class="day-row"><div class="day-dt">'+ds+'</div><div class="day-km"><strong>'+dk.toFixed(2)+'</strong>'+(cap?'<span class="cap">cap</span>':'')+'</div><div class="day-pts"><div class="day-total">+'+tp2.toFixed(1)+'</div><div class="day-detail">'+dp2.toFixed(1)+'+'+bp2+'</div></div></div>';
+function lbRender(b) {
+  var rows = LB_DATA[b] || [];
+  if (!rows.length) {
+    document.getElementById('lb-content').innerHTML =
+      '<div class="empty"><div class="ei">🏃</div>No activities yet</div>';
+    return;
+  }
+  var isTeam = b==='team-male' || b==='team-female';
+  var html = '';
+  if (isTeam) {
+    var teams = {};
+    rows.forEach(function(r) {
+      var t = r.p.leaderboard_team || 'No Team';
+      if (!teams[t]) teams[t] = [];
+      teams[t].push(r);
+    });
+    var tNames = Object.keys(teams).sort(function(a,b2){
+      return teams[b2].reduce(function(s,r){return s+r.pts.tp;},0)
+           - teams[a].reduce(function(s,r){return s+r.pts.tp;},0);
+    });
+    tNames.forEach(function(tn) {
+      html += '<div class="team-hdr">🏙️ ' + tn + '</div>';
+      teams[tn].forEach(function(r,i){ html += lbRow(r,i,false); });
+    });
+  } else {
+    rows.forEach(function(r,i){ html += lbRow(r,i,true); });
+  }
+  document.getElementById('lb-content').innerHTML = html;
+
+  // Attach toggle listeners AFTER HTML is inserted
+  document.querySelectorAll('[data-lbtoggle]').forEach(function(el) {
+    el.addEventListener('click', function(){ lbToggle(el.getAttribute('data-lbtoggle')); });
+  });
+}
+function lbRow(row, i, showR) {
+  var p=row.p, pts=row.pts, aid=p.strava_athlete_id;
+  var med = medal(pts.tp, p.gender);
+  var tCls = i===0?'t1':i===1?'t2':i===2?'t3':'';
+  var rCls = i===0?'r1':i===1?'r2':i===2?'r3':'';
+  var rLbl = i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+  var byDay = pts.byDay || {};
+  var days  = Object.keys(byDay).filter(function(d){ return d.startsWith('2026-06'); }).sort();
+  var dayHtml = days.map(function(day) {
+    var raw=0;
+    byDay[day].forEach(function(a){ raw+=(parseFloat(a.distance_meters)||0)/1000; });
+    raw = parseFloat(raw.toFixed(4));
+    var isS=LB_DAYS.indexOf(day)!==-1, cap=!isS&&raw>21, dk=cap?21:raw;
+    dk = parseFloat(dk.toFixed(2));
+    var dp2=parseFloat((dk*CFG.base).toFixed(2)), bp2=bonus(dk), tp2=parseFloat((dp2+bp2).toFixed(2));
+    var ds = day.replace('2026-','').replace('-','/');
+    return '<div class="day-row">'
+      +'<div class="day-dt">'+ds+'</div>'
+      +'<div class="day-km"><strong>'+dk.toFixed(2)+'</strong>'+(cap?'<span class="cap">cap</span>':'')+'</div>'
+      +'<div class="day-pts"><div class="day-total">+'+tp2.toFixed(1)+'</div>'
+      +'<div class="day-detail">'+dp2.toFixed(1)+'+'+bp2+'</div></div>'
+      +'</div>';
   }).join('');
   return '<div class="lb-card '+tCls+'">'
-    +'<div class="lb-main" onclick="lbToggle(\''+aid+'\')">'
-    +'<div class="lb-rank '+rCls+'">'+(showR?rLbl:(i+1))+'</div>'
-    +'<div class="lb-info"><div class="lb-name">'+p.full_name+'</div>'
-    +'<div class="lb-meta"><span class="lb-med '+med.lm+'">'+med.l+'</span><span class="lb-team">'+( p.leaderboard_team||'—')+'</span></div></div>'
-    +'<div class="lb-pts-r"><div class="lb-pts-v">'+pts.tp.toFixed(1)+'</div><div class="lb-pts-l">pts</div></div></div>'
-    +'<div class="lb-mini"><span>📏 <strong>'+pts.km.toFixed(2)+' km</strong></span><span>⚡ +<strong>'+pts.bp+'</strong></span>'+(pts.cp>0?'<span>🎯 +<strong>'+pts.cp+'</strong></span>':'')+'</div>'
-    +(days.length?'<div class="lb-toggle" id="lbt-'+aid+'" onclick="lbToggle(\''+aid+'\')"><span class="arr">▼</span> '+days.length+' days</div>':'')
-    +'<div class="lb-days" id="lbd-'+aid+'"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">📅 Daily breakdown</div>'+dayHtml+'</div>'
+    +'<div class="lb-main" data-lbtoggle="'+aid+'">'
+      +'<div class="lb-rank '+rCls+'">'+(showR?rLbl:(i+1))+'</div>'
+      +'<div class="lb-info"><div class="lb-name">'+p.full_name+'</div>'
+      +'<div class="lb-meta"><span class="lb-med '+med.lm+'">'+med.l+'</span>'
+      +'<span class="lb-team">'+(p.leaderboard_team||'—')+'</span></div></div>'
+      +'<div class="lb-pts-r"><div class="lb-pts-v">'+pts.tp.toFixed(1)+'</div>'
+      +'<div class="lb-pts-l">pts</div></div>'
+    +'</div>'
+    +'<div class="lb-mini"><span>📏 <strong>'+pts.km.toFixed(2)+' km</strong></span>'
+      +'<span>⚡ +<strong>'+pts.bp+'</strong></span>'
+      +(pts.cp>0?'<span>🎯 +<strong>'+pts.cp+'</strong></span>':'')
+    +'</div>'
+    +(days.length ? '<div class="lb-toggle" data-lbtoggle="'+aid+'"><span class="arr">▼</span> '+days.length+' days</div>' : '')
+    +'<div class="lb-days" id="lbd-'+aid+'"><div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">📅 Daily breakdown</div>'
+      +dayHtml
+    +'</div>'
     +'</div>';
 }
-function lbToggle(aid){
-  var el=document.getElementById('lbd-'+aid),tog=document.getElementById('lbt-'+aid);
-  if(!el)return;
-  var open=el.classList.contains('open');
-  el.classList.toggle('open',!open);
-  if(tog)tog.classList.toggle('open',!open);
+function lbToggle(aid) {
+  var el  = document.getElementById('lbd-'+aid);
+  if (!el) return;
+  var open = el.classList.contains('open');
+  el.classList.toggle('open', !open);
+  // also toggle arrow on both lb-main and lb-toggle rows that share this aid
+  document.querySelectorAll('[data-lbtoggle="'+aid+'"]').forEach(function(el2){
+    el2.classList.toggle('open', !open);
+  });
 }
 
-function signOut(){sessionStorage.removeItem('wk_user');window.location.replace('index.html');}
-
-// ── Boot: get code from URL ──
-var params=new URLSearchParams(window.location.search);
-var code=params.get('code'), state=params.get('state');
-if(code && state==='portal'){
-  window.history.replaceState({},'',window.location.pathname);
-  setLoad('Loading your data...');
-  fetch(BACKEND+'/my-data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(!d.success){
-      if(d.error==='not_registered') showErr('🔒','Not registered','Contact your event organizer.');
-      else showErr('⚠️','Something went wrong',d.error||'Please try again.');
-      return;
-    }
-    render(d);
-  })
-  .catch(function(){showErr('⚠️','Connection error','Could not reach the server.');});
-} else {
+function signOut() {
+  sessionStorage.removeItem('wk_user');
   window.location.replace('index.html');
 }
+
+// ═══════════════════════════════════════════════
+//  BOOT  — reads session, fetches from Supabase
+//  NO second Strava OAuth needed
+// ═══════════════════════════════════════════════
+(async function boot() {
+  var raw = sessionStorage.getItem('wk_user');
+  if (!raw) {
+    window.location.replace('index.html');
+    return;
+  }
+  var sess;
+  try { sess = JSON.parse(raw); } catch(e) { window.location.replace('index.html'); return; }
+
+  // Check session not expired (8h)
+  if (!sess.loggedIn || !sess.athleteId || Date.now() > (sess.expires||0)) {
+    sessionStorage.removeItem('wk_user');
+    window.location.replace('index.html');
+    return;
+  }
+
+  var athleteId = sess.athleteId;
+
+  setLoad('Loading your profile...');
+
+  try {
+    // 1. Registration / participant record
+    var regRes = await fetch(
+      SB + '/rest/v1/registration?strava_athlete_id=eq.' + athleteId + '&select=*',
+      { headers: SB_HDR }
+    );
+    var regData = await regRes.json();
+    if (!Array.isArray(regData) || !regData.length) {
+      showErr('🔒', 'Not registered', 'Contact your event organizer.');
+      return;
+    }
+    var participant = regData[0];
+
+    setLoad('Fetching your activities...');
+
+    // 2. My activities (all, paginated)
+    var myActs = await sbFetch(
+      SB + '/rest/v1/activities?strava_athlete_id=eq.' + athleteId
+        + '&is_deleted=eq.false&order=activity_date.desc'
+    );
+
+    setLoad('Loading leaderboard data...');
+
+    // 3. All June activities (for rank calc — unflagged only)
+    var allActs = await sbFetch(
+      SB + '/rest/v1/activities?is_flagged=eq.false&is_deleted=eq.false'
+        + '&activity_date=gte.2026-06-01T00:00:00&activity_date=lte.2026-06-30T23:59:59'
+        + '&select=strava_athlete_id,distance_meters,activity_date,manual_bonus,sport_type'
+        + '&order=id.asc'
+    );
+
+    // 4. Registration list (for leaderboard names/categories)
+    var regList = await sbFetch(
+      SB + '/rest/v1/registration?select=strava_athlete_id,full_name,gender,shift,leaderboard_team&order=full_name.asc'
+    );
+
+    // 5. Special scoring days
+    var sdRes  = await fetch(SB + '/rest/v1/special_scoring_days?select=special_date', { headers: SB_HDR });
+    var sdData = await sdRes.json();
+    LB_DAYS = Array.isArray(sdData) ? sdData.map(function(x){ return x.special_date; }) : [];
+    LB_REG  = regList;
+    LB_ACTS = allActs;
+
+    // Athlete profile data from session (name + photo saved during login)
+    var athlete = {
+      id:        athleteId,
+      firstname: sess.name ? sess.name.split(' ')[0] : '',
+      lastname:  sess.name ? sess.name.split(' ').slice(1).join(' ') : '',
+      profile:   sess.photo || ''
+    };
+
+    render({
+      participant: participant,
+      activities:  myActs,
+      allActs:     allActs,
+      regList:     regList,
+      athlete:     athlete
+    });
+
+  } catch(e) {
+    showErr('⚠️', 'Could not load data', e.message || 'Please try again.');
+  }
+})();
 </script>
 </body>
 </html>
