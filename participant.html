@@ -27,24 +27,28 @@
          background:var(--bg);color:var(--text);display:flex;flex-direction:column;
          min-height:100dvh;-webkit-font-smoothing:antialiased;}
 
+    /* ── Sticky top wrapper (header + profile card) ── */
+    .top-bar{position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.10);}
+
     /* ── Header ── */
-    .header{background:var(--white);border-bottom:2px solid var(--brand);
+    .header{background:var(--dark);
             padding:12px 20px;padding-top:max(12px,env(safe-area-inset-top));
-            display:flex;align-items:center;justify-content:space-between;
-            position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+            display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);}
     .header img{height:36px;object-fit:contain;}
     .hdr-right{display:flex;align-items:center;gap:4px;}
     .icon-btn{background:none;border:none;cursor:pointer;padding:8px;border-radius:8px;
-              color:var(--muted);display:flex;align-items:center;}
+              color:rgba(255,255,255,0.6);display:flex;align-items:center;}
+    .icon-btn:hover{color:white;background:rgba(255,255,255,0.08);}
     .icon-btn svg{width:18px;height:18px;}
     @keyframes spin{to{transform:rotate(360deg);}}
     .spinning{animation:spin 1s linear infinite;}
-    .sign-out{font-size:13px;color:var(--muted);background:none;border:none;
+    .sign-out{font-size:13px;color:rgba(255,255,255,0.65);background:none;border:none;
               cursor:pointer;padding:7px 12px;border-radius:8px;font-family:inherit;font-weight:500;}
+    .sign-out:hover{color:white;background:rgba(255,255,255,0.08);}
 
     /* ── Profile card ── */
-    .profile-card{background:var(--dark);padding:10px 16px;display:flex;align-items:center;
-               gap:12px;overflow:hidden;}
+    .profile-card{background:var(--dark);padding:10px 16px 14px;display:flex;align-items:center;
+               gap:12px;overflow:hidden;border-top:1px solid rgba(232,98,42,0.4);}
 
     .profile-info{flex:1;min-width:0;}
     .profile-name{font-size:15px;font-weight:700;color:white;
@@ -209,8 +213,9 @@
 </head>
 <body>
 
+<div class="top-bar">
 <header class="header">
-  <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
+  <img src="aw_logo_dark.png" alt="Arcgate Walkathon 2026">
   <div class="hdr-right">
     <button class="icon-btn" id="refresh-btn" onclick="refreshData()" title="Refresh">
       <svg id="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -221,15 +226,14 @@
     <button class="sign-out" onclick="logout()">Sign out</button>
   </div>
 </header>
-
 <!-- Profile Card -->
 <div class="profile-card" id="profile-card">
-
   <div class="profile-avatar" id="p-initials" style="width:48px;height:48px;border-radius:50%;background:#E8622A;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0">?</div>
   <div class="profile-info">
     <div class="profile-name" id="p-name">Loading...</div>
     <div class="profile-tags" id="p-tags"></div>
   </div>
+</div>
 </div>
 
 
