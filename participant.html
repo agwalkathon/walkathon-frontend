@@ -61,12 +61,14 @@
 
 
     /* ── Dashboard stat cards ── */
-    .dash-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-    .dash-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);
-               padding:16px 12px;text-align:center;}
-    .dc-icon{font-size:24px;margin-bottom:6px;}
-    .dc-val{font-size:24px;font-weight:800;color:var(--brand);line-height:1.1;}
-    .dc-lbl{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.3;}
+    .dash-cards{display:grid;gap:6px;margin-bottom:10px;}
+    .dash-cards.cols2{grid-template-columns:1fr 1fr;}
+    .dash-cards.cols4{grid-template-columns:repeat(4,1fr);}
+    .dash-card{background:var(--white);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+               padding:10px 6px;text-align:center;}
+    .dc-icon{font-size:18px;margin-bottom:3px;}
+    .dc-val{font-size:16px;font-weight:800;color:var(--brand);line-height:1.1;}
+    .dc-lbl{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3;}
 
     /* ── Standing section ── */
     .dash-section{margin-bottom:10px;}
@@ -284,7 +286,7 @@
 <div class="content" id="tab-dashboard">
 
   <!-- Stat cards: Distance + Activities + Avg Pace + Moving Time -->
-  <div class="dash-cards">
+  <div class="dash-cards cols4">
     <div class="dash-card">
       <div class="dc-icon">📏</div>
       <div class="dc-val" id="s-dist">—</div>
@@ -414,7 +416,7 @@
   <!-- Activity Times -->
   <div class="dash-section">
     <div class="dash-section-title">🕐 Activity Times</div>
-    <div class="dash-cards">
+    <div class="dash-cards cols4">
       <div class="dash-card">
         <div class="dc-icon">🌅</div>
         <div class="dc-val" id="tod-morning">—</div>
