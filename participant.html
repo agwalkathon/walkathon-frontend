@@ -83,14 +83,35 @@
     .standing-rank{font-size:15px;font-weight:800;color:var(--brand);}
 
     /* ── Medal progress ── */
-    .medal-row{padding:6px 0;border-bottom:1px solid var(--border);}
-    .medal-row:last-child{border-bottom:none;padding-bottom:0;}
-    .medal-row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
-    .medal-row-name{font-size:12px;font-weight:700;}
-    .medal-row-pts{font-size:11px;color:var(--muted);}
-    .progress-bar-bg{background:var(--border);border-radius:20px;height:5px;overflow:hidden;}
-    .progress-bar-fill{height:100%;border-radius:20px;transition:width 0.6s ease;}
-    .medal-row-pct{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;}
+    /* ── Medal cards grid ── */
+    .medal-cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .medal-card-item{border-radius:var(--radius-sm);padding:10px 8px;text-align:center;
+                      border:1.5px solid var(--border);position:relative;overflow:hidden;}
+    .medal-card-item.achieved{border-color:transparent;}
+    .medal-card-item.bronze-row{background:#FDF6EE;}
+    .medal-card-item.silver-row{background:#F8FAFC;}
+    .medal-card-item.gold-row  {background:#FFFBEB;}
+    .medal-card-item.achieved.bronze-row{border-color:#CD7F32;}
+    .medal-card-item.achieved.silver-row{border-color:#94A3B8;}
+    .medal-card-item.achieved.gold-row  {border-color:#F59E0B;}
+    .mc-emoji{font-size:22px;line-height:1;margin-bottom:4px;}
+    .mc-name{font-size:11px;font-weight:800;margin-bottom:5px;}
+    .mc-name.bronze-row{color:#CD7F32;}
+    .mc-name.silver-row{color:#94A3B8;}
+    .mc-name.gold-row  {color:#F59E0B;}
+    .mc-pct{font-size:16px;font-weight:800;color:var(--text);line-height:1;margin-bottom:1px;}
+    .mc-pts{font-size:9px;color:var(--muted);margin-bottom:6px;}
+    .mc-bar-bg{background:rgba(0,0,0,0.08);border-radius:20px;height:4px;overflow:hidden;margin:0 2px;}
+    .mc-bar-fill{height:100%;border-radius:20px;transition:width 0.6s ease;}
+    .mc-bar-fill.bronze-row{background:#CD7F32;}
+    .mc-bar-fill.silver-row{background:#94A3B8;}
+    .mc-bar-fill.gold-row  {background:#F59E0B;}
+    .mc-needed{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.3;}
+    .mc-done-badge{position:absolute;top:4px;right:4px;font-size:8px;font-weight:700;
+                    padding:1px 5px;border-radius:20px;}
+    .mc-done-badge.bronze-row{background:#CD7F32;color:white;}
+    .mc-done-badge.silver-row{background:#94A3B8;color:white;}
+    .mc-done-badge.gold-row  {background:#F59E0B;color:white;}
     .pts-needed{font-size:10px;color:var(--muted);font-weight:400;}
 
     /* ── Pace rows ── */
@@ -327,8 +348,8 @@
           <div style="font-size:9px;color:var(--muted);">Total Points</div>
         </div>
       </div>
-      <!-- Progress bars -->
-      <div class="medal-progress-wrap" id="medal-progress"></div>
+      <!-- Medal cards -->
+      <div class="medal-cards-grid" id="medal-progress"></div>
     </div>
   </div>
 
@@ -909,25 +930,24 @@ async function load() {
     var mpWrap = document.getElementById('medal-progress');
     mpWrap.innerHTML = '';
     [
-      { name:'🥉 Bronze', thresh: bronzeThresh, cls:'bronze-row' },
-      { name:'🥈 Silver', thresh: silverThresh, cls:'silver-row' },
-      { name:'🥇 Gold',   thresh: goldThresh,   cls:'gold-row'   }
+      { emoji:'🥉', name:'Bronze', thresh: bronzeThresh, cls:'bronze-row' },
+      { emoji:'🥈', name:'Silver', thresh: silverThresh, cls:'silver-row' },
+      { emoji:'🥇', name:'Gold',   thresh: goldThresh,   cls:'gold-row'   }
     ].forEach(function(m) {
-      var pct  = Math.min(100, Math.round((myPts / m.thresh) * 100));
-      var done = myPts >= m.thresh;
-      var row  = document.createElement('div');
-      row.className = 'medal-row ' + m.cls + (done ? ' achieved' : '');
-      var needed = Math.max(0, m.thresh - myPts);
-      row.innerHTML =
-        '<div class="medal-row-head">' +
-          '<span class="medal-row-name">' + m.name + (done ? ' ✓' : '') + '</span>' +
-          '<span class="medal-row-pts">' + myPts.toFixed(1) + ' / ' + m.thresh + ' pts' +
-            (!done ? ' <span class="pts-needed">(need ' + needed.toFixed(1) + ' more)</span>' : '') +
-          '</span>' +
-        '</div>' +
-        '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="medal-row-pct">' + (done ? '100% Achieved' : pct + '% achieved') + '</div>';
-      mpWrap.appendChild(row);
+      var pct    = Math.min(100, Math.round((myPts / m.thresh) * 100));
+      var done   = myPts >= m.thresh;
+      var needed = Math.max(0, m.thresh - myPts).toFixed(1);
+      var card   = document.createElement('div');
+      card.className = 'medal-card-item ' + m.cls + (done ? ' achieved' : '');
+      card.innerHTML =
+        (done ? '<div class="mc-done-badge ' + m.cls + '">✓ Done</div>' : '') +
+        '<div class="mc-emoji">' + m.emoji + '</div>' +
+        '<div class="mc-name ' + m.cls + '">' + m.name + '</div>' +
+        '<div class="mc-pct">' + pct + '%</div>' +
+        '<div class="mc-pts">' + myPts.toFixed(1) + ' / ' + m.thresh + ' pts</div>' +
+        '<div class="mc-bar-bg"><div class="mc-bar-fill ' + m.cls + '" style="width:' + pct + '%"></div></div>' +
+        (!done ? '<div class="mc-needed">Need ' + needed + ' more pts</div>' : '<div class="mc-needed">Achieved! 🎉</div>');
+      mpWrap.appendChild(card);
     });
 
     // ── Current Standing ─────────────────────────────────────────────────────
