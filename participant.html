@@ -81,14 +81,14 @@
     .standing-rank{font-size:15px;font-weight:800;color:var(--brand);}
 
     /* ── Medal progress ── */
-    .medal-row{background:var(--white);border-radius:var(--radius-sm);
-               box-shadow:var(--shadow);padding:12px 14px;margin-bottom:8px;}
+    .medal-row{padding:6px 0;border-bottom:1px solid var(--border);}
+    .medal-row:last-child{border-bottom:none;padding-bottom:0;}
     .medal-row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-    .medal-row-name{font-size:13px;font-weight:700;}
-    .medal-row-pts{font-size:12px;color:var(--muted);}
-    .progress-bar-bg{background:var(--border);border-radius:20px;height:7px;overflow:hidden;}
+    .medal-row-name{font-size:12px;font-weight:700;}
+    .medal-row-pts{font-size:11px;color:var(--muted);}
+    .progress-bar-bg{background:var(--border);border-radius:20px;height:5px;overflow:hidden;}
     .progress-bar-fill{height:100%;border-radius:20px;transition:width 0.6s ease;}
-    .medal-row-pct{font-size:11px;color:var(--muted);margin-top:4px;text-align:right;}
+    .medal-row-pct{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;}
     .pts-needed{font-size:10px;color:var(--muted);font-weight:400;}
 
     /* ── Pace rows ── */
@@ -301,16 +301,18 @@
   <div class="dash-section">
     <div class="dash-section-title">🎯 Road to Medal</div>
     <div class="standing-card">
-      <!-- Current medal hero -->
-      <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px;">
-        <div id="medal-icon" style="font-size:36px;line-height:1;">🏅</div>
-        <div style="flex:1;">
-          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Current Medal</div>
-          <div id="medal-label" style="font-size:22px;font-weight:800;color:var(--brand);line-height:1.2;">—</div>
+      <!-- Compact medal + pts row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:2px 0 10px;border-bottom:1px solid var(--border);margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="medal-icon" style="font-size:20px;line-height:1;">🏅</span>
+          <div>
+            <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;">Current Medal</div>
+            <div id="medal-label" style="font-size:15px;font-weight:800;line-height:1.2;color:var(--brand);">—</div>
+          </div>
         </div>
         <div style="text-align:right;">
-          <div id="s-pts-display" style="font-size:18px;font-weight:800;color:var(--text);">—</div>
-          <div style="font-size:10px;color:var(--muted);">Total Points</div>
+          <div id="s-pts-display" style="font-size:15px;font-weight:800;color:var(--text);">—</div>
+          <div style="font-size:9px;color:var(--muted);">Total Points</div>
         </div>
       </div>
       <!-- Progress bars -->
@@ -972,9 +974,13 @@ async function load() {
       if (d) activeDays[d] = true;
     });
 
-    // Count current streak (backwards from today)
+    // Count current streak (from yesterday backwards, since today may not have activity yet)
     var streak = 0, checkDate = new Date(now);
     checkDate.setHours(0,0,0,0);
+    // If today has no activity, start from yesterday
+    if (!activeDays[checkDate.toISOString().split('T')[0]]) {
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
     while (true) {
       var ds = checkDate.toISOString().split('T')[0];
       if (activeDays[ds]) { streak++; checkDate.setDate(checkDate.getDate()-1); }
