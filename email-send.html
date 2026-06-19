@@ -42,7 +42,7 @@ body{font-family:var(--font);background:var(--page-bg);color:var(--text-primary)
 .sb-signout .sb-label{color:rgba(255,255,255,.3)}
 .sb-signout:hover .sb-label{color:#ff6b6b}
 .main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100flex-shrink:0;}
+.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-shrink:0;}
 .topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary)}
 .topbar-left p{font-size:12px;color:var(--text-muted);margin-top:1px}
 .topbar-right{display:flex;align-items:center;gap:10px}
@@ -128,14 +128,13 @@ tr:hover td{background:#FAFAFA}
 .scroll-top-inner{height:1px}
 .dist-field{display:none}
 .dist-field.show{display:block}
-@media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px;flex-direction:column}.topbar{padding:0 16px;height:54pxflex-shrink:0;}.content{padding:16px;flex:1;}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
+@media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px;flex-direction:column}.topbar{padding:0 16px;height:54px;flex-shrink:0;}.content{padding:16px;flex:1;}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
 @media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
 }
 
 
 
 
-.content{flex:1;padding:24px 28px;width:100%;margin:0 auto}
 
 /* Tabs */
 .tabs{display:flex;gap:2px;margin-bottom:20px;background:white;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
@@ -154,7 +153,10 @@ tr:hover td{background:#FAFAFA}
 .card-
 
 /* Form fields */
-.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+.field-
+
+/* ── Email Send page-specific ── */
+grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .field input,.field select,.field textarea{padding:9px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:13px;background:#fafafa;font-family:inherit}
@@ -162,14 +164,7 @@ tr:hover td{background:#FAFAFA}
 .field textarea{resize:vertical;min-height:80px}
 .field.span2{grid-column:span 2}
 
-/* Buttons */
-.btn{padding:9px 18px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
-.btn-primary{background:#E8622A;color:white}.btn-primary:hover{background:#d4541f}
-.btn-primary:disabled{background:#ccc;cursor:not-allowed}
-.btn-ghost{background:#f0f0f0;color:#555}.btn-ghost:hover{background:#e8e8e8}
-.btn-green{background:#2e7d32;color:white}.btn-green:hover{background:#1b5e20}
-.btn-red{background:#c62828;color:white}.btn-red:hover{background:#b71c1c}
-.btn-sm{padding:6px 12px;font-size:12px}
+
 
 /* Job cards */
 .job-card{background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -222,12 +217,10 @@ tr:hover td{background:#FAFAFA}
 @media(max-width:768px){
   
   
-  .content{padding:12px 14pxflex:1;}.field-grid{grid-template-columns:1fr}
+  .field-grid{grid-template-columns:1fr}
   .job-card{flex-direction:column;align-items:flex-start}
   .tabs{flex-direction:column}
-}
-
-  </style>
+}</style>
 </head>
 <body>
 <aside class="sidebar"><a class="sb-logo" href="admin.html"><div class="sb-logo-icon"><img src="favicon.png" alt="AW"></div><div class="sb-logo-text">Walkathon 2026 <span>Admin Panel</span></div></a>
