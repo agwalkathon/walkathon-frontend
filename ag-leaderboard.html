@@ -9,6 +9,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AG Leaderboards — Arcgate Walkathon 2026</title>
   <style>
+
+/* === icon rail nav === */
+.rail-nav{position:fixed;top:0;left:0;bottom:0;width:56px;background:#fff;border-right:0.5px solid #e8e8e8;display:flex;flex-direction:column;align-items:center;padding:12px 0 8px;z-index:200;transition:width 0.22s ease;}
+.rail-nav:hover,.rail-nav.expanded{width:188px;}
+.rail-logo{width:36px;height:36px;background:#E8622A;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;flex-shrink:0;}
+.rail-logo i{font-size:18px;color:#fff;}
+.rail-item{display:flex;align-items:center;width:100%;padding:0 10px;margin-bottom:2px;text-decoration:none;border-left:3px solid transparent;box-sizing:border-box;overflow:hidden;min-height:44px;}
+.rail-item:hover{background:#fdf3ef;border-left-color:#E8622A;}
+.rail-item.active{border-left-color:#E8622A;background:#fff5f0;}
+.rail-item i{font-size:20px;color:#888;flex-shrink:0;width:36px;text-align:center;}
+.rail-item.active i{color:#E8622A;}
+.rail-item:hover i{color:#E8622A;}
+.rail-label{font-size:13px;color:#555;white-space:nowrap;opacity:0;transition:opacity 0.15s;overflow:hidden;}
+.rail-nav:hover .rail-label,.rail-nav.expanded .rail-label{opacity:1;}
+.rail-item.active .rail-label{color:#E8622A;font-weight:500;}
+.rail-spacer{flex:1;}
+.rail-signout{display:flex;align-items:center;width:100%;padding:0 10px;text-decoration:none;border-left:3px solid transparent;box-sizing:border-box;overflow:hidden;min-height:44px;cursor:pointer;background:none;border-top:0.5px solid #f0f0f0;margin-top:4px;}
+.rail-signout:hover{background:#fdf3ef;}
+.rail-signout i{font-size:20px;color:#bbb;flex-shrink:0;width:36px;text-align:center;}
+.rail-signout:hover i{color:#E8622A;}
+.rail-signout .rail-label{color:#999;}
+.site-header{display:none !important;}
+body.rail-layout{margin-left:56px;}
+@media(max-width:768px){
+  .rail-nav{width:56px;bottom:0;}
+  body.rail-layout{margin-left:56px;}
+}
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F5F5; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; }
     .site-header { background: #fff; border-bottom: 3px solid #E8622A; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
@@ -159,8 +187,24 @@
     .day-table td { padding: 7px 14px; font-size: 12px; border-bottom: 1px solid #f0f0f0; color: #555; }
     .day-table tr:last-child td { border-bottom: none; }
   </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
-<body>
+<body class="rail-layout">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<nav class="rail-nav" id="rail-nav" aria-label="Admin navigation">
+  <div class="rail-logo"><i class="ti ti-run" aria-hidden="true"></i></div>
+  <a href="admin.html" class="rail-item"><i class="ti ti-home" aria-hidden="true"></i><span class="rail-label">Dashboard</span></a>
+<a href="activities.html" class="rail-item"><i class="ti ti-activity" aria-hidden="true"></i><span class="rail-label">Activities</span></a>
+<a href="ag-leaderboard.html" class="rail-item active"><i class="ti ti-trophy" aria-hidden="true"></i><span class="rail-label">Leaderboard</span></a>
+<a href="ag-config.html" class="rail-item"><i class="ti ti-settings" aria-hidden="true"></i><span class="rail-label">Config</span></a>
+<a href="participants.html" class="rail-item"><i class="ti ti-users" aria-hidden="true"></i><span class="rail-label">Participants</span></a>
+<a href="participant-requests.html" class="rail-item"><i class="ti ti-user-check" aria-hidden="true"></i><span class="rail-label">Requests</span></a>
+<a href="data-upload.html" class="rail-item"><i class="ti ti-upload" aria-hidden="true"></i><span class="rail-label">Data Upload</span></a>
+<a href="email-send.html" class="rail-item"><i class="ti ti-mail" aria-hidden="true"></i><span class="rail-label">Email Send</span></a>
+
+  <div class="rail-spacer"></div>
+  <button class="rail-signout" onclick="logout()" aria-label="Sign out"><i class="ti ti-logout" aria-hidden="true"></i><span class="rail-label">Sign out</span></button>
+</nav>
 <div class="site-header">
   <img src="aw_logo.jpg" alt="Arcgate Walkathon 2026">
   <nav>
