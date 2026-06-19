@@ -155,8 +155,8 @@
       </div>
 
       <div class="field" id="f-email">
-        <label>Work Email <span class="req">*</span></label>
-        <input type="email" id="email" placeholder="you@arcgate.com" autocomplete="email">
+        <label>Personal Email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="you@gmail.com" autocomplete="email">
         <div class="err-msg">Please enter a valid email</div>
       </div>
 
@@ -200,6 +200,13 @@
         <label>Project / Team Lead Name <span class="req">*</span></label>
         <input type="text" id="team_lead" placeholder="Your manager's name" autocomplete="off">
         <div class="err-msg">Required</div>
+      </div>
+
+      <div class="field" id="f-strava">
+        <label>Strava Profile Link <span class="req">*</span></label>
+        <input type="url" id="strava_url" placeholder="https://www.strava.com/athletes/1234567890" autocomplete="off">
+        <div class="hint">Find it at strava.com → Profile → copy the URL from your browser</div>
+        <div class="err-msg">Please enter your Strava profile URL</div>
       </div>
     </div>
 
@@ -268,6 +275,7 @@ async function submitForm() {
   var shift       = val('shift');
   var tshirt_size = val('tshirt_size');
   var team_lead   = val('team_lead');
+  var strava_url  = val('strava_url');
 
   // Validate
   var ok = true;
@@ -279,6 +287,8 @@ async function submitForm() {
   setError('f-shift',     !shift);       if (!shift)       ok = false;
   setError('f-tshirt',    !tshirt_size); if (!tshirt_size) ok = false;
   setError('f-team-lead', !team_lead);   if (!team_lead)   ok = false;
+  var validStrava = strava_url.startsWith('https://www.strava.com/athletes/');
+  setError('f-strava', !validStrava); if (!validStrava) ok = false;
 
   if (!ok) {
     showAlert('Please fill in all required fields.');
@@ -303,6 +313,7 @@ async function submitForm() {
         shift:       shift,
         tshirt_size: tshirt_size,
         team_lead:   team_lead,
+        strava_url:  strava_url,
         event_name:  'walkathon2026',
         status:      'pending'
       })
