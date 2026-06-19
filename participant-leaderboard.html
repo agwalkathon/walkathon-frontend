@@ -48,13 +48,19 @@
     .my-rank-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.5px;
                   color:rgba(255,255,255,0.4);margin-top:2px;}
 
-    .tabs-wrap{background:var(--white);border-bottom:1px solid var(--border);
-               display:flex;position:sticky;top:62px;z-index:150;}
-    .tab-btn{flex:1;padding:13px 8px;border:none;border-bottom:2px solid transparent;
-              background:none;font-family:inherit;font-size:12px;font-weight:700;
-              color:var(--muted);cursor:pointer;letter-spacing:0.3px;
-              text-transform:uppercase;margin-bottom:-1px;transition:all 0.15s;}
-    .tab-btn.active{color:var(--brand);border-bottom-color:var(--brand);}
+    .dropdown-bar{background:var(--white);border-bottom:1px solid var(--border);
+                padding:10px 16px;position:sticky;top:62px;z-index:150;
+                display:flex;align-items:center;gap:10px;}
+    .dropdown-bar label{font-size:11px;font-weight:700;color:var(--muted);
+                         text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;}
+    .board-select{flex:1;padding:9px 12px;border:1.5px solid var(--border);
+                   border-radius:var(--radius-sm);font-family:inherit;font-size:14px;
+                   font-weight:600;color:var(--text);background:var(--bg);
+                   cursor:pointer;appearance:none;-webkit-appearance:none;
+                   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+                   background-repeat:no-repeat;background-position:right 10px center;
+                   padding-right:34px;}
+    .board-select:focus{outline:none;border-color:var(--brand);}
 
     .content{flex:1;max-width:640px;width:100%;margin:0 auto;padding:10px 0 80px;}
 
@@ -128,9 +134,11 @@
   </div>
 </div>
 
-<div class="tabs-wrap" id="tabs-wrap">
-  <button class="tab-btn active" id="tab-shift" onclick="switchTab('shift')">My Category</button>
-  <button class="tab-btn"        id="tab-team"  onclick="switchTab('team')">My Team</button>
+<div class="dropdown-bar">
+  <label>Leaderboard</label>
+  <select class="board-select" id="board-select" onchange="switchTab(this.value)">
+    <!-- options built dynamically after data loads -->
+  </select>
 </div>
 
 <div class="content">
@@ -307,13 +315,13 @@ function renderRows(rows) {
 /* ── tab switching ── */
 function switchTab(mode) {
   currentTab = mode;
-  document.getElementById('tab-shift').classList.toggle('active', mode === 'shift');
-  document.getElementById('tab-team').classList.toggle('active',  mode === 'team');
+  var sel = document.getElementById('board-select');
+  if (sel && sel.value !== mode) sel.value = mode;
   renderRows(getRows(mode));
 }
 
 /* ── update tab labels ── */
-function setTabLabels() {
+function buildDropdown() {
   if (!ME) return;
   var myGender = norm(ME.gender);
   var myShift  = norm(ME.shift);
@@ -321,10 +329,24 @@ function setTabLabels() {
   var isNight  = myShift.indexOf('night') > -1;
   var isFemale = myGender === 'female' || myGender === 'f';
 
-  document.getElementById('tab-shift').textContent =
-    isNight ? '🌙 Night · ' + (isFemale ? 'Female' : 'Male')
-            : '☀️ Day · '   + (isFemale ? 'Female' : 'Male');
-  document.getElementById('tab-team').textContent = '🏙️ ' + myTeam;
+  // Build options matching admin leaderboard board values
+  var options = [];
+
+  // Shift option — e.g. "Dayshift - Male" or "Nightshift - All"
+  if (isNight) {
+    options.push({ value: 'shift', label: '🌙 Nightshift — All' });
+  } else {
+    options.push({ value: 'shift', label: isFemale ? '👩 Dayshift — Female' : '👨 Dayshift — Male' });
+  }
+
+  // Team option — e.g. "Team Seattle - Male"
+  var gLabel = isFemale ? 'Female' : 'Male';
+  options.push({ value: 'team', label: '🏙️ ' + myTeam + ' — ' + gLabel });
+
+  var sel = document.getElementById('board-select');
+  sel.innerHTML = options.map(function(o) {
+    return '<option value="' + o.value + '"' + (o.value === currentTab ? ' selected' : '') + '>' + o.label + '</option>';
+  }).join('');
 }
 
 /* ── skeletons ── */
@@ -364,7 +386,7 @@ async function boot() {
       return '<span class="my-tag">' + esc(t) + '</span>';
     }).join('');
 
-    setTabLabels();
+    buildDropdown();
     renderRows(getRows(currentTab));
 
   } catch (e) {
