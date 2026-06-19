@@ -11,15 +11,18 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     body{font-family:'Inter',-apple-system,sans-serif;background:#111827;color:white;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;-webkit-font-smoothing:antialiased;}
-    img.logo{height:40px;margin-bottom:36px;}
-    h1{font-size:32px;font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:10px;line-height:1.2;}
-    h1 em{color:#E8622A;font-style:normal;}
-    p.sub{font-size:14px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.6;margin-bottom:40px;max-width:300px;}
-    .stats{display:flex;gap:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;margin-bottom:40px;width:100%;max-width:360px;}
-    .stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(255,255,255,0.08);}
-    .stat:last-child{border-right:none;}
-    .stat .v{font-size:15px;font-weight:800;color:#E8622A;}
-    .stat .l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;}
+    .logo-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 16px;margin-bottom:12px;}
+    img.logo{height:28px;object-fit:contain;}
+    .logo-tag{font-size:13px;font-weight:800;letter-spacing:1.5px;color:white;}
+    .edition{font-size:11px;font-weight:700;letter-spacing:2px;color:#E8622A;margin-bottom:24px;text-transform:uppercase;}
+    h1{font-size:30px;font-weight:900;letter-spacing:-0.5px;text-align:center;margin-bottom:12px;line-height:1.15;}
+    h1 em{color:#E8622A;font-style:normal;display:block;}
+    p.sub{font-size:13px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.7;margin-bottom:32px;max-width:280px;}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px;width:100%;max-width:340px;}
+    .stat{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:14px 10px;text-align:center;}
+    .stat .v{font-size:18px;font-weight:800;color:white;}
+    .stat .v.live{color:#E8622A;}
+    .stat .l{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
     .box{width:100%;max-width:360px;}
     .btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px;background:#E8622A;color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(232,98,42,0.4);}
     .btn:active{transform:scale(0.97);}
@@ -35,15 +38,20 @@
   </style>
 </head>
 <body>
-  <img src="aw_logo_dark.png" class="logo" alt="Arcgate Walkathon">
-  <h1>Walk. Run.<br><em>Win together.</em></h1>
-  <p class="sub">Join 500+ colleagues on the live leaderboard.</p>
+  <div class="logo-row">
+    <img src="aw_logo_dark.png" class="logo" alt="Arcgate Walkathon">
+    <div class="logo-tag">ARCGATE WALKATHON</div>
+  </div>
+  <div class="edition">2026 EDITION</div>
+
+  <h1>Healthy Arcgatians.<br><em>Stronger Arcgate.</em></h1>
+  <p class="sub">A whole month to move, connect, and grow —<br>one kilometre at a time.</p>
 
   <div class="stats">
-    <div class="stat"><div class="v">500+</div><div class="l">Athletes</div></div>
+    <div class="stat"><div class="v">500+</div><div class="l">Employees Joined</div></div>
     <div class="stat"><div class="v">June</div><div class="l">Period</div></div>
-    <div class="stat"><div class="v">6</div><div class="l">Teams</div></div>
-    <div class="stat"><div class="v">Live</div><div class="l">Board</div></div>
+    <div class="stat"><div class="v">9</div><div class="l">Teams</div></div>
+    <div class="stat"><div class="v live">Live</div><div class="l">Leaderboard</div></div>
   </div>
 
   <div class="box">
