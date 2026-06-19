@@ -311,10 +311,10 @@ function renderRows(rows) {
 function switchTab(mode) {
   currentTab = mode;
   // Update tab active state
-  document.querySelectorAll('.tab-btn').forEach(function(btn) {
-    btn.classList.remove('active');
+  var tabModes = ['shift', 'team'];
+  document.querySelectorAll('.tab-btn').forEach(function(btn, i) {
+    btn.classList.toggle('active', tabModes[i] === mode);
   });
-  event.currentTarget.classList.add('active');
   renderRows(getRows(mode));
   // Scroll "You" row into view gently
   setTimeout(function() {
