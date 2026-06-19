@@ -93,7 +93,7 @@
                vertical-align:middle;margin-left:4px;text-transform:uppercase;}
 
     /* line 2: team + stats */
-    .row-line2{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .row-line2{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden;}
     .row-team{font-size:10px;color:var(--muted);font-weight:600;margin-right:2px;
                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;}
     .row-stat{font-size:10px;font-weight:700;white-space:nowrap;padding:1px 5px;
@@ -500,7 +500,7 @@ function renderRows(rows) {
     // Line 1: medal + points (left) | name (right)
     // Line 2: team | 📏km | dist pts | ⚡bonus | 🎯challenge
     var kmRaw = r.pts.km.toFixed(1);
-    var teamName = r.p.leaderboard_team || '';
+    var teamName = (r.p.leaderboard_team || '').replace(/^Team\s+/i, '');
     row.innerHTML =
       '<div class="rank-col ' + rc + '">' + rl + '</div>' +
       '<div class="row-body">' +
