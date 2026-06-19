@@ -920,6 +920,12 @@ function refreshData() {
   load().finally(function() { icon.classList.remove('spinning'); });
 }
 
+// Open correct tab based on URL hash (#dashboard or #activities)
+(function() {
+  var hash = window.location.hash.replace('#','');
+  if (hash === 'activities' || hash === 'dashboard') showTab(hash);
+})();
+
 load();
 </script>
 </body>
