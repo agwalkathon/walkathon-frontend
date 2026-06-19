@@ -11,9 +11,7 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
     body{font-family:'Inter',-apple-system,sans-serif;background:#111827;color:white;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;-webkit-font-smoothing:antialiased;}
-    .logo-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 16px;margin-bottom:12px;}
-    img.logo{height:28px;object-fit:contain;}
-    .logo-tag{font-size:13px;font-weight:800;letter-spacing:1.5px;color:white;}
+    img.logo{height:44px;object-fit:contain;margin-bottom:12px;}
     .edition{font-size:11px;font-weight:700;letter-spacing:2px;color:#E8622A;margin-bottom:24px;text-transform:uppercase;}
     h1{font-size:30px;font-weight:900;letter-spacing:-0.5px;text-align:center;margin-bottom:12px;line-height:1.15;}
     h1 em{color:#E8622A;font-style:normal;display:block;}
@@ -33,19 +31,15 @@
     .err{display:none;margin-top:14px;padding:14px;border-radius:10px;font-size:13px;line-height:1.5;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
     .note{margin-top:16px;font-size:11px;color:rgba(255,255,255,0.2);text-align:center;line-height:1.8;}
     .note a{color:#E8622A;text-decoration:none;opacity:0.8;}
-    footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:12px;font-size:11px;color:rgba(255,255,255,0.2);}
-    footer a{color:#E8622A;text-decoration:none;margin:0 6px;opacity:0.7;}
+
   </style>
 </head>
 <body>
-  <div class="logo-row">
-    <img src="aw_logo_dark.png" class="logo" alt="Arcgate Walkathon">
-    <div class="logo-tag">ARCGATE WALKATHON</div>
-  </div>
+  <img src="aw_logo_dark.png" class="logo" alt="Arcgate Walkathon">
   <div class="edition">2026 EDITION</div>
 
   <h1>Healthy Arcgatians.<br><em>Stronger Arcgate.</em></h1>
-  <p class="sub">A whole month to move, connect, and grow —<br>one kilometre at a time.</p>
+  <p class="sub">A whole month to move, connect, and grow — one kilometre at a time.</p>
 
   <div class="stats">
     <div class="stat"><div class="v">500+</div><div class="l">Employees Joined</div></div>
@@ -61,10 +55,10 @@
     </a>
     <div class="proc" id="proc"><div class="spinner"></div><span id="proc-text">Connecting...</span></div>
     <div class="err" id="err"></div>
-    <p class="note">Approved participants only · Read-only · Never posts to Strava<br><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
+    <p class="note">Approved participants only · Read-only · Never posts to Strava<br><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="admin-login.html">Admin</a></p>
   </div>
 
-  <footer><a href="admin-login.html">Admin</a></footer>
+
 
 <script>
 var CLIENT_ID = '29159';
