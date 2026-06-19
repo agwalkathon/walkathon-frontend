@@ -1,76 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="favicon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search Activities — Arcgate Walkathon 2026</title>
-<style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Activities — Arcgate Walkathon 2026</title>
+  <style>
+:root{--brand:#E8622A;--brand-light:#FFF0EA;--brand-mid:#f97d4e;--sidebar-bg:#0F1117;--sidebar-w:64px;--sidebar-exp:220px;--page-bg:#F4F6FA;--card-bg:#fff;--text-primary:#0F1117;--text-secondary:#6B7280;--text-muted:#9CA3AF;--border:rgba(0,0,0,.07);--shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);--shadow-lg:0 12px 40px rgba(0,0,0,.12);--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--font:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--page-bg);color:var(--text-primary);min-height:100vh;display:flex}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:16px 0 12px;z-index:300;transition:width .24s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar:hover{width:var(--sidebar-exp)}
+.sb-logo{display:flex;align-items:center;width:100%;padding:4px 14px 20px;text-decoration:none;gap:10px;flex-shrink:0}
+.sb-logo-icon{width:36px;height:36px;border-radius:10px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.sb-logo-icon img{width:28px;height:28px;object-fit:contain}
+.sb-logo-text{font-size:13px;font-weight:600;color:#fff;opacity:0;white-space:nowrap;transition:opacity .18s;line-height:1.3}
+.sb-logo-text span{display:block;font-size:10px;font-weight:400;color:rgba(255,255,255,.45)}
+.sidebar:hover .sb-logo-text{opacity:1}
+.sb-section{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 14px 6px;width:100%;opacity:0;transition:opacity .15s;white-space:nowrap}
+.sidebar:hover .sb-section{opacity:1}
+.sb-item{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;text-decoration:none;gap:10px;border-left:3px solid transparent;transition:all .16s}
+.sb-item:hover{background:rgba(255,255,255,.06);border-left-color:rgba(232,98,42,.5)}
+.sb-item.active{background:rgba(232,98,42,.12);border-left-color:var(--brand)}
+.sb-item i{font-size:19px;color:rgba(255,255,255,.38);flex-shrink:0;width:28px;text-align:center;transition:color .16s}
+.sb-item:hover i{color:rgba(255,255,255,.7)}
+.sb-item.active i{color:var(--brand)}
+.sb-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap;opacity:0;transition:opacity .15s}
+.sidebar:hover .sb-label{opacity:1}
+.sb-item:hover .sb-label{color:rgba(255,255,255,.9)}
+.sb-item.active .sb-label{color:#fff;font-weight:600}
+.sb-spacer{flex:1}
+.sb-divider{width:calc(100% - 24px);height:1px;background:rgba(255,255,255,.07);margin:6px 12px;flex-shrink:0}
+.sb-signout{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;gap:10px;border:none;background:none;cursor:pointer;transition:all .16s;font-family:var(--font)}
+.sb-signout:hover{background:rgba(255,80,80,.08)}
+.sb-signout i{font-size:19px;color:rgba(255,255,255,.25);flex-shrink:0;width:28px;text-align:center}
+.sb-signout:hover i{color:#ff6b6b}
+.sb-signout .sb-label{color:rgba(255,255,255,.3)}
+.sb-signout:hover .sb-label{color:#ff6b6b}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary)}
+.topbar-left p{font-size:12px;color:var(--text-muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-secondary);text-decoration:none;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--page-bg);transition:all .15s}
+.topbar-back:hover{background:#EAECF0;color:var(--text-primary)}
+.content{flex:1;padding:28px 32px;max-width:1600px;width:100%}
+.card{background:var(--card-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header-left{display:flex;align-items:center;gap:10px}
+.card-header-icon{width:34px;height:34px;border-radius:9px;background:var(--brand-light);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px}
+.card-header h2{font-size:15px;font-weight:600;color:var(--text-primary)}
+.card-header-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+.btn{padding:8px 16px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);transition:all .15s}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:#d4551f}
+.btn-ghost{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{background:#EAECF0;color:var(--text-primary)}
+.btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.btn-danger:hover{background:#DC2626;color:#fff}
+.btn-success{background:#ECFDF5;color:#059669;border:1px solid #A7F3D0}
+.btn-success:hover{background:#059669;color:#fff}
+.stats-grid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border-radius:var(--radius-md);padding:18px 20px;flex:1;min-width:130px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;transition:transform .18s,box-shadow .18s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.val{font-size:24px;font-weight:700;color:var(--brand);line-height:1}
+.lbl{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.stat-card.green .val{color:#059669}
+.stat-card.dark .val{color:var(--text-primary)}
+.stat-card.red .val{color:#DC2626}
+.stat-card.blue .val{color:#3B82F6}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{background:#F9FAFB;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid #F9FAFB;vertical-align:middle;color:var(--text-primary)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.loading-row td{text-align:center;padding:48px;color:var(--text-muted);font-size:14px}
+.badge,.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-walk,.pill-walk{background:#ECFDF5;color:#059669}
+.badge-run,.pill-run{background:#EFF6FF;color:#3B82F6}
+.badge-ride,.pill-ride{background:#FFF7ED;color:#EA580C}
+.badge-hike,.pill-hike{background:#F5F3FF;color:#7C3AED}
+.badge-valid,.badge-clean,.pill-clean{background:#ECFDF5;color:#059669}
+.badge-flag,.badge-invalid,.pill-flag{background:#FEF2F2;color:#DC2626}
+.badge-conn{background:#EFF6FF;color:#3B82F6}
+.badge-active,.badge-ok{background:#ECFDF5;color:#059669}
+.ath{color:var(--brand);text-decoration:none;font-weight:500}
+.ath:hover{text-decoration:underline}
+.act-link{color:var(--text-primary);text-decoration:none;font-weight:500}
+.act-link:hover{color:var(--brand)}
+.filter-bar{background:var(--card-bg);border-radius:var(--radius-md);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.filter-bar h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary)}
+.default-note{font-size:12px;color:var(--text-muted);margin-left:6px;font-weight:400}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.filter-group label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.filter-group input,.filter-group select{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--page-bg);font-family:var(--font);color:var(--text-primary)}
+.filter-group input:focus,.filter-group select:focus{outline:none;border-color:var(--brand);background:#fff}
+.filter-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.empty{text-align:center;padding:56px 24px;color:var(--text-muted);font-size:13px}
+.empty .icon{font-size:40px;margin-bottom:12px;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:32px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);margin:20px}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text-primary)}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.modal label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.modal select,.modal input[type=number],.modal input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;margin-bottom:14px;background:var(--page-bg);font-family:var(--font)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-actions button{padding:10px 20px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font)}
+.btn-confirm{background:var(--brand);color:#fff}
+.btn-cancel{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border)}
+.site-footer{background:var(--card-bg);border-top:1px solid var(--border);padding:16px 32px;font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.site-footer a{color:var(--brand);text-decoration:none;margin-left:14px}
+.site-footer a:hover{text-decoration:underline}
+.editable{cursor:pointer}
+.editable:hover{background:var(--brand-light)!important;border-radius:4px}
+.edit-input{width:80px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.edit-select{width:110px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.result-count{padding:10px 16px;font-size:13px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.scroll-top{overflow-x:auto;overflow-y:hidden;height:12px}
+.scroll-top-inner{height:1px}
+.dist-field{display:none}
+.dist-field.show{display:block}
+@media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px}.topbar{padding:0 16px;height:54px}.content{padding:16px}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
+@media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
 
-/* === icon rail nav === */
-.rail-nav{position:fixed;top:0;left:0;bottom:0;width:56px;background:#fff;border-right:0.5px solid #e8e8e8;display:flex;flex-direction:column;align-items:center;padding:12px 0 8px;z-index:200;transition:width 0.22s ease;}
-.rail-nav:hover,.rail-nav.expanded{width:188px;}
-.rail-logo-wrap{display:block;padding:8px 10px 12px;text-align:center;flex-shrink:0;text-decoration:none;}
-.rail-logo-wrap img{width:36px;height:36px;object-fit:contain;border-radius:6px;transition:width 0.22s;}
-.rail-nav:hover .rail-logo-wrap img,.rail-nav.expanded .rail-logo-wrap img{width:120px;height:36px;object-fit:contain;}
-.rail-item{display:flex;align-items:center;width:100%;padding:0 10px;margin-bottom:2px;text-decoration:none;border-left:3px solid transparent;box-sizing:border-box;overflow:hidden;min-height:44px;}
-.rail-item:hover{background:#fdf3ef;border-left-color:#E8622A;}
-.rail-item.active{border-left-color:#E8622A;background:#fff5f0;}
-.rail-item i{font-size:20px;color:#888;flex-shrink:0;width:36px;text-align:center;}
-.rail-item.active i{color:#E8622A;}
-.rail-item:hover i{color:#E8622A;}
-.rail-label{font-size:13px;color:#555;white-space:nowrap;opacity:0;transition:opacity 0.15s;overflow:hidden;}
-.rail-nav:hover .rail-label,.rail-nav.expanded .rail-label{opacity:1;}
-.rail-item.active .rail-label{color:#E8622A;font-weight:500;}
-.rail-spacer{flex:1;}
-.rail-signout{display:flex;align-items:center;width:100%;padding:0 10px;text-decoration:none;border-left:3px solid transparent;box-sizing:border-box;overflow:hidden;min-height:44px;cursor:pointer;background:none;border-top:0.5px solid #f0f0f0;margin-top:4px;}
-.rail-signout:hover{background:#fdf3ef;}
-.rail-signout i{font-size:20px;color:#bbb;flex-shrink:0;width:36px;text-align:center;}
-.rail-signout:hover i{color:#E8622A;}
-.rail-signout .rail-label{color:#999;}
-.site-header{display:none !important;}
-body.rail-layout{margin-left:56px;}
-@media(max-width:768px){
-  .rail-nav{width:56px;bottom:0;}
-  body.rail-layout{margin-left:56px;}
-}
-
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F5;color:#1A1A1A;min-height:100vh;display:flex;flex-direction:column}.site-header{background:#fff;border-bottom:3px solid #E8622A;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.06)}.site-header img{height:40px;object-fit:contain}.site-header nav{display:flex;gap:4px;flex-wrap:wrap}.site-header nav a{font-size:13px;color:#555;text-decoration:none;padding:6px 12px;border-radius:6px}.site-header nav a:hover{background:#f0f0f0}.site-header nav a.active{background:#E8622A;color:white}.page-bar{background:#E8622A;color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}.page-bar h1{font-size:20px;font-weight:600}.page-bar .back{color:rgba(255,255,255,.5);text-decoration:none;font-size:13px}.content{flex:1;padding:24px 28px;max-width:1600px;width:100%;margin:0 auto}.filter-bar,.card,.stat-card{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06)}.filter-bar{padding:20px 22px;margin-bottom:22px}.filter-bar h3{font-size:14px;font-weight:600;margin-bottom:14px}.default-note{font-size:12px;color:#888;margin-left:6px}.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}.filter-group label{display:block;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}.filter-group input,.filter-group select{width:100%;padding:8px 11px;border:1px solid #e8e8e8;border-radius:8px;font-size:13px;background:#fafafa}.filter-group input:focus,.filter-group select:focus{outline:none;border-color:#E8622A;background:white}.filter-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500}.btn-primary{background:#E8622A;color:white}.btn-ghost{background:#f0f0f0;color:#555}.stats-grid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}.stat-card{padding:16px 20px;flex:1;min-width:130px;border-left:4px solid #E8622A}.stat-card .val{font-size:24px;font-weight:700;color:#E8622A}.stat-card .lbl{font-size:12px;color:#888;margin-top:4px}.stat-card.green{border-left-color:#2e7d32}.stat-card.green .val{color:#2e7d32}.stat-card.dark{border-left-color:#1A1A1A}.stat-card.dark .val{color:#1A1A1A}.stat-card.red{border-left-color:#c62828}.stat-card.red .val{color:#c62828}.card{overflow:hidden}.result-count{padding:10px 16px;font-size:13px;color:#888;border-bottom:1px solid #f0f0f0}.scroll-top{overflow-x:auto;overflow-y:hidden;height:12px}.scroll-top-inner{height:1px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:1100px}th{background:#fafafa;padding:10px 14px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f0f0f0;white-space:nowrap}td{padding:10px 14px;font-size:13px;border-bottom:1px solid #f8f8f8;vertical-align:middle;white-space:nowrap}tr:hover td{background:#fdfcfb}.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500}.badge-walk,.badge-valid{background:#e8f5e9;color:#2e7d32}.badge-run{background:#e3f2fd;color:#1565c0}.badge-ride{background:#fff3e0;color:#e65100}.badge-hike{background:#f3e5f5;color:#6a1b9a}.badge-invalid{background:#ffebee;color:#c62828}.ath{color:#E8622A;text-decoration:none;font-weight:500}.ath:hover{text-decoration:underline}.act-link{color:#1A1A1A;text-decoration:none;font-weight:500}.act-link:hover{color:#E8622A;text-decoration:underline}.empty{text-align:center;padding:56px 24px;color:#bbb}.empty .icon{font-size:40px;margin-bottom:12px}@keyframes spin{to{transform:rotate(360deg)}}.spinner{width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite}.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}.modal-overlay.show{display:flex}.modal{background:white;border-radius:16px;padding:32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);margin:20px}.modal h3{font-size:18px;font-weight:600;margin-bottom:4px}.modal .sub{font-size:13px;color:#888;margin-bottom:20px}.modal label{display:block;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;font-weight:600}.modal select,.modal input[type=number]{width:100%;padding:10px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:14px;margin-bottom:14px;background:#fafafa}.modal-actions{display:flex;gap:10px;justify-content:flex-end}.modal-actions button{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer}.btn-confirm{background:#E8622A;color:white}.btn-cancel{background:#f0f0f0;color:#555}.dist-field{display:none}.dist-field.show{display:block}.editable{cursor:pointer}.editable:hover{background:#fff5f0;border-radius:4px}.edit-input{width:80px;padding:4px 6px;border:1px solid #E8622A;border-radius:4px;font-size:12px}.edit-select{width:100px;padding:4px 6px;border:1px solid #E8622A;border-radius:4px;font-size:12px}.site-footer{background:#fff;color:#888;text-align:center;padding:16px 28px;font-size:12px;margin-top:auto;border-top:2px solid #E8622A;}.site-footer a{color:#E8622A;text-decoration:none;margin:0 8px}@media(max-width:768px){.site-header{padding:10px 16px}.site-header nav a{font-size:11px;padding:5px 8px}.page-bar{padding:14px 16px}.page-bar h1{font-size:16px}.content{padding:14px 16px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}th,td{padding:7px 8px}.table-wrap{-webkit-overflow-scrolling:touch}}@media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{display:grid;grid-template-columns:1fr 1fr}}
-</style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  </style>
 </head>
-<body class="rail-layout">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-<nav class="rail-nav" id="rail-nav" aria-label="Admin navigation">
-  <a href="admin.html" style="display:block;padding:8px 10px 12px;text-align:center;flex-shrink:0;"><img src="aw_logo.jpg" alt="AW" style="width:36px;height:36px;object-fit:contain;border-radius:6px;"></a>
-  <a href="admin.html" class="rail-item"><i class="ti ti-home" aria-hidden="true"></i><span class="rail-label">Dashboard</span></a>
-<a href="activities.html" class="rail-item active"><i class="ti ti-activity" aria-hidden="true"></i><span class="rail-label">Activities</span></a>
-<a href="ag-leaderboard.html" class="rail-item"><i class="ti ti-trophy" aria-hidden="true"></i><span class="rail-label">Leaderboard</span></a>
-<a href="ag-config.html" class="rail-item"><i class="ti ti-settings" aria-hidden="true"></i><span class="rail-label">Config</span></a>
-<a href="participants.html" class="rail-item"><i class="ti ti-users" aria-hidden="true"></i><span class="rail-label">Participants</span></a>
-<a href="participant-requests.html" class="rail-item"><i class="ti ti-user-check" aria-hidden="true"></i><span class="rail-label">Requests</span></a>
-<a href="data-upload.html" class="rail-item"><i class="ti ti-upload" aria-hidden="true"></i><span class="rail-label">Data Upload</span></a>
-<a href="email-send.html" class="rail-item"><i class="ti ti-mail" aria-hidden="true"></i><span class="rail-label">Email Send</span></a>
-
-  <div class="rail-spacer"></div>
-  <button class="rail-signout" onclick="logout()" aria-label="Sign out"><i class="ti ti-logout" aria-hidden="true"></i><span class="rail-label">Sign out</span></button>
-</nav>
-<div class="site-header"><img src="aw_logo.jpg" alt="Arcgate Walkathon 2026"><nav>
-    <a href="admin.html">Dashboard</a>
-    <a href="activities.html" class="active">Activities</a>
-    <a href="ag-leaderboard.html">AG Leaderboards</a>
-    <a href="ag-config.html">Config</a>
-    <a href="participants.html">Participants</a>
-    <a href="participant-requests.html">Requests</a>
-    <a href="data-upload.html">Data Upload</a>
-    <a href="email-send.html">Email Send</a>
-    <a href="#" onclick="logout();return false;">Sign out</a>
-  </nav></div>
-<div class="page-bar"><h1>🔍 Search Activities</h1><a href="admin.html" class="back">← Dashboard</a></div>
-<div class="content">
+<body>
+<aside class="sidebar"><a class="sb-logo" href="admin.html"><div class="sb-logo-icon"><img src="favicon.png" alt="AW"></div><div class="sb-logo-text">Walkathon 2026 <span>Admin Panel</span></div></a>
+<div class="sb-section">Main</div>
+<a href="admin.html" class="sb-item"><i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span></a>
+<a href="activities.html" class="sb-item active"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
+<a href="participants.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
+<a href="participant-requests.html" class="sb-item"><i class="ti ti-user-check"></i><span class="sb-label">Requests</span></a>
+<div class="sb-section" style="margin-top:10px;">Config</div>
+<a href="ag-config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Settings</span></a>
+<a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
+<a href="email-send.html" class="sb-item"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
+<div class="sb-spacer"></div><div class="sb-divider"></div><button class="sb-signout" onclick="logout()"><i class="ti ti-logout"></i><span class="sb-label">Sign out</span></button></aside>
+<div class="main">
+<header class="topbar"><div class="topbar-left"><h1>Activities</h1><p>Search and manage all logged workouts</p></div><div class="topbar-right"><a href="admin.html" class="topbar-back"><i class="ti ti-arrow-left"></i> Dashboard</a></div></header>
+  <div class="content">
 <div class="filter-bar"><h3>Filter activities <span class="default-note">Default: Today's Activities</span></h3><div class="filter-grid">
 <div class="filter-group"><label>From date</label><input type="date" id="date-from"></div><div class="filter-group"><label>To date</label><input type="date" id="date-to"></div>
 <div class="filter-group"><label>Status</label><select id="status-filter"><option value="">All statuses</option><option value="valid">✅ Valid</option><option value="invalid">🚩 Invalid / Flagged</option></select></div>
@@ -82,9 +160,11 @@ body.rail-layout{margin-left:56px;}
 <div id="flag-counts" style="display:none;margin-bottom:18px;gap:8px;flex-wrap:wrap"></div>
 <div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Today's activities load by default. Use filters and click <strong>Search</strong> to refine results.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th>Status</th><th>Date/Time</th><th>Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Elevation</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
 </div>
+  </div>
 <div class="modal-overlay" id="flag-modal"><div class="modal"><h3>Update Status</h3><p class="sub" id="modal-sub"></p><label>Flag reason</label><select id="modal-flag-reason" onchange="checkModalDist()"><option value="">— Mark as Valid (clear flag) —</option><optgroup label="── Manual Review ──"><option>Manual Review - Distance Issue</option><option>Manual Review - Pace Issue</option></optgroup><optgroup label="── Manual Flags ──"><option>Not Our Participant</option><option>Less than 1 km</option><option>Treadmill</option><option>Workout</option><option>Elapsed Time Issue</option><option>Pace Issue (Bike/Cycle)</option><option>Shared (no proof)</option><option>Indoor Run/Walk</option><option>More than 2 Activities</option><option>Suspicious Activity</option><option>Ride / Cycling</option><option>Distance Cropped - GPS Glitch</option><option>Distance Issue</option><option>GPS Glitch</option></optgroup></select><div class="dist-field" id="modal-dist-field"><label>Corrected distance (meters)</label><input type="number" id="modal-corrected-dist" placeholder="e.g. 3500"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-confirm" onclick="confirmStatus()">Save</button></div></div></div>
-<div class="site-footer">© 2026 Arcgate Walkathon &nbsp;·&nbsp;<a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div>
+<footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
 <script>
+
 var SUPABASE_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
 var SUPABASE_ANON=atob(['ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW1wb1pHZHJibU53YTNKMGRIWmxiWFozZFd0aklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzT0RFMk56Z3lOak1zSW1WNGNDSTZNakE1TnpJMU5ESTJNMzAuZDdtdlhPWURxNUc0YXFzMU1iYzZIRk5nVEJsUWs0QjZhaDBlYWhFX3laRQ=='].join(''));
 var BACKEND_URL='https://walkathon-backend-hv9j.onrender.com';var HDR={apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON};
@@ -96,6 +176,7 @@ document.addEventListener('dblclick',function(e){var cell=e.target.closest('td[d
 function clearFilters(){document.getElementById('athlete-name').value='';['sport-filter','team-filter','status-filter','flag-reason-filter'].forEach(function(id){document.getElementById(id).value=''});setDefaultTodayFilters();loadActivities()}
 async function loadActivities(){document.getElementById('placeholder').style.display='none';document.getElementById('results').style.display='block';document.getElementById('stats-row').style.display='none';document.getElementById('searching-indicator').style.display='flex';document.getElementById('activities-body').innerHTML='<tr><td colspan="9"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px"><div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:#888;font-size:14px">Searching activities...</span></div></td></tr>';var df=document.getElementById('date-from').value,dt=document.getElementById('date-to').value,sp=document.getElementById('sport-filter').value,nm=document.getElementById('athlete-name').value.trim().toLowerCase(),tm=document.getElementById('team-filter').value,st=document.getElementById('status-filter').value,fr=document.getElementById('flag-reason-filter').value;var url=SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.false&order=activity_date.desc';if(df)url+='&activity_date=gte.'+df+'T00:00:00';if(dt)url+='&activity_date=lte.'+dt+'T23:59:59.999';if(sp)url+='&sport_type=eq.'+sp;if(st==='valid')url+='&is_flagged=is.false';if(st==='invalid')url+='&is_flagged=is.true';if(fr)url+='&flag_reason=ilike.%25'+encodeURIComponent(fr)+'%25';try{var data=await Promise.all([fetchAllRows(url,HDR),fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,leaderboard_team',{headers:HDR}).then(function(r){return r.json()})]);var acts=data[0],regs=data[1];if(!Array.isArray(acts))acts=[];if(!Array.isArray(regs))regs=[];var rm={};regs.forEach(function(r){rm[r.strava_athlete_id]=r});if(nm)acts=acts.filter(function(a){var r=rm[a.strava_athlete_id];return(r&&r.full_name?r.full_name:'').toLowerCase().includes(nm)});if(tm)acts=acts.filter(function(a){return rm[a.strava_athlete_id]&&rm[a.strava_athlete_id].leaderboard_team===tm});var km=acts.reduce(function(s,a){return s+(a.distance_meters||0)},0)/1000,validCnt=acts.filter(function(a){return!a.is_flagged}).length,flagCnt=acts.filter(function(a){return a.is_flagged}).length,uniq=new Set(acts.map(function(a){return a.strava_athlete_id})).size;document.getElementById('total-activities').textContent=acts.length;document.getElementById('total-distance').textContent=km.toFixed(1)+' km';document.getElementById('total-participants').textContent=uniq;document.getElementById('total-valid').textContent=validCnt;document.getElementById('total-flagged').textContent=flagCnt;document.getElementById('stats-row').style.display='flex';var reasonCounts={};acts.filter(function(a){return a.is_flagged&&a.flag_reason}).forEach(function(a){a.flag_reason.split(', ').forEach(function(r){reasonCounts[r]=(reasonCounts[r]||0)+1})});var fcEl=document.getElementById('flag-counts');if(Object.keys(reasonCounts).length>0){fcEl.style.display='flex';fcEl.innerHTML='<span style="font-size:12px;color:#888;align-self:center;margin-right:4px">Flag breakdown:</span>'+Object.entries(reasonCounts).sort(function(a,b){return b[1]-a[1]}).map(function(e){return'<span style="background:#ffebee;color:#c62828;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer" onclick="filterByReason(\''+esc(e[0])+'\')">'+esc(e[0])+' ('+e[1]+')</span>'}).join('')}else fcEl.style.display='none';document.getElementById('result-count').textContent=acts.length+' activit'+(acts.length===1?'y':'ies')+' found';if(!acts.length){document.getElementById('activities-body').innerHTML='<tr><td colspan="9" style="text-align:center;padding:48px;color:#bbb">No activities match your filters</td></tr>';document.getElementById('searching-indicator').style.display='none';return}document.getElementById('activities-body').innerHTML=acts.map(function(a){var r=rm[a.strava_athlete_id],actUrl='https://www.strava.com/activities/'+a.strava_activity_id,athleteName=r&&r.full_name?r.full_name:'Unknown',statusBadge=a.is_flagged?'<span class="badge badge-invalid" style="cursor:pointer" onclick="openModal('+a.id+')">🚩 '+esc(a.flag_reason||'Flagged')+'</span>':'<span class="badge badge-valid" style="cursor:pointer" onclick="openModal('+a.id+')">✅ Valid</span>';return'<tr><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td></tr>'}).join('');setTimeout(initScrollSync,100)}catch(e){console.error(e);document.getElementById('activities-body').innerHTML='<tr><td colspan="9" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>'}document.getElementById('searching-indicator').style.display='none'}
 function filterByReason(reason){document.getElementById('flag-reason-filter').value=reason;loadActivities()}document.getElementById('athlete-name').addEventListener('keydown',function(e){if(e.key==='Enter')loadActivities()});setDefaultTodayFilters();loadActivities();
+
 </script>
 </body>
 </html>
