@@ -81,13 +81,14 @@
     /* main content */
     .row-body{flex:1;min-width:0;}
 
-    /* line 1: medal + points on left, name on right */
-    .row-line1{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
-    .row-pts-main{font-size:15px;font-weight:800;color:var(--brand);white-space:nowrap;flex-shrink:0;}
-    .row-pts-unit{font-size:10px;font-weight:500;color:var(--muted);}
-    .row-medal-icon{font-size:15px;flex-shrink:0;}
+    /* line 1: name left, pts right */
+    .row-line1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;}
     .row-name{font-size:14px;font-weight:700;color:var(--text);flex:1;
               white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+    .row-pts-right{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+    .row-medal-icon{font-size:14px;}
+    .row-pts-main{font-size:15px;font-weight:800;color:var(--brand);white-space:nowrap;}
+    .row-pts-unit{font-size:10px;font-weight:500;color:var(--muted);}
     .you-chip{display:inline-block;background:var(--brand);color:white;
                font-size:8px;font-weight:800;padding:1px 5px;border-radius:10px;
                vertical-align:middle;margin-left:4px;text-transform:uppercase;}
@@ -505,9 +506,12 @@ function renderRows(rows) {
       '<div class="rank-col ' + rc + '">' + rl + '</div>' +
       '<div class="row-body">' +
         '<div class="row-line1">' +
-          (rowMedal ? '<span class="row-medal-icon">' + rowMedal + '</span>' : '') +
-          '<span class="row-pts-main">' + r.pts.total.toFixed(1) + ' <span class="row-pts-unit">pts</span></span>' +
           '<span class="row-name">' + esc(r.p.full_name || '—') + (isMe ? '<span class="you-chip">You</span>' : '') + '</span>' +
+          '<span class="row-pts-right">' +
+            (rowMedal ? '<span class="row-medal-icon">' + rowMedal + '</span> ' : '') +
+            '<span class="row-pts-main">' + r.pts.total.toFixed(1) + '</span>' +
+            '<span class="row-pts-unit"> pts</span>' +
+          '</span>' +
         '</div>' +
         '<div class="row-line2">' +
           (teamName ? '<span class="row-team">' + esc(teamName) + '</span>' : '') +
