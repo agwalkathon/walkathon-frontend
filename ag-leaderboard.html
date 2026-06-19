@@ -601,7 +601,7 @@ function calcPoints(acts, athleteId, gender) {
         if (raDate < c.start_date || raDate > c.end_date) continue;
         if (!cSportTypesRS.includes(ra.sport_type)) continue;
         var raKm = (ra.distance_meters || 0) / 1000;
-        if (raKm >= (c.distance_min - 0.1) && raKm <= (c.distance_max + 0.1)) {
+        if (raKm >= (c.distance_min - 0.1) && raKm <= c.distance_max) {  // strict upper bound: no +0.1 tolerance
           inRangePts += Number(c.bonus_points) || 0;
           inRangeCount++;
         }
@@ -860,7 +860,7 @@ function toggleExpand(athleteId, gender, trEl) {
         byDay[day].forEach(function(a){
           if (!cSportTypesExp.includes(a.sport_type)) return;
           var aKm = (a.distance_meters||0)/1000;
-          if (aKm >= (c.distance_min - 0.1) && aKm <= (c.distance_max + 0.1)) {
+          if (aKm >= (c.distance_min - 0.1) && aKm <= c.distance_max) {  // strict upper bound: no +0.1 tolerance
             cp += Number(c.bonus_points) || 0;
           }
         });
