@@ -140,19 +140,24 @@
     .bnav-item:hover{color:var(--brand);}
 
     /* ── Tablet/desktop upgrade ── */
-    /* Points breakdown table on activity cards */
-    .act-pts-breakdown{border-top:1px solid var(--border);padding:8px 14px;background:#FAFBFC;}
-    .pts-line{display:flex;align-items:center;justify-content:space-between;
-              padding:3px 0;font-size:12px;}
-    .pts-line.total-line{border-top:1px solid var(--border);margin-top:4px;padding-top:6px;}
-    .pts-label{color:var(--muted);flex:1;}
-    .ch-names{font-size:10px;color:#15803D;font-weight:600;
-              background:#F0FDF4;padding:1px 6px;border-radius:10px;margin-left:6px;}
-    .pts-value{font-weight:700;font-size:13px;text-align:right;min-width:48px;}
-    .pts-value.dist{color:#4338CA;}
-    .pts-value.bonus{color:#C2410C;}
-    .pts-value.challenge{color:#15803D;}
-    .pts-value.total{color:var(--dark);font-size:14px;}
+    /* Points breakdown — compact single row */
+    .act-pts-breakdown{border-top:1px solid var(--border);padding:6px 14px;
+                        background:#FAFBFC;display:flex;align-items:center;
+                        gap:0;overflow:hidden;}
+    .pts-cell{display:flex;flex-direction:column;align-items:center;
+               flex:1;padding:0 6px;border-right:1px solid var(--border);}
+    .pts-cell:last-child{border-right:none;}
+    .pts-cell .pc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.4px;
+                       color:var(--muted);margin-bottom:1px;white-space:nowrap;}
+    .pts-cell .pc-val{font-size:13px;font-weight:800;white-space:nowrap;}
+    .pts-cell.dist  .pc-val{color:#4338CA;}
+    .pts-cell.bonus .pc-val{color:#C2410C;}
+    .pts-cell.chall .pc-val{color:#15803D;}
+    .pts-cell.total .pc-val{color:var(--dark);}
+    .pts-cell.total{background:none;}
+    .ch-tag{font-size:9px;color:#15803D;background:#F0FDF4;
+             padding:1px 5px;border-radius:8px;margin-top:1px;
+             max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
     @media(min-width:640px){
       .profile-hero{padding:24px 32px 0;}
@@ -538,24 +543,26 @@ function renderActivities(acts, dayBreakdown, actBreakdown, gender) {
 
         var dayTotal = db.distPts + db.bonusPts + chPts;
 
+        var chTag = chNames.length
+          ? '<div class="ch-tag" title="' + chNames.map(esc).join(', ') + '">' + chNames.map(esc).join(', ') + '</div>'
+          : '';
         return '<div class="act-pts-breakdown">' +
-          '<div class="pts-line">' +
-            '<span class="pts-label">Dist Points</span>' +
-            '<span class="pts-value dist">' + db.distPts.toFixed(2) + '</span>' +
+          '<div class="pts-cell dist">' +
+            '<span class="pc-lbl">Dist</span>' +
+            '<span class="pc-val">' + db.distPts.toFixed(2) + '</span>' +
           '</div>' +
-          '<div class="pts-line">' +
-            '<span class="pts-label">Bonus Points</span>' +
-            '<span class="pts-value bonus">+' + db.bonusPts + '</span>' +
+          '<div class="pts-cell bonus">' +
+            '<span class="pc-lbl">Bonus</span>' +
+            '<span class="pc-val">+' + db.bonusPts + '</span>' +
           '</div>' +
-          '<div class="pts-line">' +
-            '<span class="pts-label">Challenge Points' +
-              (chNames.length ? ' <span class="ch-names">' + chNames.map(esc).join(', ') + '</span>' : '') +
-            '</span>' +
-            '<span class="pts-value challenge">+' + chPts.toFixed(2) + '</span>' +
+          '<div class="pts-cell chall">' +
+            '<span class="pc-lbl">Challenge</span>' +
+            '<span class="pc-val">+' + chPts.toFixed(2) + '</span>' +
+            chTag +
           '</div>' +
-          '<div class="pts-line total-line">' +
-            '<span class="pts-label"><strong>Total Points</strong></span>' +
-            '<span class="pts-value total">' + dayTotal.toFixed(2) + '</span>' +
+          '<div class="pts-cell total">' +
+            '<span class="pc-lbl">Total</span>' +
+            '<span class="pc-val">' + dayTotal.toFixed(2) + '</span>' +
           '</div>' +
         '</div>';
       })() +
