@@ -102,7 +102,7 @@
     .empty-box p{font-size:14px;line-height:1.6;}
 
     .bottom-nav{background:var(--white);border-top:1px solid var(--border);
-                 display:grid;grid-template-columns:1fr 1fr;
+                 display:grid;grid-template-columns:1fr 1fr 1fr;
                  padding-bottom:max(12px,env(safe-area-inset-bottom));
                  position:fixed;bottom:0;left:0;right:0;z-index:100;}
     .bnav-a{display:flex;flex-direction:column;align-items:center;
@@ -157,11 +157,18 @@
 </div>
 
 <nav class="bottom-nav">
-  <a class="bnav-a" href="participant.html">
+  <a class="bnav-a" href="participant.html#dashboard">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
     </svg>
     Dashboard
+  </a>
+  <a class="bnav-a" href="participant.html#activities">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    Activities
   </a>
   <a class="bnav-a active" href="participant-leaderboard.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
