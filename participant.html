@@ -109,7 +109,7 @@
     .metric-val.orange{color:var(--brand);}
     .metric-val.green{color:var(--green);}
     .metric-val.blue{color:var(--blue);}
-    .metric-lbl{font-size:9.5px;font-weight:700;color:var(--label);text-transform:uppercase;letter-spacing:0.8px;margin-top:5px;}
+    .metric-lbl{font-size:12px;font-weight:700;color:var(--label);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;}
 
     /* ── Content area ── */
     .content{flex:1;padding:14px 14px 90px;display:none;}
@@ -469,10 +469,10 @@
 
   <div class="sec">Activity Times</div>
   <div class="tod-grid">
-    <div class="tod-card"><div class="tod-icon">🌅</div><div class="tod-val" id="tod-morning">—</div><div class="tod-lbl">Morning</div></div>
-    <div class="tod-card"><div class="tod-icon">☀️</div><div class="tod-val" id="tod-afternoon">—</div><div class="tod-lbl">Afternoon</div></div>
-    <div class="tod-card"><div class="tod-icon">🌆</div><div class="tod-val" id="tod-evening">—</div><div class="tod-lbl">Evening</div></div>
-    <div class="tod-card"><div class="tod-icon">🌙</div><div class="tod-val" id="tod-night">—</div><div class="tod-lbl">Night</div></div>
+    <div class="tod-card"><div class="tod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,80,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M17.66 6.34l-1.41 1.41"/><path d="M12 6a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M3 18h18"/></svg></div><div class="tod-val" id="tod-morning">—</div><div class="tod-lbl">Morning</div></div>
+    <div class="tod-card"><div class="tod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,80,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div><div class="tod-val" id="tod-afternoon">—</div><div class="tod-lbl">Afternoon</div></div>
+    <div class="tod-card"><div class="tod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(232,98,42,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M17.66 6.34l-1.41 1.41"/><path d="M12 6a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M3 18h18"/></svg></div><div class="tod-val" id="tod-evening">—</div><div class="tod-lbl">Evening</div></div>
+    <div class="tod-card"><div class="tod-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div><div class="tod-val" id="tod-night">—</div><div class="tod-lbl">Night</div></div>
   </div>
 
   <div class="sec">People Near You</div>
@@ -488,7 +488,7 @@
 <div class="content" id="tab-activities">
 <div class="max-w">
   <div class="flagged-info" id="flagged-banner">
-    <strong>⚑ Flagged activities</strong> — Some activities were flagged for admin review. They're excluded from your score until reviewed.
+    <strong><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Flagged activities</strong> — Some activities were flagged for admin review. They're excluded from your score until reviewed.
   </div>
   <div class="sec" id="act-section-title">My Activities</div>
   <div id="act-list">
@@ -540,7 +540,7 @@ function tileClass(t) {
   if(t==='Hike') return 'hike';
   return 'other';
 }
-function renderIcon(t) { var m={'Walk':'🚶','Run':'🏃','VirtualRun':'🏃','Ride':'🚴','VirtualRide':'🚴','MountainBikeRide':'🚵','Hike':'🥾'}; return m[t]||'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'; }
+function renderIcon(t){var m={'Walk':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5l-3 3"/><path d="M12 12l3 4"/><path d="M9 17l-2 3"/><path d="M15 16l1 3"/></svg>','Run':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m14.5 9-2 4-3.5 1 2.5 4"/><path d="M9 8.5 7 12l2.5 1"/><path d="M14.5 9 17 8"/></svg>','VirtualRun':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m14.5 9-2 4-3.5 1 2.5 4"/><path d="M9 8.5 7 12l2.5 1"/><path d="M14.5 9 17 8"/></svg>','Ride':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 17h2l2-5H9l1 3h2"/><path d="M9 6h6l1 3"/></svg>','VirtualRide':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 17h2l2-5H9l1 3h2"/><path d="M9 6h6l1 3"/></svg>','MountainBikeRide':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 17h2l2-5H9l1 3h2"/><path d="M9 6h6l1 3"/></svg>','Hike':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l4-10 3 6 2-3 4 7"/><circle cx="9" cy="7" r="2"/></svg>'}; return m[t]||'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'}; return m[t]||'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'; }
 
 function calcBonus(km) {
   var result=0,sorted=CONFIG_LB.bonus.slice().sort(function(a,b){return b.km-a.km;});
@@ -665,9 +665,9 @@ async function load() {
     // Profile
     document.getElementById('p-name').textContent=name.toUpperCase();
     var tags=[];
-    if(reg.gender)tags.push(reg.gender==='Female'?'👩 Female':'👨 Male');
+    if(reg.gender)tags.push(reg.gender==='Female'?'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="6"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg> Female':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg> Male');
     if(reg.shift)tags.push('⏰ '+reg.shift);
-    if(reg.leaderboard_team)tags.push('🏙️ '+reg.leaderboard_team);
+    if(reg.leaderboard_team)tags.push('<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> '+(reg.leaderboard_team||''));
     document.getElementById('p-tags').innerHTML=tags.map(function(t){return '<span class="hero-tag">'+esc(t)+'</span>';}).join('');
 
     var fullPts=calcFullPts(myActs,reg.gender);
@@ -798,14 +798,14 @@ async function load() {
         (personAbove?
           '<div class="gold-rival">'+
             '<div class="gold-rival-left">'+
-              '<div class="gold-rival-label">🎯 Overtake #'+(myRankG-1)+': '+esc(personAbove.name)+'</div>'+
+              '<div class="gold-rival-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Overtake #'+(myRankG-1)+': '+esc(personAbove.name)+'</div>'+
               '<div class="gold-rival-sub">'+daysLeft+' days left · keep pushing</div>'+
             '</div>'+
           '</div>'
         :
           '<div class="gold-rival">'+
             '<div class="gold-rival-left">'+
-              '<div class="gold-rival-label">🏆 You\'re #1 — lead to the finish!</div>'+
+              '<div class="gold-rival-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFD000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> You\'re #1 — lead to the finish!</div>'+
               '<div class="gold-rival-sub">Defend your spot for '+daysLeft+' more days</div>'+
             '</div>'+
           '</div>'
@@ -880,7 +880,7 @@ async function load() {
       prevD=d;
     });
 
-    document.getElementById('streak-num').textContent=(streakIsLive&&streak>0?'🔥':'')+streak;
+    document.getElementById('streak-num').innerHTML=(streakIsLive&&streak>0?'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>':'')+streak;
     document.getElementById('streak-best-val').textContent=best;
     document.getElementById('streak-msg').textContent=streakIsLive?(streak>=7?'Amazing streak!':streak>=3?'Keep it going!':'Good start!'):(lastActiveDay?'Last active '+lastActiveDay:'Start today!');
 
@@ -917,16 +917,16 @@ async function load() {
 
   } catch(e) {
     console.error('Load error:',e.message||e);
-    var err='<div class="empty-state"><div class="icon">⚠️</div><p>Could not load data.<br>'+(e.message||'Unknown error')+'</p></div>';
+    var err='<div class="empty-state"><div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Could not load data.<br>'+(e.message||'Unknown error')+'</p></div>';
     document.getElementById('act-list').innerHTML=err;
-    document.getElementById('tab-dashboard').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted)">⚠️ '+(e.message||'Load error')+'</div>';
+    document.getElementById('tab-dashboard').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> '+(e.message||'Load error')+'</div>';
   }
 }
 
 function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
   dayBreakdown=dayBreakdown||{}; actBreakdown=actBreakdown||{};
   var list=document.getElementById('act-list');
-  if(!acts.length){list.innerHTML='<div class="empty-state"><div class="icon">🏃</div><p>No activities yet.<br>Save a walk or run on Strava — it will appear here.</p></div>';return;}
+  if(!acts.length){list.innerHTML='<div class="empty-state"><div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m14.5 9-2 4-3.5 1 2.5 4"/><path d="M9 8.5 7 12l2.5 1"/><path d="M14.5 9 17 8"/></svg></div><p>No activities yet.<br>Save a walk or run on Strava — it will appear here.</p></div>';return;}
   var flaggedCount=acts.filter(function(a){return a.is_flagged;}).length;
   if(flaggedCount>0)document.getElementById('flagged-banner').style.display='block';
   var groups={},dateOrder=[];
@@ -946,8 +946,8 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     dateRow.innerHTML='<div class="date-col"><div class="date-label">'+esc(dateStr)+'</div><div class="date-sub">'+rawKm.toFixed(2)+' km</div><div class="date-sub">'+actWord+'</div></div>'+
       '<div class="date-pts-strip">'+
         '<span class="dpill dist">'+db.distPts.toFixed(1)+'</span>'+
-        '<span class="dpill bonus">⚡'+db.bonusPts+'</span>'+
-        (chPts>0?'<span class="dpill chall">🎯'+chPts.toFixed(1)+'</span>':'')+
+        '<span class="dpill bonus"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#96B4FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'+db.bonusPts+'</span>'+
+        (chPts>0?'<span class="dpill chall"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'+chPts.toFixed(1)+'</span>':'')+
         '<span class="dpill total">'+dayTotal.toFixed(1)+'</span>'+
       '</div>'+
       '<div class="date-chevron">▼</div>';
@@ -972,7 +972,7 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
         '<div class="act-tile-right">'+
           '<div class="act-tile-dist">'+km+'</div>'+
           '<div class="act-tile-dist-lbl">km</div>'+
-          '<div class="act-tile-flag '+(isFlag?'flag-bad':'flag-valid')+'">'+(isFlag?'⚑ Flagged':'✓ Valid')+'</div>'+
+          '<div class="act-tile-flag '+(isFlag?'flag-bad':'flag-valid')+'">'+(isFlag?'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Flagged':'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Valid')+'</div>'+
         '</div>';
       inner.appendChild(item);
     });
