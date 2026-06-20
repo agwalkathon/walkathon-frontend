@@ -106,7 +106,7 @@
       border-radius:var(--radius-sm);
       padding:14px 10px;text-align:center;
     }
-    .metric-val{font-size:28px;font-weight:900;line-height:1;letter-spacing:-0.5px;}
+    .metric-val{font-size:28px;font-weight:600;line-height:1;letter-spacing:-0.3px;}
     .metric-val.orange{color:var(--brand);}
     .metric-val.green{color:var(--green);}
     .metric-val.blue{color:var(--blue);}
@@ -365,35 +365,6 @@
   </div>
 </div>
 
-<!-- Block 2: Medal Rings -->
-<div class="hero-rings-block">
-  <div class="rings-row" id="medal-rings">
-    <div class="ring-box">
-      <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill br" id="ring-fill-br" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
-        <div class="ring-inner"><span class="ring-pct" id="ring-pct-br">—</span></div>
-      </div>
-      <div class="ring-name br">Bronze</div>
-      <div class="ring-need" id="ring-need-br">—</div>
-    </div>
-    <div class="ring-box">
-      <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill si" id="ring-fill-si" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
-        <div class="ring-inner"><span class="ring-pct" id="ring-pct-si">—</span></div>
-      </div>
-      <div class="ring-name si">Silver</div>
-      <div class="ring-need" id="ring-need-si">—</div>
-    </div>
-    <div class="ring-box">
-      <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill go" id="ring-fill-go" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
-        <div class="ring-inner"><span class="ring-pct" id="ring-pct-go">—</span></div>
-      </div>
-      <div class="ring-name go">Gold</div>
-      <div class="ring-need" id="ring-need-go">—</div>
-    </div>
-  </div>
-</div>
 
 <!-- Block 3: Metrics -->
 <div class="hero-metrics-block">
@@ -416,6 +387,36 @@
 <!-- Dashboard tab -->
 <div class="content active" id="tab-dashboard">
 <div class="max-w">
+
+  <div class="sec">Medal Progress</div>
+  <div class="card" style="padding:16px 14px 18px;">
+    <div class="rings-row" id="medal-rings">
+      <div class="ring-box">
+        <div class="ring-svg-wrap">
+          <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill br" id="ring-fill-br" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+          <div class="ring-inner"><span class="ring-pct" id="ring-pct-br">—</span></div>
+        </div>
+        <div class="ring-name br">Bronze</div>
+        <div class="ring-need" id="ring-need-br">—</div>
+      </div>
+      <div class="ring-box">
+        <div class="ring-svg-wrap">
+          <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill si" id="ring-fill-si" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+          <div class="ring-inner"><span class="ring-pct" id="ring-pct-si">—</span></div>
+        </div>
+        <div class="ring-name si">Silver</div>
+        <div class="ring-need" id="ring-need-si">—</div>
+      </div>
+      <div class="ring-box">
+        <div class="ring-svg-wrap">
+          <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill go" id="ring-fill-go" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+          <div class="ring-inner"><span class="ring-pct" id="ring-pct-go">—</span></div>
+        </div>
+        <div class="ring-name go">Gold</div>
+        <div class="ring-need" id="ring-need-go">—</div>
+      </div>
+    </div>
+  </div>
 
   <div class="sec">My Standing</div>
   <div class="card">
@@ -676,7 +677,7 @@ async function load() {
 
     var fullPts=calcFullPts(myActs,reg.gender);
     var validCount=myActs.filter(function(a){return !a.is_flagged;}).length;
-    document.getElementById('s-dist').textContent=fullPts.km.toFixed(1);
+    document.getElementById('s-dist').textContent=Math.round(fullPts.km);
     document.getElementById('s-acts').textContent=validCount;
 
     var validActs=myActs.filter(function(a){return !a.is_flagged;});
@@ -702,7 +703,7 @@ async function load() {
     var gKey=(reg.gender||'').toLowerCase()==='female'?'female':'male';
     var bronzeThresh=Number(medals.bronze[gKey])||100,silverThresh=Number(medals.silver[gKey])||150,goldThresh=Number(medals.gold[gKey])||200;
     var myPts=fullPts.total;
-    document.getElementById('s-pts-display').textContent=myPts.toFixed(1);
+    document.getElementById('s-pts-display').textContent=Math.round(myPts);
 
     // ── Medal rings ───────────────────────────────────────────────────────────
     var CIRC=213.6; // 2 * π * 34
