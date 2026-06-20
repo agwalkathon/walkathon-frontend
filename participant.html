@@ -469,10 +469,10 @@
 
   <div class="sec">Activity Times</div>
   <div class="tod-grid">
-    <div class="tod-card"><div class="tod-icon" id="tod-ico-morning"></div><div class="tod-val" id="tod-morning">—</div><div class="tod-lbl">Morning</div></div>
-    <div class="tod-card"><div class="tod-icon" id="tod-ico-afternoon"></div><div class="tod-val" id="tod-afternoon">—</div><div class="tod-lbl">Afternoon</div></div>
-    <div class="tod-card"><div class="tod-icon" id="tod-ico-evening"></div><div class="tod-val" id="tod-evening">—</div><div class="tod-lbl">Evening</div></div>
-    <div class="tod-card"><div class="tod-icon" id="tod-ico-night"></div><div class="tod-val" id="tod-night">—</div><div class="tod-lbl">Night</div></div>
+    <div class="tod-card"><div class="tod-icon">🌅</div><div class="tod-val" id="tod-morning">—</div><div class="tod-lbl">Morning</div></div>
+    <div class="tod-card"><div class="tod-icon">☀️</div><div class="tod-val" id="tod-afternoon">—</div><div class="tod-lbl">Afternoon</div></div>
+    <div class="tod-card"><div class="tod-icon">🌆</div><div class="tod-val" id="tod-evening">—</div><div class="tod-lbl">Evening</div></div>
+    <div class="tod-card"><div class="tod-icon">🌙</div><div class="tod-val" id="tod-night">—</div><div class="tod-lbl">Night</div></div>
   </div>
 
   <div class="sec">People Near You</div>
@@ -515,44 +515,6 @@
 </nav>
 
 <script>
-
-  // ── Flat SVG icon library ──
-  // Set time-of-day icons
-  document.addEventListener('DOMContentLoaded',function(){
-    var tm=document.getElementById('tod-ico-morning');if(tm)tm.innerHTML=ICO.sunrise;
-    var ta=document.getElementById('tod-ico-afternoon');if(ta)ta.innerHTML=ICO.sun;
-    var te=document.getElementById('tod-ico-evening');if(te)te.innerHTML=ICO.sunset;
-    var tn=document.getElementById('tod-ico-night');if(tn)tn.innerHTML=ICO.moon;
-  });
-  var ICO={
-    cal:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-    bronze:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4A84A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M8.5 8.5 6 6l3-3h6l3 3-2.5 2.5"/></svg>',
-    silver:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8D8E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M8.5 8.5 6 6l3-3h6l3 3-2.5 2.5"/></svg>',
-    gold:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M8.5 8.5 6 6l3-3h6l3 3-2.5 2.5"/></svg>',
-    bolt:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(96,165,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-    chk:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(34,197,94,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-    trophy:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFD000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M4 22h16"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
-    target:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
-    fire:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>',
-    flag:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
-    valid:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-    sunrise:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,80,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M17.66 6.34l-1.41 1.41"/><path d="M12 6a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M3 18h18"/></svg>',
-    sun:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,200,80,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg>',
-    sunset:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(232,98,42,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M17.66 6.34l-1.41 1.41"/><path d="M12 6a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M3 18h18"/></svg>',
-    moon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(148,163,250,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-    walk:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 7v5l-3 3"/><path d="M12 12l3 4"/><path d="M9 17l-2 3"/><path d="M15 16l1 3"/></svg>',
-    run:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m14.5 9-2 4-3.5 1 2.5 4"/><path d="M9 8.5 7 12l2.5 1"/><path d="M14.5 9 17 8"/></svg>',
-    ride:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M12 17h2l2-5H9l1 3h2"/></svg>',
-    hike:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l4-10 3 6 2-3 4 7"/><circle cx="9" cy="7" r="2"/></svg>',
-    actdef:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-    male:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>',
-    female:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="6"/><line x1="12" y1="16" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg>',
-    clock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-    team:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-    warn:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    runner:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="m14.5 9-2 4-3.5 1 2.5 4"/><path d="M9 8.5 7 12l2.5 1"/><path d="M14.5 9 17 8"/></svg>'
-  };
-
 var SUPABASE_URL = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 var CONFIG_LB    = { basePer_km: 1, bonus: [{km:5,points:1},{km:8,points:2},{km:10,points:3},{km:15,points:4},{km:21,points:7}] };
 var CHALLENGES_LB   = [];
@@ -578,7 +540,7 @@ function tileClass(t) {
   if(t==='Hike') return 'hike';
   return 'other';
 }
-function renderIcon(t){var m={'Walk':ICO.walk,'Run':ICO.run,'VirtualRun':ICO.run,'Ride':ICO.ride,'VirtualRide':ICO.ride,'MountainBikeRide':ICO.ride,'Hike':ICO.hike};return m[t]||ICO.actdef;}; return m[t]||'⚡'; }
+function renderIcon(t) { var m={'Walk':'🚶','Run':'🏃','VirtualRun':'🏃','Ride':'🚴','VirtualRide':'🚴','MountainBikeRide':'🚵','Hike':'🥾'}; return m[t]||'⚡'; }
 
 function calcBonus(km) {
   var result=0,sorted=CONFIG_LB.bonus.slice().sort(function(a,b){return b.km-a.km;});
@@ -703,9 +665,9 @@ async function load() {
     // Profile
     document.getElementById('p-name').textContent=name.toUpperCase();
     var tags=[];
-    if(reg.gender)tags.push(reg.gender==='Female'?ICO.female+' Female':ICO.male+' Male');
-    if(reg.shift)tags.push(ICO.clock+' '+reg.shift);
-    if(reg.leaderboard_team)tags.push(ICO.team+' '+reg.leaderboard_team);
+    if(reg.gender)tags.push(reg.gender==='Female'?'👩 Female':'👨 Male');
+    if(reg.shift)tags.push('⏰ '+reg.shift);
+    if(reg.leaderboard_team)tags.push('🏙️ '+reg.leaderboard_team);
     document.getElementById('p-tags').innerHTML=tags.map(function(t){return '<span class="hero-tag">'+esc(t)+'</span>';}).join('');
 
     var fullPts=calcFullPts(myActs,reg.gender);
@@ -824,7 +786,7 @@ async function load() {
       var div=document.createElement('div');div.className='gold-card';
       div.innerHTML=
         '<div class="gold-top">'+
-          '<div class="gold-emoji">'+ICO.gold+'</div>'+
+          '<div class="gold-emoji">🥇</div>'+
           '<div><div class="gold-title">Gold Achieved!</div>'+
           '<div class="gold-sub">Rank #'+myRankG+' of '+totalG+' in your category</div></div>'+
         '</div>'+
@@ -836,14 +798,14 @@ async function load() {
         (personAbove?
           '<div class="gold-rival">'+
             '<div class="gold-rival-left">'+
-              '<div class="gold-rival-label">'+ICO.target+' Overtake #'+(myRankG-1)+': '+esc(personAbove.name)+'</div>'+
+              '<div class="gold-rival-label">🎯 Overtake #'+(myRankG-1)+': '+esc(personAbove.name)+'</div>'+
               '<div class="gold-rival-sub">'+daysLeft+' days left · keep pushing</div>'+
             '</div>'+
           '</div>'
         :
           '<div class="gold-rival">'+
             '<div class="gold-rival-left">'+
-              '<div class="gold-rival-label">'+ICO.trophy+' You\'re #1 — lead to the finish!</div>'+
+              '<div class="gold-rival-label">🏆 You\'re #1 — lead to the finish!</div>'+
               '<div class="gold-rival-sub">Defend your spot for '+daysLeft+' more days</div>'+
             '</div>'+
           '</div>'
@@ -852,29 +814,29 @@ async function load() {
 
     } else {
       // Not gold — show only uncompleted medal rows + today bonus
-      paceCard.appendChild(paceRow('rgba(96,165,250,0.12)',ICO.cal,daysLeft+' days remaining','Event ends June 30','Jun 30','var(--muted)'));
+      paceCard.appendChild(paceRow('rgba(96,165,250,0.12)','📅',daysLeft+' days remaining','Event ends June 30','Jun 30','var(--muted)'));
 
       if(myPts<bronzeThresh){
         var brN=Math.max(0,bronzeThresh-myPts),brK=daysLeft>0?(brN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(244,168,74,0.12)',ICO.bronze,'Walk '+brK.toFixed(1)+' km/day for Bronze','Need '+brN.toFixed(1)+' pts in '+daysLeft+' days',brK.toFixed(1)+' km','#F4A84A'));
+        paceCard.appendChild(paceRow('rgba(244,168,74,0.12)','🥉','Walk '+brK.toFixed(1)+' km/day for Bronze','Need '+brN.toFixed(1)+' pts in '+daysLeft+' days',brK.toFixed(1)+' km','#F4A84A'));
         var siN=Math.max(0,silverThresh-myPts),siK=daysLeft>0?(siN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(200,216,232,0.12)',ICO.silver,'Walk '+siK.toFixed(1)+' km/day for Silver','Need '+siN.toFixed(1)+' pts in '+daysLeft+' days',siK.toFixed(1)+' km','var(--silver)'));
+        paceCard.appendChild(paceRow('rgba(200,216,232,0.12)','🥈','Walk '+siK.toFixed(1)+' km/day for Silver','Need '+siN.toFixed(1)+' pts in '+daysLeft+' days',siK.toFixed(1)+' km','var(--silver)'));
         var goN=Math.max(0,goldThresh-myPts),goK=daysLeft>0?(goN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)',ICO.gold,'Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
+        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)','🥇','Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
       } else if(myPts<silverThresh){
         var siN=Math.max(0,silverThresh-myPts),siK=daysLeft>0?(siN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(200,216,232,0.12)',ICO.silver,'Walk '+siK.toFixed(1)+' km/day for Silver','Need '+siN.toFixed(1)+' pts in '+daysLeft+' days',siK.toFixed(1)+' km','var(--silver)'));
+        paceCard.appendChild(paceRow('rgba(200,216,232,0.12)','🥈','Walk '+siK.toFixed(1)+' km/day for Silver','Need '+siN.toFixed(1)+' pts in '+daysLeft+' days',siK.toFixed(1)+' km','var(--silver)'));
         var goN=Math.max(0,goldThresh-myPts),goK=daysLeft>0?(goN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)',ICO.gold,'Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
+        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)','🥇','Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
       } else {
         var goN=Math.max(0,goldThresh-myPts),goK=daysLeft>0?(goN/daysLeft):0;
-        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)',ICO.gold,'Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
+        paceCard.appendChild(paceRow('rgba(255,208,0,0.12)','🥇','Walk '+goK.toFixed(1)+' km/day for Gold','Need '+goN.toFixed(1)+' pts in '+daysLeft+' days',goK.toFixed(1)+' km','var(--gold)'));
       }
 
       if(nextTier){
-        paceCard.appendChild(paceRow('rgba(96,165,250,0.12)',ICO.bolt,'Walk '+(nextTier[0]-todayKm).toFixed(1)+' km more today for bonus','Today: '+todayKm.toFixed(1)+' km so far','+'+nextTier[1]+' pt','var(--blue)'));
+        paceCard.appendChild(paceRow('rgba(96,165,250,0.12)','⚡','Walk '+(nextTier[0]-todayKm).toFixed(1)+' km more today for bonus','Today: '+todayKm.toFixed(1)+' km so far','+'+nextTier[1]+' pt','var(--blue)'));
       } else {
-        paceCard.appendChild(paceRow('rgba(34,197,94,0.12)',ICO.chk,'Max daily bonus earned!',todayKm.toFixed(1)+' km today','+7 pts','var(--green)'));
+        paceCard.appendChild(paceRow('rgba(34,197,94,0.12)','✅','Max daily bonus earned!',todayKm.toFixed(1)+' km today','+7 pts','var(--green)'));
       }
     }
 
@@ -918,7 +880,7 @@ async function load() {
       prevD=d;
     });
 
-    document.getElementById('streak-num').innerHTML=(streakIsLive&&streak>0?ICO.fire:'')+streak;
+    document.getElementById('streak-num').textContent=(streakIsLive&&streak>0?'🔥':'')+streak;
     document.getElementById('streak-best-val').textContent=best;
     document.getElementById('streak-msg').textContent=streakIsLive?(streak>=7?'Amazing streak!':streak>=3?'Keep it going!':'Good start!'):(lastActiveDay?'Last active '+lastActiveDay:'Start today!');
 
@@ -944,7 +906,7 @@ async function load() {
 
     // Challenges
     var chCard=document.getElementById('challenges-card');
-    if(chCard&&CHALLENGES_LB.length){chCard.innerHTML='';CHALLENGES_LB.slice(0,8).forEach(function(ch){var chPtsVal=Number(ch.bonus_points)||0,earned=false,allDayBreakdowns=fullPts.dayBreakdown||{};for(var day in allDayBreakdowns){var db=allDayBreakdowns[day];if(db.challenges&&db.challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}if(!earned){var ab=fullPts.actBreakdown||{};for(var actId in ab){if(ab[actId].challenges&&ab[actId].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}var today2=new Date().toISOString().split('T')[0],missed=!earned&&ch.end_date&&ch.end_date<today2,statusCls=earned?'won':missed?'missed':'avail',statusIcon=earned?ICO.valid:missed?'✕':'!',div=document.createElement('div');div.className='ch-row';div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+chPtsVal+' pts</div>';chCard.appendChild(div);});}
+    if(chCard&&CHALLENGES_LB.length){chCard.innerHTML='';CHALLENGES_LB.slice(0,8).forEach(function(ch){var chPtsVal=Number(ch.bonus_points)||0,earned=false,allDayBreakdowns=fullPts.dayBreakdown||{};for(var day in allDayBreakdowns){var db=allDayBreakdowns[day];if(db.challenges&&db.challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}if(!earned){var ab=fullPts.actBreakdown||{};for(var actId in ab){if(ab[actId].challenges&&ab[actId].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}var today2=new Date().toISOString().split('T')[0],missed=!earned&&ch.end_date&&ch.end_date<today2,statusCls=earned?'won':missed?'missed':'avail',statusIcon=earned?'✓':missed?'✕':'!',div=document.createElement('div');div.className='ch-row';div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+chPtsVal+' pts</div>';chCard.appendChild(div);});}
     else if(chCard)chCard.innerHTML='<p style="font-size:12px;color:var(--muted);padding:14px">No challenges configured.</p>';
 
     // Activities title
@@ -955,16 +917,16 @@ async function load() {
 
   } catch(e) {
     console.error('Load error:',e.message||e);
-    var err='<div class="empty-state"><div class="icon">'+ICO.warn+'</div><p>Could not load data.<br>'+(e.message||'Unknown error')+'</p></div>';
+    var err='<div class="empty-state"><div class="icon">⚠️</div><p>Could not load data.<br>'+(e.message||'Unknown error')+'</p></div>';
     document.getElementById('act-list').innerHTML=err;
-    document.getElementById('tab-dashboard').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted)"> '+(e.message||'Load error')+'</div>';
+    document.getElementById('tab-dashboard').innerHTML='<div style="padding:40px 20px;text-align:center;color:var(--muted)">⚠️ '+(e.message||'Load error')+'</div>';
   }
 }
 
 function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
   dayBreakdown=dayBreakdown||{}; actBreakdown=actBreakdown||{};
   var list=document.getElementById('act-list');
-  if(!acts.length){list.innerHTML='<div class="empty-state"><div class="icon">'+ICO.runner+'</div><p>No activities yet.<br>Save a walk or run on Strava — it will appear here.</p></div>';return;}
+  if(!acts.length){list.innerHTML='<div class="empty-state"><div class="icon">🏃</div><p>No activities yet.<br>Save a walk or run on Strava — it will appear here.</p></div>';return;}
   var flaggedCount=acts.filter(function(a){return a.is_flagged;}).length;
   if(flaggedCount>0)document.getElementById('flagged-banner').style.display='block';
   var groups={},dateOrder=[];
@@ -984,8 +946,8 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     dateRow.innerHTML='<div class="date-col"><div class="date-label">'+esc(dateStr)+'</div><div class="date-sub">'+rawKm.toFixed(2)+' km</div><div class="date-sub">'+actWord+'</div></div>'+
       '<div class="date-pts-strip">'+
         '<span class="dpill dist">'+db.distPts.toFixed(1)+'</span>'+
-        '<span class="dpill bonus">'+ICO.bolt+db.bonusPts+'</span>'+
-        (chPts>0?'<span class="dpill chall">'+ICO.target+chPts.toFixed(1)+'</span>':'')+
+        '<span class="dpill bonus">⚡'+db.bonusPts+'</span>'+
+        (chPts>0?'<span class="dpill chall">🎯'+chPts.toFixed(1)+'</span>':'')+
         '<span class="dpill total">'+dayTotal.toFixed(1)+'</span>'+
       '</div>'+
       '<div class="date-chevron">▼</div>';
@@ -1010,7 +972,7 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
         '<div class="act-tile-right">'+
           '<div class="act-tile-dist">'+km+'</div>'+
           '<div class="act-tile-dist-lbl">km</div>'+
-          '<div class="act-tile-flag '+(isFlag?'flag-bad':'flag-valid')+'">'+(isFlag?ICO.flag+' Flagged':ICO.valid+' Valid')+'</div>'+
+          '<div class="act-tile-flag '+(isFlag?'flag-bad':'flag-valid')+'">'+(isFlag?'⚑ Flagged':'✓ Valid')+'</div>'+
         '</div>';
       inner.appendChild(item);
     });
