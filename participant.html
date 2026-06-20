@@ -80,8 +80,8 @@
     /* ── Medal rings row ── */
     .rings-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
     .ring-box{display:flex;flex-direction:column;align-items:center;gap:0;}
-    .ring-svg-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
-    .ring-svg-wrap svg{width:80px;height:80px;transform:rotate(-90deg);}
+    .ring-svg-wrap{position:relative;width:100px;height:100px;flex-shrink:0;}
+    .ring-svg-wrap svg{width:100px;height:100px;transform:rotate(-90deg);}
     .ring-bg{fill:none;stroke:rgba(255,255,255,0.20);stroke-width:6;}
     .ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease;}
     .ring-fill.br{stroke:#CD7F32;}
@@ -91,7 +91,7 @@
       position:absolute;inset:0;display:flex;flex-direction:column;
       align-items:center;justify-content:center;
     }
-    .ring-pct{font-size:16px;font-weight:900;color:#fff;line-height:1;letter-spacing:-0.5px;}
+    .ring-pct{font-size:20px;font-weight:700;color:#fff;line-height:1;letter-spacing:-0.5px;}
     .ring-check{font-size:20px;line-height:1;}
     .ring-emoji{font-size:18px;margin-bottom:3px;}
     .ring-name{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;}
@@ -370,7 +370,7 @@
   <div class="rings-row" id="medal-rings">
     <div class="ring-box">
       <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill br" id="ring-fill-br" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+        <svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="43"/><circle class="ring-fill br" id="ring-fill-br" cx="50" cy="50" r="43" stroke-dasharray="270.2" stroke-dashoffset="270.2"/></svg>
         <div class="ring-inner"><span class="ring-pct" id="ring-pct-br">—</span></div>
       </div>
       <div class="ring-name br">Bronze</div>
@@ -378,7 +378,7 @@
     </div>
     <div class="ring-box">
       <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill si" id="ring-fill-si" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+        <svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="43"/><circle class="ring-fill si" id="ring-fill-si" cx="50" cy="50" r="43" stroke-dasharray="270.2" stroke-dashoffset="270.2"/></svg>
         <div class="ring-inner"><span class="ring-pct" id="ring-pct-si">—</span></div>
       </div>
       <div class="ring-name si">Silver</div>
@@ -386,7 +386,7 @@
     </div>
     <div class="ring-box">
       <div class="ring-svg-wrap">
-        <svg viewBox="0 0 80 80"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill go" id="ring-fill-go" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="213.6"/></svg>
+        <svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="43"/><circle class="ring-fill go" id="ring-fill-go" cx="50" cy="50" r="43" stroke-dasharray="270.2" stroke-dashoffset="270.2"/></svg>
         <div class="ring-inner"><span class="ring-pct" id="ring-pct-go">—</span></div>
       </div>
       <div class="ring-name go">Gold</div>
@@ -705,7 +705,7 @@ async function load() {
     document.getElementById('s-pts-display').textContent=Math.round(myPts);
 
     // ── Medal rings ───────────────────────────────────────────────────────────
-    var CIRC=213.6; // 2 * π * 34
+    var CIRC=270.2; // 2 * π * 43
     [{id:'br',thresh:bronzeThresh},{id:'si',thresh:silverThresh},{id:'go',thresh:goldThresh}].forEach(function(m){
       var pct=Math.min(100,Math.round((myPts/m.thresh)*100));
       var done=myPts>=m.thresh;
