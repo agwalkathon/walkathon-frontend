@@ -329,7 +329,8 @@
 
 
     .points,.distance,.rank,td,th{font-variant-numeric:tabular-nums;}
-  </style>
+  
+    .rank-sup{font-size:0.45em;font-weight:700;vertical-align:super;letter-spacing:0;}</style>
 </head>
 <body>
 
@@ -729,13 +730,13 @@ async function load() {
     var shiftPeers=allReg.filter(function(p){var pg=(p.gender||'').toLowerCase(),ps=(p.shift||'').toLowerCase();return ps.indexOf('night')>-1===isNight&&(pg==='female')===isFemale;});
     var teamPeers=allReg.filter(function(p){var pg=(p.gender||'').toLowerCase(),pt=(p.leaderboard_team||'').toLowerCase();return pt===myTeamN&&(pg==='female')===isFemale;});
     var shiftRank=rankIn(shiftPeers),teamRank=rankIn(teamPeers);
-    function ordinal(n){if(!n)return'—';var sfx=['th','st','nd','rd'],v=n%100;return n+(sfx[(v-20)%10]||sfx[v]||sfx[0]);}
+    function ordinal(n){if(!n)return'—';var sfx=['th','st','nd','rd'],v=n%100;var s=sfx[(v-20)%10]||sfx[v]||sfx[0];return n+'<span class="rank-sup">'+s+'</span>';}
     var shiftLabel=isNight?'Nightshift · '+(isFemale?'Female':'Male'):'Dayshift · '+(isFemale?'Female':'Male');
     var teamLabel=(reg.leaderboard_team||'Team')+' · '+(isFemale?'Female':'Male');
     document.getElementById('standing-shift-label').textContent=shiftLabel;
-    document.getElementById('standing-shift-rank').textContent=shiftRank?ordinal(shiftRank):'—';
+    document.getElementById('standing-shift-rank').innerHTML=shiftRank?ordinal(shiftRank):'—';
     document.getElementById('standing-team-label').textContent=teamLabel;
-    document.getElementById('standing-team-rank').textContent=teamRank?ordinal(teamRank):'—';
+    document.getElementById('standing-team-rank').innerHTML=teamRank?ordinal(teamRank):'—';
 
     // ── Pace Goals — dynamic based on medal status ────────────────────────────
     var now=new Date();
