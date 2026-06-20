@@ -256,19 +256,19 @@ tr:hover td{background:#FAFAFA}
       </div>
       <div class="card-body">
         <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff8f5;border:1.5px solid #E8622A;border-radius:10px;margin-bottom:20px">
-          <img src="https://resend.com/static/favicon/favicon-32x32.png" style="width:20px;height:20px;border-radius:4px" onerror="this.style.display='none'">
+          <div style="width:20px;height:20px;background:#0B60FF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0">B</div>
           <div>
-            <div style="font-size:13px;font-weight:600;color:#E8622A">Powered by Resend</div>
-            <div style="font-size:12px;color:#888">HTTP-based email API — works reliably on all hosting providers</div>
+            <div style="font-size:13px;font-weight:600;color:#E8622A">Powered by Brevo</div>
+            <div style="font-size:12px;color:#888">HTTP-based email API — send to any address, no domain verification needed</div>
           </div>
         </div>
         <div class="field-grid">
           <div class="field" style="grid-column:span 2">
-            <label>Resend API Key</label>
-            <input type="password" id="smtp-resend_key" placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx">
+            <label>Brevo API Key</label>
+            <input type="password" id="smtp-brevo_key" placeholder="xkeysib-xxxxxxxxxxxxxxxxxxxxxxxx">
           </div>
           <div class="field"><label>From Name</label><input type="text" id="smtp-from_name" placeholder="Arcgate Walkathon 2026"></div>
-          <div class="field"><label>From Email <span style="font-size:10px;color:#aaa;font-weight:400">(must be verified in Resend)</span></label>
+          <div class="field"><label>From Email <span style="font-size:10px;color:#aaa;font-weight:400">(verified sender in Brevo)</span></label>
             <input type="text" id="smtp-from_email" placeholder="walkathon@arcgate.com">
           </div>
           <div class="field"><label>Reply-To Email</label><input type="text" id="smtp-reply" placeholder="walkathon@arcgate.com"></div>
@@ -283,8 +283,8 @@ tr:hover td{background:#FAFAFA}
         </div>
         <div style="margin-top:20px;padding:14px 16px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#666;line-height:1.9">
           <strong>Setup steps:</strong><br>
-          1. Get API key from <a href="https://resend.com/api-keys" target="_blank" style="color:#E8622A">resend.com/api-keys</a><br>
-          2. Add &amp; verify your sending domain at <a href="https://resend.com/domains" target="_blank" style="color:#E8622A">resend.com/domains</a> — or use <code style="background:#eee;padding:1px 5px;border-radius:3px">onboarding@resend.dev</code> for testing<br>
+          1. Get API key from <a href="https://app.brevo.com/settings/keys/api" target="_blank" style="color:#E8622A">Brevo → SMTP &amp; API → API Keys</a><br>
+          2. Add a verified sender email at <a href="https://app.brevo.com/senders" target="_blank" style="color:#E8622A">Brevo → Senders</a> (confirm the email link they send)<br>
           3. Paste API key above → Save → Send Test Email
         </div>
       </div>
@@ -603,7 +603,7 @@ async function loadSmtp() {
     var d = await r.json();
     if (d.success && d.data && d.data.config) {
       var s = d.data.config;
-      var fields = ['resend_key','from_name','from_email','reply'];
+      var fields = ['brevo_key','from_name','from_email','reply'];
       fields.forEach(function(k) {
         var el = document.getElementById('smtp-' + k);
         if (el && s[k] != null) el.value = s[k];
@@ -617,7 +617,7 @@ async function loadSmtp() {
 async function saveSmtp() {
   setBtnLoading('smtp-save-btn', true, '💾 Save Settings');
   setStatus('smtp-status', 'wait', '⏳ Saving...');
-  var fields = ['resend_key','from_name','from_email','reply'];
+  var fields = ['brevo_key','from_name','from_email','reply'];
   var cfg = {};
   fields.forEach(function(k) {
     var el = document.getElementById('smtp-' + k);
