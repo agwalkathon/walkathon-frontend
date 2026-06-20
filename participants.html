@@ -203,6 +203,7 @@ tr:hover td{background:#FAFAFA}
         <option value="notconnected">Not connected</option>
       </select>
       <span id="count" class="count-badge"></span>
+      <button class="btn btn-ghost btn-sm" id="export-btn" onclick="exportCSV()" style="margin-left:auto;font-size:13px;display:none"><i class="ti ti-download"></i> Export CSV</button>
     </div>
 
     <!-- Table card -->
@@ -318,6 +319,8 @@ function filterTable() {
       : !r.connected;
     return mq && ms;
   });
+  window._exportParticipants = rows;
+  document.getElementById('export-btn').style.display = rows.length ? 'inline-flex' : 'none';
   document.getElementById('count').textContent = rows.length + ' of ' + allRows.length + ' participants';
   renderRows(rows);
 }
@@ -384,6 +387,25 @@ async function loadParticipants() {
 
 authGuard();
 loadParticipants();
+
+function exportCSV() {
+  const rows = window._exportParticipants || [];
+  if (!rows.length) { alert('No data to export.'); return; }
+  const headers = ['Full Name','Employee Code','Gender','Email','WhatsApp','Shift','T-Shirt Size','Team','Team Lead','Strava ID','Activities','Distance (km)','Strava Connected'];
+  const data = rows.map(r => [
+    r.full_name||'', r.employee_code||'', r.gender||'', r.email||'',
+    r.whatsapp||'', r.shift||'', r.tshirt_size||'', r.leaderboard_team||'',
+    r.team_lead||'', r.strava_athlete_id||'',
+    r.cnt||0, r.dist ? (r.dist/1000).toFixed(2) : '0',
+    r.connected ? 'Yes' : 'No'
+  ].map(v => '"' + String(v).replace(/"/g,'""') + '"'));
+  const csv = [headers.map(h => '"'+h+'"').join(','), ...data.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'participants_export_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
 </script>
 </body>
 </html>
