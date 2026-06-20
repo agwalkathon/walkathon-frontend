@@ -116,10 +116,10 @@
     .rank-col.r3{color:var(--bronze);font-size:15px;}
 
     /* row body */
-    .row-body{flex:1;min-width:0;}
+    .row-body{flex:1;min-width:0;overflow:hidden;}
 
     /* LINE 1: name | pts */
-    .row-line1{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;}
+    .row-line1{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;flex-wrap:nowrap;}
     .row-name{font-size:13px;font-weight:700;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .you-chip{display:inline-block;background:var(--brand);color:#fff;font-size:7.5px;font-weight:800;padding:1px 5px;border-radius:4px;margin-left:5px;vertical-align:middle;letter-spacing:0.2px;}
     .row-pts-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
@@ -128,10 +128,10 @@
     .row-pts-unit{font-size:9.5px;font-weight:500;color:var(--muted);}
 
     /* LINE 2: team + pills */
-    .row-line2{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+    .row-line2{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;margin-top:1px;}
     .row-team{font-size:9.5px;font-weight:600;color:var(--muted);margin-right:2px;}
     .row-stat{font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap;}
-    .row-stat.km  {background:#EEF2FF;color:#4338CA;}
+    .row-stat.km  {background:#EEF2FF;color:#4338CA;font-weight:700;}
     .row-stat.dist{background:#F0F4FF;color:#4338CA;opacity:0.8;}
     .row-stat.bon {background:#FFF7ED;color:#C2410C;}
     .row-stat.chal{background:#F0FDF4;color:#15803D;}
@@ -698,6 +698,16 @@ async function boot() {
 
     buildTabs();
     renderRows(getRows(currentTab));
+
+    // Populate my-pts banner
+    var myPtsEl = document.getElementById('my-pts');
+    if (myPtsEl) {
+      var allRows = getRows(currentTab);
+      var myRow = allRows.find(function(r) {
+        return String(r.p.strava_athlete_id) === String(s.athleteId);
+      });
+      myPtsEl.textContent = myRow ? myRow.pts.total.toFixed(1) : '—';
+    }
 
   } catch (e) {
     console.error('Leaderboard boot error:', e);
