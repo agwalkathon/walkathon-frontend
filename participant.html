@@ -42,6 +42,7 @@
       display:flex;align-items:center;justify-content:center;flex-shrink:0;
     }
     .header-logo-icon img{width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1);}
+    .header-logo-img{height:22px;width:auto;object-fit:contain;opacity:0.92;}
     .header-wordmark{font-size:12px;font-weight:700;color:rgba(255,255,255,0.82);line-height:1.2;}
     .header-wordmark span{display:block;font-size:9px;font-weight:400;color:rgba(255,255,255,0.3);}
     .hdr-right{display:flex;align-items:center;gap:4px;}
@@ -262,7 +263,7 @@
   <header class="header">
     <div class="header-logo">
       <div class="header-logo-icon"><img src="logo-icon.png" alt="AW"></div>
-      <div class="header-wordmark">Walkathon 2026<span>Arcgate</span></div>
+      <img src="logo-text-white.png" alt="Arcgate Walkathon" class="header-logo-img">
     </div>
     <div class="hdr-right">
       <button class="icon-btn" id="refresh-btn" onclick="refreshData()" title="Refresh">
