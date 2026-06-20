@@ -55,23 +55,21 @@
 
     /* ── Profile strip ── */
     .profile-card{
-      background:var(--dark);
+      background:var(--brand);
       padding:10px 18px 14px;
       display:flex;align-items:center;gap:12px;
-      border-top:1px solid rgba(255,255,255,0.05);
-      border-bottom:3px solid var(--brand);
     }
     .profile-avatar{
       width:40px;height:40px;border-radius:50%;
-      background:var(--brand);color:#fff;
+      background:rgba(255,255,255,0.2);color:#fff;
       display:flex;align-items:center;justify-content:center;
       font-size:14px;font-weight:800;flex-shrink:0;
-      outline:2px solid rgba(232,98,42,0.35);outline-offset:2px;
+      border:1.5px solid rgba(255,255,255,0.35);
     }
     .profile-info{flex:1;min-width:0;}
-    .profile-name{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .profile-name{font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .profile-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
-    .tag{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:8.5px;font-weight:600;padding:2px 7px;border-radius:20px;letter-spacing:0.2px;}
+    .tag{background:rgba(255,255,255,0.18);border:none;color:rgba(255,255,255,0.9);font-size:8.5px;font-weight:600;padding:2px 7px;border-radius:20px;letter-spacing:0.2px;}
 
     /* ── Content ── */
     .content{flex:1;padding:14px 14px 86px;max-width:540px;width:100%;margin:0 auto;display:none;}
