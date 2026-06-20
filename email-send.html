@@ -150,19 +150,18 @@ tr:hover td{background:#FAFAFA}
 .card-head-left{display:flex;align-items:center;gap:10px}
 .card-head h2{font-size:15px;font-weight:700}
 .card-head .badge-count{background:#E8622A;color:white;font-size:11px;padding:2px 7px;border-radius:10px}
-.card-
+.card-body{padding:20px 24px}
 
 /* Form fields */
-.field-
-
-/* ── Email Send page-specific ── */
-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:20px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 .field input,.field select,.field textarea{padding:9px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:13px;background:#fafafa;font-family:inherit}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#E8622A;background:white}
 .field textarea{resize:vertical;min-height:80px}
 .field.span2{grid-column:span 2}
+
+/* ── Email Send page-specific ── */
 
 
 
@@ -388,8 +387,17 @@ grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1
           <div class="field span2"><label>Description</label><input type="text" id="tpl-desc" placeholder="Weekly rank and distance summary sent every Monday"></div>
         </div>
         <div class="field" style="margin-bottom:16px">
-          <label>HTML Body</label>
-          <textarea id="tpl-body" style="min-height:180px;font-family:monospace;font-size:12px" placeholder="Paste your HTML email template here..."></textarea>
+          <label>HTML Body <span style="font-size:11px;color:#aaa;font-weight:400;text-transform:none">— edit HTML on the left, live preview on the right</span></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;min-height:320px">
+            <div style="display:flex;flex-direction:column;border-right:1px solid #e8e8e8">
+              <div style="padding:6px 10px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:11px;color:#888;font-weight:600">HTML EDITOR</div>
+              <textarea id="tpl-body" oninput="livePreview()" style="flex:1;min-height:300px;font-family:monospace;font-size:12px;border:none;outline:none;resize:none;padding:12px;background:#fafafa;line-height:1.6" placeholder="Paste or type HTML here — preview updates live →"></textarea>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <div style="padding:6px 10px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:11px;color:#888;font-weight:600">LIVE PREVIEW</div>
+              <iframe id="tpl-live-preview" style="flex:1;min-height:300px;border:none;width:100%;background:white" srcdoc="<p style='color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px'>Preview will appear here as you type HTML →</p>"></iframe>
+            </div>
+          </div>
         </div>
         <div style="margin-bottom:14px">
           <div style="font-size:12px;color:#888;margin-bottom:6px">Available variables — click to copy:</div>
@@ -810,6 +818,7 @@ function loadPreset() {
   document.getElementById('preset-sel').value  = '';
   document.getElementById('tpl-name').focus();
   document.getElementById('tpl-status').style.display='none';
+  livePreview();
   // Scroll to the editor
   document.getElementById('tpl-name').scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -881,6 +890,7 @@ async function editTpl(id) {
     document.getElementById('tpl-save-btn').setAttribute('data-edit-id', id);
     document.getElementById('tpl-save-btn').textContent = '💾 Update Template';
     switchTab('templates');
+    livePreview();
     window.scrollTo(0, 0);
   } catch(e) { alert('Error: ' + e.message); }
 }
@@ -901,6 +911,12 @@ async function previewTpl(id) {
     document.getElementById('tpl-frame').srcdoc = rows[0].body_html || '<p>No content</p>';
     document.getElementById('tpl-modal').style.display = 'flex';
   } catch(e) { alert('Error: ' + e.message); }
+}
+
+function livePreview() {
+  var body = document.getElementById('tpl-body').value;
+  var frame = document.getElementById('tpl-live-preview');
+  if (frame) frame.srcdoc = body || '<p style="color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px">Preview will appear here as you type HTML →</p>';
 }
 
 function previewCurrentTpl() {
