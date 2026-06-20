@@ -925,10 +925,10 @@ function toggleExpand(athleteId, gender, trEl) {
 
   if (existing) {
     // Toggle visibility
-    if (existing.style.display === 'block') {
-      existing.style.display = 'none'; return;
+    if (existing.style.display === 'none') {
+      existing.style.cssText = 'display:block!important;background:#fafafa;border-bottom:2px solid #E8622A';
     } else {
-      existing.style.display = 'block';
+      existing.style.cssText = 'display:none';
     }
     return;
   }
@@ -936,12 +936,12 @@ function toggleExpand(athleteId, gender, trEl) {
   // Create expand row with loader
   var expRow = document.createElement('div');
   expRow.id = expId;
-  expRow.className = 'expand-card';
-  expRow.style.display = 'block';
+  expRow.style.cssText = 'display:block!important;background:#fafafa;border-bottom:2px solid #E8622A';
   expRow.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#888;font-size:13px"><div style="width:18px;height:18px;border:2px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin 0.8s linear infinite"></div>Loading daily breakdown...</div>';
 
   // Insert after the clicked row
-  trEl.parentNode.insertBefore(expRow, trEl.nextSibling); expRow.style.display='block';
+  trEl.parentNode.insertBefore(expRow, trEl.nextSibling);
+  expRow.style.cssText = 'display:block!important;background:#fafafa;border-bottom:2px solid #E8622A';
 
   // Build daily data
   var myActs = (allActivities||[]).filter(function(a){
