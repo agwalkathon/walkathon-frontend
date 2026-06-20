@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Configuration — Arcgate Walkathon 2026</title>
+  <style>
+:root{--brand:#E8622A;--brand-light:#FFF0EA;--brand-mid:#f97d4e;--sidebar-bg:#0F1117;--sidebar-w:64px;--sidebar-exp:220px;--page-bg:#F4F6FA;--card-bg:#fff;--text-primary:#0F1117;--text-secondary:#6B7280;--text-muted:#9CA3AF;--border:rgba(0,0,0,.07);--shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);--shadow-lg:0 12px 40px rgba(0,0,0,.12);--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--font:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--page-bg);color:var(--text-primary);min-height:100vh;display:flex}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:16px 0 12px;z-index:300;transition:width .24s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar:hover{width:var(--sidebar-exp)}
+.sb-logo{display:flex;align-items:center;width:100%;padding:4px 14px 20px;text-decoration:none;gap:10px;flex-shrink:0}
+.sb-logo-icon{width:36px;height:36px;border-radius:10px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.sb-logo-icon img{width:28px;height:28px;object-fit:contain}
+.sb-logo-text{font-size:13px;font-weight:600;color:#fff;opacity:0;white-space:nowrap;transition:opacity .18s;line-height:1.3}
+.sb-logo-text span{display:block;font-size:10px;font-weight:400;color:rgba(255,255,255,.45)}
+.sidebar:hover .sb-logo-text{opacity:1}
+.sb-section{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 14px 6px;width:100%;opacity:0;transition:opacity .15s;white-space:nowrap}
+.sidebar:hover .sb-section{opacity:1}
+.sb-item{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;text-decoration:none;gap:10px;border-left:3px solid transparent;transition:all .16s}
+.sb-item:hover{background:rgba(255,255,255,.06);border-left-color:rgba(232,98,42,.5)}
+.sb-item.active{background:rgba(232,98,42,.12);border-left-color:var(--brand)}
+.sb-item i{font-size:19px;color:rgba(255,255,255,.38);flex-shrink:0;width:28px;text-align:center;transition:color .16s}
+.sb-item:hover i{color:rgba(255,255,255,.7)}
+.sb-item.active i{color:var(--brand)}
+.sb-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap;opacity:0;transition:opacity .15s}
+.sidebar:hover .sb-label{opacity:1}
+.sb-item:hover .sb-label{color:rgba(255,255,255,.9)}
+.sb-item.active .sb-label{color:#fff;font-weight:600}
+.sb-spacer{flex:1}
+.sb-divider{width:calc(100% - 24px);height:1px;background:rgba(255,255,255,.07);margin:6px 12px;flex-shrink:0}
+.sb-signout{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;gap:10px;border:none;background:none;cursor:pointer;transition:all .16s;font-family:var(--font)}
+.sb-signout:hover{background:rgba(255,80,80,.08)}
+.sb-signout i{font-size:19px;color:rgba(255,255,255,.25);flex-shrink:0;width:28px;text-align:center}
+.sb-signout:hover i{color:#ff6b6b}
+.sb-signout .sb-label{color:rgba(255,255,255,.3)}
+.sb-signout:hover .sb-label{color:#ff6b6b}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary)}
+.topbar-left p{font-size:12px;color:var(--text-muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-secondary);text-decoration:none;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--page-bg);transition:all .15s}
+.topbar-back:hover{background:#EAECF0;color:var(--text-primary)}
+.content{flex:1;padding:28px 32px;width:100%}
+.card{background:var(--card-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header-left{display:flex;align-items:center;gap:10px}
+.card-header-icon{width:34px;height:34px;border-radius:9px;background:var(--brand-light);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px}
+.card-header h2{font-size:15px;font-weight:600;color:var(--text-primary)}
+.card-header-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+.btn{padding:8px 16px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);transition:all .15s}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:#d4551f}
+.btn-ghost{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{background:#EAECF0;color:var(--text-primary)}
+.btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.btn-danger:hover{background:#DC2626;color:#fff}
+.btn-success{background:#ECFDF5;color:#059669;border:1px solid #A7F3D0}
+.btn-success:hover{background:#059669;color:#fff}
+.stats-grid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border-radius:var(--radius-md);padding:18px 20px;flex:1;min-width:130px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;transition:transform .18s,box-shadow .18s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.val{font-size:24px;font-weight:700;color:var(--brand);line-height:1}
+.lbl{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.stat-card.green .val{color:#059669}
+.stat-card.dark .val{color:var(--text-primary)}
+.stat-card.red .val{color:#DC2626}
+.stat-card.blue .val{color:#3B82F6}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{background:#F9FAFB;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid #F9FAFB;vertical-align:middle;color:var(--text-primary)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.loading-row td{text-align:center;padding:48px;color:var(--text-muted);font-size:14px}
+.badge,.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-walk,.pill-walk{background:#ECFDF5;color:#059669}
+.badge-run,.pill-run{background:#EFF6FF;color:#3B82F6}
+.badge-ride,.pill-ride{background:#FFF7ED;color:#EA580C}
+.badge-hike,.pill-hike{background:#F5F3FF;color:#7C3AED}
+.badge-valid,.badge-clean,.pill-clean{background:#ECFDF5;color:#059669}
+.badge-flag,.badge-invalid,.pill-flag{background:#FEF2F2;color:#DC2626}
+.badge-conn{background:#EFF6FF;color:#3B82F6}
+.badge-active,.badge-ok{background:#ECFDF5;color:#059669}
+.ath{color:var(--brand);text-decoration:none;font-weight:500}
+.ath:hover{text-decoration:underline}
+.act-link{color:var(--text-primary);text-decoration:none;font-weight:500}
+.act-link:hover{color:var(--brand)}
+.filter-bar{background:var(--card-bg);border-radius:var(--radius-md);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.filter-bar h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary)}
+.default-note{font-size:12px;color:var(--text-muted);margin-left:6px;font-weight:400}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.filter-group label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.filter-group input,.filter-group select{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--page-bg);font-family:var(--font);color:var(--text-primary)}
+.filter-group input:focus,.filter-group select:focus{outline:none;border-color:var(--brand);background:#fff}
+.filter-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.empty{text-align:center;padding:56px 24px;color:var(--text-muted);font-size:13px}
+.empty .icon{font-size:40px;margin-bottom:12px;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:32px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);margin:20px}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text-primary)}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.modal label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.modal select,.modal input[type=number],.modal input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;margin-bottom:14px;background:var(--page-bg);font-family:var(--font)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-actions button{padding:10px 20px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font)}
+.btn-confirm{background:var(--brand);color:#fff}
+.btn-cancel{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border)}
+.site-footer{width:100%;background:var(--card-bg);border-top:1px solid var(--border);padding:16px 32px;font-size:12px;font-family:var(--font);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box}
+.site-footer a{color:var(--brand);text-decoration:none;margin-left:14px}
+.site-footer a:hover{text-decoration:underline}
+.editable{cursor:pointer}
+.editable:hover{background:var(--brand-light)!important;border-radius:4px}
+.edit-input{width:80px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.edit-select{width:110px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.result-count{padding:10px 16px;font-size:13px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.scroll-top{overflow-x:auto;overflow-y:hidden;height:12px}
+.scroll-top-inner{height:1px}
+.dist-field{display:none}
+.dist-field.show{display:block}
+@media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px;flex-direction:column}.topbar{padding:0 16px;height:54px;flex-shrink:0;}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
+@media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+}
+
+.section{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px;overflow:hidden}.section-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;user-select:none}.section-header:hover{background:#fafafa}.section-header-left{display:flex;align-items:center;gap:12px}.section-title{font-size:16px;font-weight:700}.section-sub-inline{font-size:13px;color:#999}.section-chevron{font-size:14px;color:#bbb;transition:transform .2s}.section-chevron.open{transform:rotate(180deg)}.section-body{display:none}.section-body.open{display:block}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:18px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600}.field input,.field select,.field textarea{padding:9px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:14px;background:#fafafa}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#E8622A;background:white}.save-btn{padding:10px 24px;background:#E8622A;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}.save-btn:hover{background:#d4561f}.saved-msg{display:none;color:#2e7d32;font-size:13px;margin-left:12px}.bonus-table{width:100%;border-collapse:collapse;margin-bottom:18px}.bonus-table th{background:#fafafa;padding:9px 14px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f0f0f0}.bonus-table td{padding:9px 14px;border-bottom:1px solid #f8f8f8}.bonus-table input{width:80px;padding:6px 10px;border:1px solid #e8e8e8;border-radius:6px;font-size:13px;text-align:center}.btn-del{padding:6px 12px;background:#ffebee;color:#c62828;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer}.btn-save-ch{padding:6px 14px;background:#E8622A;color:white;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer}.btn-add{padding:10px 20px;background:#1A1A1A;color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}.toggle-active{padding:5px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer}.toggle-on{background:#e8f5e9;color:#2e7d32}.toggle-off{background:#f5f5f5;color:#999}.ch-compact{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:10px;overflow:hidden}.ch-compact:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}.rule-box{background:#fff7f2;border-left:4px solid #E8622A;border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.65;color:#555}.date-pill{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px}.date-pill strong{font-size:14px}.date-pill span{font-size:12px;color:#888}.msg{display:none;margin-top:12px;padding:10px 12px;border-radius:8px;font-size:13px}.ok{background:#e8f5e9;color:#2e7d32}.err{background:#ffebee;color:#c62828}@media(max-width:768px){.form-grid{grid-template-columns:1fr}}
+
+  </style>
+</head>
+<body>
+<aside class="sidebar"><a class="sb-logo" href="admin.html"><div class="sb-logo-icon"><img src="logo-icon.png" alt="AW" style="filter:brightness(0) invert(1);"></div><div class="sb-logo-text">Walkathon 2026 <span>Admin Panel</span></div></a>
+<div class="sb-section">Main</div>
+<a href="admin.html" class="sb-item"><i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span></a>
+<a href="activities.html" class="sb-item"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
+<a href="participants.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
+<a href="participant-requests.html" class="sb-item"><i class="ti ti-user-check"></i><span class="sb-label">Requests</span></a>
+<div class="sb-section" style="margin-top:10px;">Config</div>
+<a href="ag-config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Settings</span></a>
+<a href="flagged-rules.html" class="sb-item active"><i class="ti ti-shield-check"></i><span class="sb-label">Flag Rules</span></a>
+<a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
+<a href="email-send.html" class="sb-item"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
+<div class="sb-spacer"></div><div class="sb-divider"></div><button class="sb-signout" onclick="logout()"><i class="ti ti-logout"></i><span class="sb-label">Sign out</span></button></aside>
+<div class="main">
+<header class="topbar"><div class="topbar-left"><h1>Configuration</h1><p>Medal thresholds, bonus rules, flag settings</p></div><div class="topbar-right"><a href="admin.html" class="topbar-back"><i class="ti ti-arrow-left"></i> Dashboard</a></div></header>
+  <div class="content">
+
+<div class="main">
+<div style="padding:24px 32px;max-width:1100px;margin:0 auto">
+  <div style="margin-bottom:24px;display:flex;align-items:center;gap:16px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Flagged Activities Rules</div>
+      <div style="font-size:13px;color:#999;margin-top:2px">Set dynamic rules and bulk-flag matching activities for manual review</div>
+    </div>
+    <a href="ag-config.html" style="margin-left:auto;font-size:13px;color:#E8622A;text-decoration:none;padding:8px 16px;border:1px solid #E8622A;border-radius:8px">← Back to Settings</a>
+  </div>
+<div class="section"><div class="section-body open" id="body-flagrules" style="display:block"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px;align-items:end"><div class="field"><label>Date From</label><input type="date" id="fr-date-from"></div><div class="field"><label>Date To</label><input type="date" id="fr-date-to"></div><div class="field"><label>Activity Type</label><select id="fr-sport"><option value="">All types</option><option value="Walk">Walk</option><option value="Run">Run</option><option value="Hike">Hike</option><option value="Ride">Ride</option></select></div><div class="field"><label>Distance Min (km)</label><input type="number" id="fr-dist-min" placeholder="e.g. 21" step="0.1" min="0"></div><div class="field"><label>Distance Max (km)</label><input type="number" id="fr-dist-max" placeholder="e.g. 100" step="0.1" min="0"></div><div class="field"><label>Pace Min (min/km)</label><input type="number" id="fr-pace1-min" placeholder="e.g. 4" step="0.5" min="0"></div><div class="field"><label>Pace Max (min/km)</label><input type="number" id="fr-pace1-max" placeholder="e.g. 5" step="0.5" min="0"></div></div><div style="font-size:12px;color:#888;margin-bottom:16px;background:#f5f5f5;padding:10px 14px;border-radius:8px;line-height:1.7"><strong>Distance:</strong> Flags activities where distance is between Min and Max km &nbsp;·&nbsp;<strong>Pace:</strong> Flags activities where pace is between Min and Max min/km.</div><div style="background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;padding:16px;margin-bottom:16px"><div style="font-size:13px;color:#e65100;margin-bottom:8px">⚠️ <strong>This will only flag activities matching ALL active filters above.</strong> Flagged activities stay on the leaderboard until manually reviewed.</div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="save-btn" style="background:#1A1A1A" onclick="previewFlagRules()">👁️ Preview matches</button><button class="save-btn" style="background:#c62828" id="btn-apply-flags" onclick="applyFlagRules()" disabled>🚩 Flag selected</button><span id="flag-preview-count" style="font-size:13px;color:#888"></span><span id="flag-selected-count" style="font-size:13px;color:#555;display:none">— <strong id="flag-selected-num">0</strong> selected</span></div></div><div id="flag-preview-list" style="display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:14px;font-weight:600">Matching activities</div><div style="font-size:13px;color:#888">Select rows to flag &nbsp;·&nbsp;<a href="#" style="color:#E8622A;text-decoration:none" onclick="toggleAllCheckboxes(true);return false">Select all</a> &nbsp;/&nbsp; <a href="#" style="color:#888;text-decoration:none" onclick="toggleAllCheckboxes(false);return false">None</a></div></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#fafafa"><th style="padding:8px 12px;text-align:center;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0;width:36px"><input type="checkbox" id="chk-all" title="Select all" onchange="toggleAllCheckboxes(this.checked)" style="cursor:pointer;width:15px;height:15px"></th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">ATHLETE</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">ACTIVITY</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">TYPE</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">DATE</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">DISTANCE</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">PACE</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px;border-bottom:2px solid #f0f0f0">FLAG REASON</th></tr></thead><tbody id="flag-preview-body"></tbody></table></div></div></div></div>
+
+</div>
+</div>
+<script>
+
+
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+var SB_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
+var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+var HDR={apikey:SB_ANON,Authorization:'Bearer '+SB_ANON,'Content-Type':'application/json'};
+function authGuard(){var s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}');if(!s.loggedIn||s.expires<Date.now()||s.role!=='admin')window.location.href='admin-login.html';}
+function logout(){sessionStorage.removeItem('wk_admin');sessionStorage.removeItem('wk_user');window.location.href='admin-login.html';}
+authGuard();
+var BONUS_DEFAULT=[{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}],bonusData=BONUS_DEFAULT.slice(),flagPreviewData=[];
+function toggleSection(id){var b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id);if(!b)return;var o=b.classList.contains('open');b.classList.toggle('open',!o);if(c)c.classList.toggle('open',!o)}
+function showSaved(id){var el=document.getElementById(id);if(el){el.style.display='inline';setTimeout(function(){el.style.display='none'},2500)}}
+function renderBonusRows(){document.getElementById('bonus-rows').innerHTML=bonusData.map(function(b,i){return '<tr><td>'+b.km+' km</td><td><input type="number" value="'+b.pts+'" id="bp-'+i+'" min="0"></td></tr>'}).join('')}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+function showSaved(id){var el=document.getElementById(id);if(el){el.style.display='inline';setTimeout(function(){el.style.display='none'},2500)}}
+function toggleSection(id){var b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id);if(!b)return;var o=b.classList.contains('open');b.classList.toggle('open',!o);if(c)c.classList.toggle('open',!o)}
+async function previewFlagRules(){var countEl=document.getElementById('flag-preview-count'),bodyEl=document.getElementById('flag-preview-body'),listEl=document.getElementById('flag-preview-list'),btn=document.getElementById('btn-apply-flags');countEl.textContent='⏳ Scanning activities...';bodyEl.innerHTML='';listEl.style.display='none';btn.disabled=true;try{flagPreviewData=await fetchFlagCandidates();countEl.textContent=flagPreviewData.length+' activit'+(flagPreviewData.length===1?'y':'ies')+' match the rules';btn.disabled=flagPreviewData.length===0;if(flagPreviewData.length===0)return;bodyEl.innerHTML=flagPreviewData.slice(0,200).map(function(m){var a=m.act,km=((parseFloat(a.distance_meters)||0)/1000).toFixed(2),dt=(a.activity_date||'').split('T')[0],already=a.is_flagged?' style="opacity:0.5"':'',athleteUrl='https://www.strava.com/athletes/'+a.strava_athlete_id,actUrl='https://www.strava.com/activities/'+(a.strava_activity_id||a.id),actName=esc(a.activity_name||'—');var chkDisabled=a.is_flagged?' disabled title="Already flagged"':'',chkChecked=a.is_flagged?'':' checked';return '<tr'+already+' data-idx="'+flagPreviewData.indexOf(m)+'"'+(a.is_flagged?' class="row-already-flagged"':'')+'>'+' <td style="padding:8px 12px;text-align:center"><input type="checkbox" class="row-chk" data-idx="'+flagPreviewData.indexOf(m)+'"'+chkChecked+chkDisabled+' onchange="updateSelectedCount()" style="cursor:pointer;width:15px;height:15px"></td>'+'<td style="padding:8px 12px">'+(a.is_flagged?'<span style="color:#bbb;font-size:11px">✓ already</span> ':'')+'<a href="'+athleteUrl+'" target="_blank" style="color:#E8622A;font-weight:600;text-decoration:none">'+esc(m.name)+'</a></td><td style="padding:8px 12px"><a href="'+actUrl+'" target="_blank" style="color:#1A1A1A;text-decoration:none">'+actName+'</a></td><td style="padding:8px 12px">'+esc(a.sport_type||'—')+'</td><td style="padding:8px 12px">'+dt+'</td><td style="padding:8px 12px">'+km+' km</td><td style="padding:8px 12px">'+fmtPace(a.avg_speed)+'</td><td style="padding:8px 12px;color:#c62828;font-size:12px">'+m.reasons.join('<br>')+'</td></tr>'}).join('');if(flagPreviewData.length>200)bodyEl.innerHTML+='<tr><td colspan="8" style="padding:12px;text-align:center;color:#888;font-size:13px">...and '+(flagPreviewData.length-200)+' more</td></tr>';listEl.style.display='block';updateSelectedCount()}catch(e){countEl.textContent='❌ Error: '+e.message}}
+async function applyFlagRules(){var chks=document.querySelectorAll('.row-chk:checked:not(:disabled)'),selectedIdxs=Array.from(chks).map(function(c){return parseInt(c.getAttribute('data-idx'))});var toFlag=selectedIdxs.map(function(i){return flagPreviewData[i]}).filter(Boolean);if(!toFlag.length){alert('Please select at least one activity to flag.');return}var btn=document.getElementById('btn-apply-flags'),countEl=document.getElementById('flag-preview-count');if(!confirm('Flag '+toFlag.length+' selected activit'+(toFlag.length===1?'y':'ies')+'?'))return;btn.disabled=true;btn.textContent='Flagging...';var success=0,failed=0;for(var i=0;i<toFlag.length;i++){var m=toFlag[i];try{var newReason=(m.act.flag_reason?m.act.flag_reason+', ':'')+m.reasons.join(', '),r=await fetch(SB_URL+'/rest/v1/activities?id=eq.'+m.act.id,{method:'PATCH',headers:HDR,body:JSON.stringify({is_flagged:true,flag_reason:newReason})});if(r.ok){success++;m.act.is_flagged=true;var chkEl=document.querySelector('.row-chk[data-idx="'+flagPreviewData.indexOf(m)+'"]');if(chkEl){chkEl.checked=false;chkEl.disabled=true;var row=chkEl.closest('tr');if(row)row.style.opacity='0.5'}}}catch(e){failed++}if(i%10===0)countEl.textContent='Flagging... '+(i+1)+' / '+toFlag.length}btn.textContent='🚩 Flag selected';btn.disabled=false;countEl.textContent='✅ Done — '+success+' flagged'+(failed?' | ❌ '+failed+' failed':'');updateSelectedCount()}
+function toggleAllCheckboxes(checked){var chks=document.querySelectorAll('.row-chk:not(:disabled)');chks.forEach(function(c){c.checked=checked});var allChk=document.getElementById('chk-all');if(allChk)allChk.checked=checked;updateSelectedCount()}
+function updateSelectedCount(){var chks=document.querySelectorAll('.row-chk:checked:not(:disabled)'),n=chks.length,countEl=document.getElementById('flag-selected-count'),numEl=document.getElementById('flag-selected-num'),btn=document.getElementById('btn-apply-flags');if(numEl)numEl.textContent=n;if(countEl)countEl.style.display=n>0?'inline':'none';if(btn)btn.disabled=n===0;var allChk=document.getElementById('chk-all'),allUnchecked=document.querySelectorAll('.row-chk:not(:disabled)');if(allChk&&allUnchecked.length>0)allChk.checked=n===allUnchecked.length}
+function toggleAllCheckboxes(checked){var chks=document.querySelectorAll('.row-chk:not(:disabled)');chks.forEach(function(c){c.checked=checked});var allChk=document.getElementById('chk-all');if(allChk)allChk.checked=checked;updateSelectedCount()}
+function updateSelectedCount(){var chks=document.querySelectorAll('.row-chk:checked:not(:disabled)'),n=chks.length,countEl=document.getElementById('flag-selected-count'),numEl=document.getElementById('flag-selected-num'),btn=document.getElementById('btn-apply-flags');if(numEl)numEl.textContent=n;if(countEl)countEl.style.display=n>0?'inline':'none';if(btn)btn.disabled=n===0;var allChk=document.getElementById('chk-all'),allUnchecked=document.querySelectorAll('.row-chk:not(:disabled)');if(allChk&&allUnchecked.length>0)allChk.checked=n===allUnchecked.length}
+</script>
+</body>
+</html>
