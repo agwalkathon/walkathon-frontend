@@ -84,10 +84,7 @@
     .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.12);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;}
     .err{display:none;margin-top:12px;padding:12px 14px;border-radius:11px;font-size:12px;line-height:1.6;background:rgba(220,38,38,0.1);color:#fca5a5;border:1px solid rgba(220,38,38,0.18);}
 
-    /* Strava hidden section */
-    .strava-hidden{margin-top:18px;text-align:center;}
-    .strava-hidden a{font-size:11px;color:rgba(255,255,255,0.15);text-decoration:none;padding:6px 10px;border-radius:8px;transition:color 0.2s;}
-    .strava-hidden a:hover{color:rgba(255,255,255,0.3);}
+
 
     .note{margin-top:18px;font-size:11px;color:rgba(255,255,255,0.16);text-align:center;line-height:2;}
     .note a{color:rgba(232,98,42,0.65);text-decoration:none;}
@@ -104,7 +101,7 @@
 <div class="wrap">
   <img src="logo-white.png" alt="Arcgate Walkathon" class="main-logo">
   <div class="edition">2026 Edition</div>
-  <h1>Healthy Arcgatians.<br><em>Stronger Arcgate.</em></h1>
+  <h1>Healthy Arcgatians.<br><span style="display:block;margin-top:6px;"><em>Stronger Arcgate.</em></span></h1>
   <p class="sub">A whole month to move, connect and grow — one kilometre at a time.</p>
 
   <div class="auth">
@@ -118,11 +115,6 @@
       <button class="btn-login" id="btn-login" onclick="doLogin()">View My Dashboard</button>
       <div class="proc" id="proc"><div class="spinner"></div><span id="proc-text">Verifying...</span></div>
       <div class="err" id="err"></div>
-    </div>
-
-    <!-- Strava connect hidden until API approval -->
-    <div class="strava-hidden">
-      <a href="#" id="btn-strava" title="Strava connect (pending API approval)">⚡ Connect via Strava</a>
     </div>
 
     <p class="note">
