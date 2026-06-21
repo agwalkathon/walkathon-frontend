@@ -5,7 +5,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AG Walkathon">
   <link rel="apple-touch-icon" href="/agwalk/icon-192.png">
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Redirecting</title><script>var s=JSON.parse(sessionStorage.getItem('wk_user')||'{}');if(s&&s.loggedIn){window.location.replace('participant.html');}else{window.location.replace('index.html');}</script></head><body><p>Redirecting...</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Redirecting</title><script>var s=JSON.parse(localStorage.getItem('wk_user')||'{}');if(s&&s.loggedIn){window.location.replace('participant.html');}else{window.location.replace('index.html');}</script></head><body><p>Redirecting...</p>
   <!-- PWA Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
