@@ -233,13 +233,16 @@ var allRows = [];
 async function loadLog() {
   var tbody = document.getElementById('log-body');
   tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="ti ti-loader"></i>Loading…</div></td></tr>';
+  var token = sessionStorage.getItem('wk_admin_token');
+  if (!token) { window.location.href = 'admin-login.html'; return; }
   try {
     var res = await fetch(
-      SUPABASE_URL + '/rest/v1/audit_log?order=created_at.desc&limit=500',
-      { headers: HDR }
+      'https://walkathon-backend-hv9j.onrender.com/audit-log',
+      { headers: { 'Authorization': 'Bearer ' + token } }
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    allRows = await res.json();
+    var data = await res.json();
+    allRows = data.rows || [];
     applyFilter();
   } catch(e) {
     tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="ti ti-alert-circle"></i>Failed to load: ' + e.message + '</div></td></tr>';
