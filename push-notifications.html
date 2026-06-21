@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Push Notifications — Arcgate Walkathon Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <script src="_nav.js"></script>
+  <style>
+:root{--brand:#E8622A;--brand-light:#FFF0EA;--sidebar-bg:#0F1117;--sidebar-w:64px;--sidebar-exp:220px;--page-bg:#F4F6FA;--card-bg:#fff;--text:#1a1a2e;--sub:#6b7280}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;background:var(--page-bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:16px 0;transition:width .25s ease;overflow:hidden;z-index:100}
+.sidebar:hover{width:var(--sidebar-exp)}
+.sb-section{font-size:9px;font-weight:600;color:#4b5563;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;opacity:0;width:100%;padding:0 16px;margin:12px 0 4px;transition:opacity .2s}
+.sidebar:hover .sb-section{opacity:1}
+.sb-item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 20px;color:#9ca3af;text-decoration:none;font-size:13px;font-weight:500;border-radius:0;transition:background .15s,color .15s;white-space:nowrap}
+.sb-item:hover,.sb-item.active{background:rgba(232,98,42,.15);color:#E8622A}
+.sb-item i{font-size:20px;flex-shrink:0}
+.sb-label{opacity:0;transition:opacity .2s;overflow:hidden}
+.sidebar:hover .sb-label{opacity:1}
+.sb-spacer{flex:1}
+.sb-divider{width:80%;height:1px;background:#1f2937;margin:8px 0}
+.sb-signout{display:flex;align-items:center;gap:12px;width:100%;padding:10px 20px;background:none;border:none;color:#6b7280;font-size:13px;cursor:pointer;white-space:nowrap}
+.sb-signout:hover{color:#ef4444}
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:64px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50}
+.topbar h1{font-size:18px;font-weight:600}
+.topbar p{font-size:12px;color:var(--sub);margin-top:2px}
+.content{padding:24px 28px;max-width:900px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;overflow:hidden}
+.card-header{padding:18px 22px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;gap:12px}
+.card-icon{width:36px;height:36px;border-radius:9px;background:var(--brand-light,#FFF0EA);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-title{font-size:14px;font-weight:600}
+.card-sub{font-size:12px;color:var(--sub);margin-top:2px}
+.card-body{padding:20px 22px}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.stat-box{flex:1;min-width:120px;background:#f8f9fa;border-radius:10px;padding:14px 18px}
+.stat-val{font-size:24px;font-weight:700;color:var(--brand)}
+.stat-lbl{font-size:12px;color:var(--sub);margin-top:2px}
+.rule-row{border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:background .15s}
+.rule-row.on{background:#f0fdf4}
+.rule-row.off{background:#fafafa}
+.rule-inner{display:flex;align-items:flex-start;gap:12px}
+.toggle-wrap{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;margin-top:2px}
+.toggle-wrap input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;border-radius:22px;transition:.2s}
+.toggle-thumb{position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.rule-meta{flex:1}
+.rule-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.rule-name{font-size:13px;font-weight:600}
+.rule-key{font-size:11px;color:#888;background:#f0f0f0;padding:2px 8px;border-radius:10px}
+.rule-fields{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:10px;color:var(--sub);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.fld input{padding:6px 8px;border:1px solid #e8e8e8;border-radius:6px;font-size:12px;font-family:inherit;width:100%}
+.btn{padding:9px 20px;background:var(--brand);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn:hover{background:#d4531f}
+.btn-ghost{background:#f0f0f0;color:#333}
+.btn-ghost:hover{background:#e0e0e0}
+.saved{font-size:12px;color:#16a34a;opacity:0;transition:opacity .3s;margin-left:8px}
+.saved.show{opacity:1}
+.bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:700px}
+.bc-field{display:flex;flex-direction:column;gap:6px}
+.bc-field label{font-size:12px;color:var(--sub);font-weight:500}
+.bc-field input,.bc-field textarea{padding:9px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:inherit;width:100%}
+.bc-field textarea{resize:vertical}
+.bc-result{font-size:13px;color:#555;margin-left:8px}
+footer.site-footer{margin-top:auto;padding:16px 28px;font-size:12px;color:#aaa;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between}
+footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
+@media(max-width:768px){.rule-fields{grid-template-columns:1fr}.bc-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+<div class="sb-section">Main</div>
+<a href="admin.html" class="sb-item"><i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span></a>
+<a href="activities.html" class="sb-item"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
+<a href="participants.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
+<a href="participant-requests.html" class="sb-item"><i class="ti ti-user-check"></i><span class="sb-label">Requests</span></a>
+<div class="sb-section" style="margin-top:10px;">Config</div>
+<a href="ag-config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Settings</span></a>
+<a href="flagged-rules.html" class="sb-item"><i class="ti ti-shield-check"></i><span class="sb-label">Flag Rules</span></a>
+<a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
+<a href="email-send.html" class="sb-item"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
+<a href="audit-log.html" class="sb-item"><i class="ti ti-shield-check"></i><span class="sb-label">Audit Log</span></a>
+<a href="push-notifications.html" class="sb-item active"><i class="ti ti-bell"></i><span class="sb-label">Notifications</span></a>
+<div class="sb-spacer"></div><div class="sb-divider"></div>
+<button class="sb-signout" onclick="logout()"><i class="ti ti-logout"></i><span class="sb-label">Sign out</span></button>
+</aside>
+
+<div class="main">
+<header class="topbar">
+  <div><h1>Push Notifications</h1><p>Manage triggers, rules, and broadcast messages</p></div>
+</header>
+<div class="content">
+
+<!-- Stats -->
+<div class="stat-row">
+  <div class="stat-box"><div class="stat-val" id="stat-subs">—</div><div class="stat-lbl">Subscribed devices</div></div>
+  <div class="stat-box"><div class="stat-val" id="stat-enabled" style="color:#16a34a">—</div><div class="stat-lbl">Rules enabled</div></div>
+  <div class="stat-box"><div class="stat-val" id="stat-disabled" style="color:#9ca3af">—</div><div class="stat-lbl">Rules disabled</div></div>
+</div>
+
+<!-- Trigger Rules -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><i class="ti ti-toggle-right"></i></div>
+    <div><div class="card-title">Notification Triggers</div><div class="card-sub">Toggle which events send a push notification. Edit the title and message text per trigger.</div></div>
+  </div>
+  <div class="card-body">
+    <div id="rules-list">Loading triggers...</div>
+    <div style="margin-top:16px;display:flex;align-items:center">
+      <button class="btn" onclick="saveRules()">Save all rules</button>
+      <span class="saved" id="rules-saved">Saved!</span>
+    </div>
+  </div>
+</div>
+
+<!-- Broadcast -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><i class="ti ti-speakerphone"></i></div>
+    <div><div class="card-title">Broadcast Message</div><div class="card-sub">Send an instant push notification to all subscribed participants.</div></div>
+  </div>
+  <div class="card-body">
+    <div class="bc-grid">
+      <div class="bc-field"><label>Title</label><input type="text" id="bc-title" placeholder="e.g. Keep walking!"></div>
+      <div class="bc-field"><label>URL on click (optional)</label><input type="text" id="bc-url" placeholder="https://agwalkathon.github.io/agwalk/participant.html"></div>
+      <div class="bc-field" style="grid-column:1/-1"><label>Message body</label><textarea id="bc-body" rows="3" placeholder="You're doing great! Check the leaderboard for your latest rank."></textarea></div>
+    </div>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+      <button class="btn" onclick="sendBroadcast()">Send to all subscribers</button>
+      <button class="btn btn-ghost" onclick="sendTest()">Send test to self</button>
+      <span class="bc-result" id="bc-result"></span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+<footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
+</div><!-- /main -->
+
+<script>
+authGuard();
+
+var BU = 'https://walkathon-backend-hv9j.onrender.com';
+
+var DEFAULT_RULES = [
+  { trigger_key:'activity_synced',       title:'Activity Synced!',          body:'Your activity has been recorded - {distance} km!',               enabled:false },
+  { trigger_key:'activity_flagged',      title:'Activity Flagged',           body:'Your activity was flagged for review by the admin.',             enabled:false },
+  { trigger_key:'activity_cleared',      title:'Activity Cleared!',          body:'Your flagged activity has been cleared.',                        enabled:false },
+  { trigger_key:'medal_bronze',          title:'Bronze Medal Earned!',       body:'Congratulations! You earned a Bronze medal. Keep going!',        enabled:true  },
+  { trigger_key:'medal_silver',          title:'Silver Medal Earned!',       body:'Amazing! You upgraded to a Silver medal!',                       enabled:true  },
+  { trigger_key:'medal_gold',            title:'Gold Medal Earned!',         body:'Outstanding! You have earned a Gold medal!',                     enabled:true  },
+  { trigger_key:'challenge_bonus',       title:'Challenge Bonus Earned!',    body:'You earned bonus points for the {name} challenge!',              enabled:true  },
+  { trigger_key:'rank_improved',         title:'You Moved Up!',              body:'You climbed to rank #{rank} on the leaderboard!',                enabled:false },
+  { trigger_key:'rank_dropped',          title:'Rank Update',                body:'You are now ranked #{rank}. Keep walking to climb back up!',     enabled:false },
+  { trigger_key:'rank_top1',             title:'You are #1!',                body:'Incredible! You have reached the top of the leaderboard!',       enabled:true  },
+  { trigger_key:'broadcast',             title:'Walkathon Update',           body:'A message from the Walkathon admin.',                            enabled:true  },
+  { trigger_key:'registration_approved', title:'Registration Approved!',     body:'Welcome! Your Arcgate Walkathon 2026 registration is approved.', enabled:true  },
+  { trigger_key:'registration_rejected', title:'Registration Update',        body:'Your registration could not be approved. Contact the admin.',    enabled:false }
+];
+
+var rulesData = [];
+
+async function loadRules() {
+  try {
+    var r = await fetch(BU + '/push/rules');
+    var j = await r.json();
+    var saved = (j.success && Array.isArray(j.rules)) ? j.rules : [];
+    var map = {};
+    saved.forEach(function(s) { map[s.trigger_key] = s; });
+    rulesData = DEFAULT_RULES.map(function(d) {
+      return map[d.trigger_key] ? Object.assign({}, d, map[d.trigger_key]) : Object.assign({}, d);
+    });
+    renderRules();
+    loadStats();
+  } catch(e) {
+    document.getElementById('rules-list').innerHTML = '<p style="color:#c62828;font-size:13px;padding:8px 0">Could not load rules — backend may be starting up. Refresh in a moment.</p>';
+  }
+}
+
+function renderRules() {
+  var on = rulesData.filter(function(r){return r.enabled;}).length;
+  document.getElementById('stat-enabled').textContent = on;
+  document.getElementById('stat-disabled').textContent = rulesData.length - on;
+  var html = '';
+  rulesData.forEach(function(rule, i) {
+    var col = rule.enabled ? '#22c55e' : '#d1d5db';
+    var tx  = rule.enabled ? '18px' : '0';
+    html += '<div class="rule-row ' + (rule.enabled ? 'on' : 'off') + '" id="row-' + i + '">' +
+      '<div class="rule-inner">' +
+        '<label class="toggle-wrap">' +
+          '<input type="checkbox"' + (rule.enabled ? ' checked' : '') + ' onchange="toggleRule(' + i + ',this.checked)">' +
+          '<span class="toggle-track" id="track-' + i + '" style="background:' + col + '">' +
+            '<span class="toggle-thumb" id="thumb-' + i + '" style="transform:translateX(' + tx + ')"></span>' +
+          '</span>' +
+        '</label>' +
+        '<div class="rule-meta">' +
+          '<div class="rule-title-row">' +
+            '<span class="rule-name">' + esc(rule.title) + '</span>' +
+            '<span class="rule-key">' + esc(rule.trigger_key) + '</span>' +
+          '</div>' +
+          '<div class="rule-fields">' +
+            '<div class="fld"><label>Title</label><input type="text" id="rt-' + i + '" value="' + esc(rule.title) + '" oninput="updateRule(' + i + ')"></div>' +
+            '<div class="fld"><label>Body — use {distance} {name} {rank} {medal}</label><input type="text" id="rb-' + i + '" value="' + esc(rule.body) + '" oninput="updateRule(' + i + ')"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('rules-list').innerHTML = html;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleRule(i, val) {
+  rulesData[i].enabled = val;
+  var track = document.getElementById('track-' + i);
+  var thumb = document.getElementById('thumb-' + i);
+  var row   = document.getElementById('row-' + i);
+  if (track) track.style.background = val ? '#22c55e' : '#d1d5db';
+  if (thumb) thumb.style.transform = val ? 'translateX(18px)' : 'translateX(0)';
+  if (row)   { row.className = 'rule-row ' + (val ? 'on' : 'off'); }
+  var on = rulesData.filter(function(r){return r.enabled;}).length;
+  document.getElementById('stat-enabled').textContent = on;
+  document.getElementById('stat-disabled').textContent = rulesData.length - on;
+}
+
+function updateRule(i) {
+  var t = document.getElementById('rt-' + i);
+  var b = document.getElementById('rb-' + i);
+  if (t) rulesData[i].title = t.value;
+  if (b) rulesData[i].body  = b.value;
+}
+
+async function saveRules() {
+  rulesData.forEach(function(rule, i) {
+    var t = document.getElementById('rt-' + i);
+    var b = document.getElementById('rb-' + i);
+    if (t) rule.title = t.value;
+    if (b) rule.body  = b.value;
+  });
+  try {
+    var r = await fetch(BU + '/push/rules', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ rules: rulesData })
+    });
+    var j = await r.json();
+    if (j.success) { showSaved('rules-saved'); }
+    else { alert('Save failed: ' + (j.error || 'unknown')); }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function showSaved(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 2000);
+}
+
+async function loadStats() {
+  try {
+    var r = await fetch(BU + '/push/stats');
+    var j = await r.json();
+    document.getElementById('stat-subs').textContent = j.total || 0;
+  } catch(e) { document.getElementById('stat-subs').textContent = '—'; }
+}
+
+async function sendBroadcast() {
+  var title  = document.getElementById('bc-title').value.trim();
+  var body   = document.getElementById('bc-body').value.trim();
+  var url    = document.getElementById('bc-url').value.trim();
+  var res    = document.getElementById('bc-result');
+  if (!title || !body) { res.textContent = 'Title and body required.'; res.style.color = '#c62828'; return; }
+  res.textContent = 'Sending...'; res.style.color = '#555';
+  try {
+    var r = await fetch(BU + '/push/broadcast', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ title:title, body:body, url: url || undefined })
+    });
+    var j = await r.json();
+    if (j.success) {
+      res.textContent = 'Sent to ' + j.sent + ' / ' + j.total + ' subscribers' + (j.failed ? ' (' + j.failed + ' failed)' : '');
+      res.style.color = '#16a34a';
+    } else { res.textContent = 'Failed: ' + (j.error||'unknown'); res.style.color='#c62828'; }
+  } catch(e) { res.textContent = 'Error: ' + e.message; res.style.color='#c62828'; }
+}
+
+async function sendTest() {
+  var res = document.getElementById('bc-result');
+  res.textContent = 'Sending test...'; res.style.color = '#555';
+  try {
+    var r = await fetch(BU + '/push/broadcast', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ title:'Test Notification', body:'Push notifications are working!', url: 'https://agwalkathon.github.io/agwalk/participant.html' })
+    });
+    var j = await r.json();
+    if (j.success) {
+      res.textContent = 'Test sent to ' + j.total + ' subscribers';
+      res.style.color = '#16a34a';
+    } else { res.textContent = 'Failed: ' + (j.error||'unknown'); res.style.color='#c62828'; }
+  } catch(e) { res.textContent = 'Error: ' + e.message; res.style.color='#c62828'; }
+}
+
+loadRules();
+</script>
+</body>
+</html>
