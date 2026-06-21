@@ -2,6 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- PWA -->
+  <link rel="manifest" href="/agwalk/manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AG Walkathon">
+  <link rel="apple-touch-icon" href="/agwalk/icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -800,6 +807,17 @@ async function boot(){
 function doRefresh(){document.getElementById('refresh-icon').classList.add('spinning');showSkeletons();boot().finally(function(){document.getElementById('refresh-icon').classList.remove('spinning');});}
 boot();
 </script>
+
+  <!-- PWA Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/agwalk/sw.js')
+          .then(function(reg) { console.log('[SW] Registered:', reg.scope); })
+          .catch(function(err) { console.log('[SW] Registration failed:', err); });
+      });
+    }
+  </script>
 </body>
 </html>
 
