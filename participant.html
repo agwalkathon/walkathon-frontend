@@ -620,6 +620,15 @@
 </nav>
 
 <script>
+// Global debug step - writes to name field immediately
+var _dbgStep = 0;
+function _dbg(msg) {
+  _dbgStep++;
+  var el = document.getElementById('p-name');
+  if (el) el.textContent = '[' + _dbgStep + '] ' + msg;
+  console.log('[DBG]', _dbgStep, msg);
+}
+_dbg('script-loaded');
 var SUPABASE_URL = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 var CONFIG_LB    = { basePer_km: 1, bonus: [{km:5,points:1},{km:8,points:2},{km:10,points:3},{km:15,points:4},{km:21,points:7}] };
 var CHALLENGES_LB   = [];
@@ -753,14 +762,15 @@ async function fetchAll(url) {
 var currentSession=null;
 
 async function load() {
-  var s=userGuard(); if(!s) return; currentSession=s; var athleteId=s.athleteId;
+  _dbg('load-called');
+  var s=userGuard(); if(!s){_dbg('guard-FAIL-redirecting');return;} currentSession=s; var athleteId=s.athleteId;
+  _dbg('guard-ok-aid='+String(athleteId).slice(0,8));
   // Step logger - writes to name div so visible on mobile
-  var _step=0;
-  function step(msg){_step++;var el=document.getElementById('p-name');if(el)el.textContent='['+_step+'] '+msg;}
-  step('start aid='+String(athleteId).slice(0,8));
+  _dbg('load-fn-entered');
+  _dbg('start aid='+String(athleteId).slice(0,8));
   initPushAfterLogin();
   try {
-    step('p1-start');
+    _dbg('p1-start');
     // Phase 1: own data only — renders immediately
     var [regRes,myActs,cfgRes,chRes,sdRes,medalRes]=await Promise.all([
       fetch(SUPABASE_URL+'/rest/v1/registration?strava_athlete_id=eq.'+athleteId+'&select=*',{headers:HDR}),
@@ -770,19 +780,19 @@ async function load() {
       fetch(SUPABASE_URL+'/rest/v1/special_scoring_days?select=special_date',{headers:HDR}),
       fetch(SUPABASE_URL+'/rest/v1/leaderboard_config?config_key=eq.medals&select=config_value',{headers:HDR})
     ]);
-    step('p1-resolved');
+    _dbg('p1-resolved');
     var allActs=[],allRegRes=[];  // populated by Phase 2
-    step('parsing-json');
+    _dbg('parsing-json');
     var cfgRows=await cfgRes.json();
     if(Array.isArray(cfgRows))cfgRows.forEach(function(row){if(row.config_key==='bonus_points')CONFIG_LB.bonus=row.config_value.map(function(b){return{km:Number(b.km),points:Number(b.points||b.pts||0)};});if(row.config_key==='base_points_per_km')CONFIG_LB.basePer_km=parseFloat(row.config_value)||1;});
     var chRows=await chRes.json(); CHALLENGES_LB=Array.isArray(chRows)?chRows:[];
     var sdRows=await sdRes.json(); SPECIAL_DAYS_LB=Array.isArray(sdRows)?sdRows.map(function(x){return x.special_date;}):[];
-    step('got-regs');
+    _dbg('got-regs');
     var regs=await regRes.json(); var reg=Array.isArray(regs)&&regs.length?regs[0]:{};
     var name=reg.full_name||s.name||'Participant';
 
     // Profile
-    step('writing-name='+name.slice(0,6));
+    _dbg('writing-name='+name.slice(0,6));
     document.getElementById('p-name').textContent=name.toUpperCase();
     var tags=[];
     var icoMale='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>';
@@ -794,7 +804,7 @@ async function load() {
     if(reg.leaderboard_team)tags.push(icoTeam+' '+reg.leaderboard_team);
     document.getElementById('p-tags').innerHTML=tags.map(function(t){var sp=t.indexOf('</svg>');return sp>=0?'<span class="hero-tag">'+t.substring(0,sp+6)+' '+esc(t.substring(sp+6).trim())+'</span>':'<span class="hero-tag">'+esc(t)+'</span>';}).join('');
 
-    step('calcpts acts='+myActs.length);
+    _dbg('calcpts acts='+myActs.length);
     var fullPts=calcFullPts(myActs,reg.gender);
     var validCount=myActs.filter(function(a){return !a.is_flagged;}).length;
     document.getElementById('s-dist').textContent=Math.round(fullPts.km);
@@ -1174,6 +1184,7 @@ function refreshData(){
 }
 
 (function(){var hash=window.location.hash.replace('#','');if(hash==='activities'||hash==='dashboard')showTab(hash);})();
+_dbg('calling-load');
 load();
 
 // Push notification subscription
