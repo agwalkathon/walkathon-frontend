@@ -216,14 +216,33 @@
   </footer>
 </div>
 
-<script src="_nav.js"></script>
 <script>
-/* audit-log v4 */
+/* audit-log v5 */
+// Inline authGuard — no _nav.js dependency
+var _BU = 'https://walkathon-backend-hv9j.onrender.com';
+function authGuard() {
+  var t = sessionStorage.getItem('wk_admin_token');
+  if (!t) { window.location.href = 'admin-login.html'; return; }
+  try {
+    var p = JSON.parse(atob(t.split('.')[1]));
+    if (p.exp && p.exp * 1000 < Date.now()) {
+      sessionStorage.removeItem('wk_admin_token');
+      window.location.href = 'admin-login.html';
+    }
+  } catch(e) {
+    sessionStorage.removeItem('wk_admin_token');
+    window.location.href = 'admin-login.html';
+  }
+}
+function logout() {
+  sessionStorage.removeItem('wk_admin_token');
+  sessionStorage.removeItem('wk_admin');
+  window.location.href = 'admin-login.html';
+}
 authGuard();
 
-var BACKEND      = 'https://walkathon-backend-hv9j.onrender.com';
 var ADMIN_SECRET = 'agwalk-admin-2026-xK9mPqR7';
-var allRows      = [];
+var allRows = [];
 
 var ICONS  = { admin_login:'ti-login', bulk_import:'ti-upload', participant_approved:'ti-user-check', participant_rejected:'ti-user-x' };
 var LABELS = { admin_login:'Admin Login', bulk_import:'Bulk Import', participant_approved:'Participant Approved', participant_rejected:'Participant Rejected' };
@@ -232,7 +251,7 @@ async function loadLog() {
   var tbody = document.getElementById('log-body');
   tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="ti ti-loader"></i>Loading…</div></td></tr>';
   try {
-    var res = await fetch(BACKEND + '/audit-log', {
+    var res = await fetch(_BU + '/audit-log', {
       headers: { 'Authorization': 'Bearer ' + ADMIN_SECRET }
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
