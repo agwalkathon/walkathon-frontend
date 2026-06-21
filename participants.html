@@ -356,7 +356,7 @@ async function saveRole(id, newRole) {
 async function loadParticipants() {
   try {
     const [regs, parts, acts] = await Promise.all([
-      getAll(SUPABASE_URL + '/rest/v1/registration?order=full_name.asc'),
+      getAll(SUPABASE_URL + '/rest/v1/registration_public?order=full_name.asc'),
       getAll(SUPABASE_URL + '/rest/v1/participants?select=strava_athlete_id'),
       getAll(SUPABASE_URL + '/rest/v1/activities?select=strava_athlete_id,distance_meters&is_deleted=eq.false')
     ]);
