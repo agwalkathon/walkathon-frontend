@@ -218,13 +218,23 @@
 
 <script src="_nav.js"></script>
 <script>
+// v2
 authGuard();
 
-var SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
-var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBIQk4B6ah0eahE_yZE';
-var HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON };
-
 var allRows = [];
+
+var ACTION_ICONS = {
+  admin_login:           'ti-login',
+  bulk_import:           'ti-upload',
+  participant_approved:  'ti-user-check',
+  participant_rejected:  'ti-user-x'
+};
+var ACTION_LABELS = {
+  admin_login:           'Admin Login',
+  bulk_import:           'Bulk Import',
+  participant_approved:  'Participant Approved',
+  participant_rejected:  'Participant Rejected'
+};
 
 async function loadLog() {
   var tbody = document.getElementById('log-body');
@@ -263,19 +273,6 @@ function clearFilters() {
   document.getElementById('date-filter').value = '';
   applyFilter();
 }
-
-var ACTION_ICONS = {
-  admin_login:           'ti-login',
-  bulk_import:           'ti-upload',
-  participant_approved:  'ti-user-check',
-  participant_rejected:  'ti-user-x',
-};
-var ACTION_LABELS = {
-  admin_login:           'Admin Login',
-  bulk_import:           'Bulk Import',
-  participant_approved:  'Participant Approved',
-  participant_rejected:  'Participant Rejected',
-};
 
 function renderRows(rows) {
   var tbody = document.getElementById('log-body');
