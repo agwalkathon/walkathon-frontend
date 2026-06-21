@@ -193,8 +193,7 @@ const SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 const BACKEND = 'https://walkathon-backend-hv9j.onrender.com';
 const HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON, 'Content-Type': 'application/json' };
-function authGuard() { const s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}'); if(!s.loggedIn||s.expires<Date.now()) window.location.href='admin-login.html'; }
-function logout() { sessionStorage.removeItem('wk_admin'); sessionStorage.removeItem('wk_user'); window.location.href='admin-login.html'; }
+var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}fetch(_BU+'/admin-verify',{method:'POST',headers:{'Authorization':'Bearer '+t}}).then(function(r){if(r.status===401){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}).catch(function(){});}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
 function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmt(d){ return d ? new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
 function badge(s){ s=(s||'pending').toLowerCase(); return '<span class="badge '+s+'">'+s+'</span>'; }
