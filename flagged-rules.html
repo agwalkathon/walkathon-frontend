@@ -172,7 +172,7 @@ tr:hover td{background:#FAFAFA}
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
 var SB_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
-var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBIQk4B6ah0eahE_yZE';
+var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 var HDR={apikey:SB_ANON,Authorization:'Bearer '+SB_ANON,'Content-Type':'application/json'};
 function authGuard(){var s=JSON.parse(sessionStorage.getItem('wk_admin')||'{}');if(!s.loggedIn||s.expires<Date.now()||s.role!=='admin')window.location.href='admin-login.html';}
 function logout(){sessionStorage.removeItem('wk_admin');sessionStorage.removeItem('wk_user');window.location.href='admin-login.html';}
