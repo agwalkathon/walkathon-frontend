@@ -457,7 +457,7 @@ function toggleFormatRef() {
   chev.textContent = open ? '▼ Show' : '▲ Hide';
 }
 
-var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}fetch(_BU+'/admin-verify',{method:'POST',headers:{'Authorization':'Bearer '+t}}).then(function(r){if(r.status===401){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}).catch(function(){});}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
+var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
 authGuard();
 
 // ── Tab switching ────────────────────────────────────────────
