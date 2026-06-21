@@ -774,7 +774,6 @@ async function load() {
     var name=reg.full_name||s.name||'Participant';
 
     // Profile
-    _dbg('writing-name='+name.slice(0,6));
     document.getElementById('p-name').textContent=name.toUpperCase();
     var tags=[];
     var icoMale='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="6"/><line x1="14.5" y1="9.5" x2="21" y2="3"/><polyline points="16 3 21 3 21 8"/></svg>';
@@ -786,7 +785,6 @@ async function load() {
     if(reg.leaderboard_team)tags.push(icoTeam+' '+reg.leaderboard_team);
     document.getElementById('p-tags').innerHTML=tags.map(function(t){var sp=t.indexOf('</svg>');return sp>=0?'<span class="hero-tag">'+t.substring(0,sp+6)+' '+esc(t.substring(sp+6).trim())+'</span>':'<span class="hero-tag">'+esc(t)+'</span>';}).join('');
 
-    _dbg('calcpts acts='+myActs.length);
     var fullPts=calcFullPts(myActs,reg.gender);
     var validCount=myActs.filter(function(a){return !a.is_flagged;}).length;
     document.getElementById('s-dist').textContent=Math.round(fullPts.km);
