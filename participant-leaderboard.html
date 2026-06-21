@@ -235,7 +235,42 @@
       .lb-legend { font-size: 9px; }
     }
 
-</style>
+
+  /* Pull to Refresh */
+  #ptr-indicator {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 0;
+    overflow: hidden;
+    background: #1e2130;
+    z-index: 9999;
+    transition: height 0.2s ease;
+    pointer-events: none;
+  }
+  #ptr-indicator.visible { height: 56px; }
+  #ptr-indicator.refreshing { height: 56px; }
+  .ptr-spinner {
+    width: 24px; height: 24px;
+    border: 3px solid rgba(99,102,241,0.2);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: ptr-spin 0.7s linear infinite;
+    display: none;
+  }
+  #ptr-indicator.refreshing .ptr-spinner { display: block; }
+  #ptr-indicator.refreshing .ptr-arrow { display: none; }
+  .ptr-arrow {
+    color: #6366f1;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+  }
+  #ptr-indicator.ready .ptr-arrow { transform: rotate(180deg); }
+  @keyframes ptr-spin { to { transform: rotate(360deg); } }
+
+  </style>
 </head>
 <body>
 
