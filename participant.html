@@ -31,7 +31,7 @@
       --radius:18px; --radius-sm:14px; --radius-xs:10px;
       --font:'Inter',-apple-system,sans-serif;
     }
-    html,body{height:100%;overflow-x:hidden;}
+    html,body{height:100%;overflow-x:hidden;overscroll-behavior-y:contain;}
     body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;min-height:100dvh;-webkit-font-smoothing:antialiased;}
 
     /* ── Header ── */
@@ -450,43 +450,49 @@
     }
 
 
+  
+
+  
   /* Pull to Refresh */
+  html, body { overscroll-behavior-y: contain; }
   #ptr-indicator {
     position: fixed;
-    top: 0; left: 0; right: 0;
+    top: -64px;
+    left: 0; right: 0;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 0;
-    overflow: hidden;
     background: #1e2130;
     z-index: 9999;
-    transition: height 0.2s ease;
+    transition: top 0.2s ease, opacity 0.2s ease;
+    opacity: 0;
     pointer-events: none;
   }
-  #ptr-indicator.visible { height: 56px; }
-  #ptr-indicator.refreshing { height: 56px; }
+  #ptr-indicator.ptr-visible { top: 0; opacity: 1; }
   .ptr-spinner {
-    width: 24px; height: 24px;
-    border: 3px solid rgba(99,102,241,0.2);
+    width: 22px; height: 22px;
+    border: 3px solid rgba(99,102,241,0.25);
     border-top-color: #6366f1;
     border-radius: 50%;
     animation: ptr-spin 0.7s linear infinite;
     display: none;
   }
-  #ptr-indicator.refreshing .ptr-spinner { display: block; }
-  #ptr-indicator.refreshing .ptr-arrow { display: none; }
+  #ptr-indicator.ptr-loading .ptr-spinner { display: block; }
+  #ptr-indicator.ptr-loading .ptr-arrow { display: none; }
   .ptr-arrow {
-    color: #6366f1;
     font-size: 20px;
+    color: #6366f1;
+    display: inline-block;
     transition: transform 0.2s ease;
   }
-  #ptr-indicator.ready .ptr-arrow { transform: rotate(180deg); }
+  #ptr-indicator.ptr-ready .ptr-arrow { transform: rotate(180deg); }
   @keyframes ptr-spin { to { transform: rotate(360deg); } }
 
   </style>
 </head>
 <body>
+  <div id="ptr-indicator"><span class="ptr-arrow">↓</span><div class="ptr-spinner"></div></div>
 
 <header class="header">
   <div class="hdr-left">
@@ -1525,6 +1531,69 @@ function initPushAfterLogin() {
 
 
 </script>
+
+  <script>
+  /* Pull to Refresh v2 */
+  (function() {
+    var ind = document.getElementById('ptr-indicator');
+    if (!ind) return;
+    var startY = 0, currY = 0, pulling = false, THRESHOLD = 65;
+
+    function getScrollTop() {
+      return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    }
+
+    document.addEventListener('touchstart', function(e) {
+      if (getScrollTop() === 0 && e.touches.length === 1) {
+        startY = e.touches[0].screenY;
+        pulling = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+      if (!pulling) return;
+      currY = e.touches[0].screenY;
+      var dist = currY - startY;
+      if (dist > 10 && getScrollTop() === 0) {
+        ind.classList.add('ptr-visible');
+        ind.classList.remove('ptr-loading');
+        if (dist >= THRESHOLD) {
+          ind.classList.add('ptr-ready');
+        } else {
+          ind.classList.remove('ptr-ready');
+        }
+      } else if (dist <= 0) {
+        ind.classList.remove('ptr-visible', 'ptr-ready');
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      if (!pulling) return;
+      pulling = false;
+      var dist = currY - startY;
+      if (dist >= THRESHOLD && getScrollTop() === 0) {
+        ind.classList.remove('ptr-ready');
+        ind.classList.add('ptr-loading', 'ptr-visible');
+        var done = function() {
+          ind.classList.remove('ptr-loading', 'ptr-visible');
+        };
+        (function() {
+        if (typeof fetchAll === 'function') {
+          var p = fetchAll();
+          if (p && typeof p.then === 'function') { p.then(done).catch(done); }
+          else { setTimeout(done, 800); }
+        } else if (typeof refreshData === 'function') {
+          refreshData(); setTimeout(done, 1000);
+        } else { setTimeout(done, 800); }
+      })();
+      } else {
+        ind.classList.remove('ptr-visible', 'ptr-ready');
+      }
+      startY = 0; currY = 0;
+    }, { passive: true });
+  })();
+
+  </script>
 
   <!-- PWA Service Worker -->
   <script>
