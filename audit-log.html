@@ -238,7 +238,8 @@ async function loadLog() {
     );
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
-    allRows = data.rows || [];
+    // Backend returns {success, rows:[]} — handle both array and object
+    allRows = Array.isArray(data) ? data : (data.rows || []);
     applyFilter();
   } catch(e) {
     tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="ti ti-alert-circle"></i>Failed to load: ' + e.message + '</div></td></tr>';
