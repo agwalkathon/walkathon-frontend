@@ -85,10 +85,14 @@
     .heatmap-wrap{background:var(--surface);border-radius:var(--radius-sm);padding:14px 12px;}
     .heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;}
     .hm-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);}
-    .hm-day.active{background:var(--brand);color:#fff;}
     .hm-day.today{outline:2px solid var(--brand);outline-offset:1px;}
     .hm-day.future{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.15);}
     .hm-day.rest{background:rgba(255,255,255,0.07);}
+    .hm-day.km-5{background:rgba(232,98,42,0.35);color:#fff;}
+    .hm-day.km-8{background:rgba(232,98,42,0.55);color:#fff;}
+    .hm-day.km-10{background:rgba(232,98,42,0.75);color:#fff;}
+    .hm-day.km-15{background:rgba(232,98,42,1);color:#fff;}
+    .hm-day.km-21{background:rgba(232,98,42,1);color:#fff;box-shadow:0 0 0 2px rgba(232,98,42,0.9),0 0 10px 2px rgba(232,98,42,0.5);}
     .hm-legend{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:10px;color:var(--muted);}
     .hm-swatch{width:12px;height:12px;border-radius:3px;}
     .medal-pred-icon{font-size:32px;flex-shrink:0;}
@@ -424,7 +428,7 @@
     .lb-legend span{display:flex;align-items:center;gap:3px;}
 
     /* ── Content ── */
-    .lb-content{flex:1;padding:10px 20px 10px;max-width:600px;width:100%;margin:0 auto;}
+    .lb-content{flex:1;padding:10px 20px 80px;max-width:600px;width:100%;margin:0 auto;}
 
     /* ── Leaderboard row ── */
     .lb-row{
@@ -610,7 +614,6 @@
 
 <header class="header">
   <div class="hdr-left">
-    <div class="hdr-avatar" id="hdr-avatar" onclick="showTab('you');return false;">PM</div>
     <img src="logo-white.png" alt="Arcgate Walkathon" class="hdr-logo-img">
   </div>
   <div class="hdr-right">
@@ -630,6 +633,7 @@
         <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
     </button>
+    <div class="hdr-avatar" id="hdr-avatar" onclick="showTab('you');return false;" style="margin-left:6px;">PM</div>
   </div>
 </header>
 <script>
@@ -698,20 +702,27 @@
 
   <!-- Metrics -->
   <div class="sec">My Stats</div>
-  <div class="hero-metrics-block">
-    <div class="metric-trio">
-      <div class="metric-box">
-        <div class="metric-val orange" id="s-pts-display">—</div>
-        <div class="metric-lbl">Points</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+    <div class="stat-card-item">
+      <div class="stat-card-icon" style="background:rgba(232,98,42,0.12);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       </div>
-      <div class="metric-box">
-        <div class="metric-val green" id="s-dist">—</div>
-        <div class="metric-lbl">km walked</div>
+      <div class="stat-card-val" id="s-acts" style="color:var(--brand);">—</div>
+      <div class="stat-card-label">Activities</div>
+    </div>
+    <div class="stat-card-item">
+      <div class="stat-card-icon" style="background:rgba(34,197,94,0.12);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
       </div>
-      <div class="metric-box">
-        <div class="metric-val blue" id="s-acts">—</div>
-        <div class="metric-lbl">Activities</div>
+      <div class="stat-card-val" id="s-dist" style="color:var(--green);">—</div>
+      <div class="stat-card-label">km Distance</div>
+    </div>
+    <div class="stat-card-item">
+      <div class="stat-card-icon" style="background:rgba(96,165,250,0.12);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
       </div>
+      <div class="stat-card-val" id="s-movetime-dash" style="color:var(--blue);">—</div>
+      <div class="stat-card-label">Moving Time</div>
     </div>
   </div>
 
@@ -720,25 +731,7 @@
     <!-- dynamically rendered by JS -->
   </div>
 
-  <div class="sec">Stats</div>
-  <div class="stat-cards">
-    <div class="stat-card-item">
-      <div class="stat-card-icon" style="background:rgba(232,98,42,0.12);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <div class="stat-card-val" id="s-pace">—</div>
-      <div class="stat-card-label">Avg Pace</div>
-      <div class="stat-card-sub">min/km</div>
-    </div>
-    <div class="stat-card-item">
-      <div class="stat-card-icon" style="background:rgba(96,165,250,0.12);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      </div>
-      <div class="stat-card-val" style="color:var(--blue);" id="s-movetime">—</div>
-      <div class="stat-card-label">Moving Time</div>
-      <div class="stat-card-sub">total active</div>
-    </div>
-  </div>
+
 
   <div class="sec">Activity Streak</div>
   <div class="card">
@@ -773,22 +766,22 @@
   <div class="card">
     <div class="lrow">
       <div style="width:28px;height:28px;border-radius:7px;background:rgba(255,208,0,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-8 4 4 4-8 4 8"/></svg></div>
-      <div class="lrow-left"><div class="lrow-label">Longest Activity</div></div>
+      <div class="lrow-left"><div class="lrow-label">LONGEST ACTIVITY</div></div>
       <div class="lrow-val" id="pb-longest" style="font-size:14px;">—</div>
     </div>
     <div class="lrow">
       <div style="width:28px;height:28px;border-radius:7px;background:rgba(232,98,42,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-      <div class="lrow-left"><div class="lrow-label">Best Pace</div><div class="lrow-sub">min/km · walk/run</div></div>
+      <div class="lrow-left"><div class="lrow-label">BEST PACE</div><div class="lrow-sub">min/km · walk/run</div></div>
       <div class="lrow-val" id="pb-pace" style="font-size:14px;">—</div>
     </div>
     <div class="lrow">
       <div style="width:28px;height:28px;border-radius:7px;background:rgba(96,165,250,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <div class="lrow-left"><div class="lrow-label">Longest Session</div></div>
+      <div class="lrow-left"><div class="lrow-label">LONGEST SESSION</div></div>
       <div class="lrow-val" id="pb-time" style="font-size:14px;color:var(--blue);">—</div>
     </div>
     <div class="lrow">
       <div style="width:28px;height:28px;border-radius:7px;background:rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="lrow-left"><div class="lrow-label">Best Day</div><div class="lrow-sub" id="pb-bestday-date"></div></div>
+      <div class="lrow-left"><div class="lrow-label">BEST DAY</div><div class="lrow-sub" id="pb-bestday-date"></div></div>
       <div class="lrow-val" id="pb-bestday" style="font-size:14px;color:var(--green);">—</div>
     </div>
   </div>
@@ -907,7 +900,7 @@
   </div>
 
   <!-- June Heatmap -->
-  <div class="sec">June Activity Heatmap</div>
+  <div class="sec">Activity Heatmap</div>
   <div class="heatmap-wrap">
     <div id="heatmap-days-label" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:2px;">
       <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:600;">M</div>
@@ -920,9 +913,11 @@
     </div>
     <div class="heatmap-grid" id="heatmap-grid"></div>
     <div class="hm-legend">
-      <div class="hm-swatch" style="background:var(--brand);"></div><span>Active</span>
-      <div class="hm-swatch" style="background:rgba(255,255,255,0.07);"></div><span>Rest</span>
-      <div class="hm-swatch" style="background:rgba(255,255,255,0.04);"></div><span>Upcoming</span>
+      <div class="hm-swatch" style="background:rgba(232,98,42,0.35);"></div><span>5km</span>
+      <div class="hm-swatch" style="background:rgba(232,98,42,0.55);"></div><span>8km</span>
+      <div class="hm-swatch" style="background:rgba(232,98,42,0.75);"></div><span>10km</span>
+      <div class="hm-swatch" style="background:rgba(232,98,42,1);"></div><span>15km</span>
+      <div class="hm-swatch" style="background:rgba(232,98,42,1);box-shadow:0 0 6px rgba(232,98,42,0.8);"></div><span>21km 🔥</span>
     </div>
   </div>
 
@@ -1339,25 +1334,27 @@ async function load() {
       (function(){
         var grid=document.getElementById('heatmap-grid');
         if(!grid)return;
-        // Build set of active dates for this participant
-        var activeDates={};
+        // Build km-per-day map for intensity
+        var dayKmMap={};
         validA.forEach(function(a){
           var d=(a.activity_date||'').split('T')[0];
-          if(d)activeDates[d]=true;
+          if(d)dayKmMap[d]=(dayKmMap[d]||0)+(a.distance_meters||0)/1000;
         });
         var todayStr=new Date().toISOString().split('T')[0];
         grid.innerHTML='';
-        // June 1 2026 is a Monday (day index 0 in Mon-start week) — perfect alignment
-        // June has 30 days, fill exactly 30 cells + 2 padding cells for Mon start (Jun 1 = Mon)
-        // Jun 1 = Monday so no leading empty cells needed
         for(var d=1;d<=30;d++){
           var ds='2026-06-'+(d<10?'0':'')+d;
           var cell=document.createElement('div');
           cell.className='hm-day';
-          cell.title=ds;
+          var km=dayKmMap[ds]||0;
+          cell.title=ds+(km>0?' · '+km.toFixed(1)+' km':'');
           cell.textContent=d;
           if(ds>todayStr){cell.classList.add('future');}
-          else if(activeDates[ds]){cell.classList.add('active');}
+          else if(km>=21){cell.classList.add('km-21');}
+          else if(km>=15){cell.classList.add('km-15');}
+          else if(km>=10){cell.classList.add('km-10');}
+          else if(km>=8){cell.classList.add('km-8');}
+          else if(km>=5){cell.classList.add('km-5');}
           else{cell.classList.add('rest');}
           if(ds===todayStr)cell.classList.add('today');
           grid.appendChild(cell);
@@ -1396,6 +1393,7 @@ async function load() {
     document.getElementById('s-pace').textContent=avgPaceStr;
     var mts='—';if(totalMovingSec>0){var mh=Math.floor(totalMovingSec/3600),mm=Math.floor((totalMovingSec%3600)/60);mts=mh>0?mh+'h '+mm+'m':mm+'m';}
     document.getElementById('s-movetime').textContent=mts;
+    var mtdash=document.getElementById('s-movetime-dash');if(mtdash)mtdash.textContent=mts;
 
     // ── Interesting Facts (pure math from myActs — zero extra API calls) ──
     (function(){
@@ -1818,7 +1816,7 @@ async function load() {
         var statusCls=earned?'won':missed?'missed':'avail';
         var statusIcon=earned?'✓':missed?'✕':'!';
         var div=document.createElement('div');div.className='ch-row';
-        div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+(earned?displayPts.toFixed(1):ch.bonus_points)+' pts</div>';
+        div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title" style="text-transform:uppercase;letter-spacing:0.5px;">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+(earned?displayPts.toFixed(1):ch.bonus_points)+' pts</div>';
         chCard.appendChild(div);});}
     else if(chCard)chCard.innerHTML='<p style="font-size:12px;color:var(--muted);padding:14px">No challenges configured.</p>';
 
