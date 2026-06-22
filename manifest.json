@@ -6,8 +6,8 @@
   "scope": "/agwalk/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1117",
-  "theme_color": "#6366f1",
+  "background_color": "#0E1012",
+  "theme_color": "#E8622A",
   "icons": [
     {
       "src": "/agwalk/icon-192.png",
