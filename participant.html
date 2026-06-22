@@ -1390,9 +1390,9 @@ async function load() {
     var totalDistM=validActs.reduce(function(s,a){return s+(a.distance_meters||0);},0);
     var avgPaceStr='—';
     if(totalDistM>0){var psk=totalMovingSec/(totalDistM/1000),pmin=Math.floor(psk/60),psec=Math.round(psk%60);avgPaceStr=pmin+':'+(psec<10?'0':'')+psec;}
-    document.getElementById('s-pace').textContent=avgPaceStr;
+    var spEl=document.getElementById('s-pace');if(spEl)spEl.textContent=avgPaceStr;
     var mts='—';if(totalMovingSec>0){var mh=Math.floor(totalMovingSec/3600),mm=Math.floor((totalMovingSec%3600)/60);mts=mh>0?mh+'h '+mm+'m':mm+'m';}
-    document.getElementById('s-movetime').textContent=mts;
+    var smEl=document.getElementById('s-movetime');if(smEl)smEl.textContent=mts;
     var mtdash=document.getElementById('s-movetime-dash');if(mtdash)mtdash.textContent=mts;
 
     // ── Interesting Facts (pure math from myActs — zero extra API calls) ──
