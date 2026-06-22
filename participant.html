@@ -55,13 +55,14 @@
     }
     .hero-rings-block{
       background:var(--surface);
-      border-bottom:none;
-      padding:22px 16px 20px;
+      border-radius:var(--radius);
+      padding:20px 16px;
+      margin-bottom:12px;
     }
     .hero-metrics-block{
       background:var(--bg);
-      border-bottom:none;
-      padding:14px 16px 20px;
+      padding:0;
+      margin-bottom:0;
     }
     .hero-top{display:flex;align-items:center;gap:12px;}
     .avatar{
@@ -363,8 +364,9 @@
   <div class="hero-tags" id="p-tags"></div>
 </div>
 
+<div class="max-w" style="padding-top:12px;">
 <!-- Block 2: Medal Rings -->
-<div class="hero-rings-block">
+<div class="hero-rings-block card-block">
   <div class="rings-row" id="medal-rings">
     <div class="ring-box">
       <div class="ring-svg-wrap">
@@ -394,7 +396,7 @@
 </div>
 
 <!-- Block 3: Metrics -->
-<div class="hero-metrics-block">
+<div class="hero-metrics-block card-block">
   <div class="metric-trio">
     <div class="metric-box">
       <div class="metric-val orange" id="s-pts-display">—</div>
@@ -409,6 +411,8 @@
       <div class="metric-lbl">Activities</div>
     </div>
   </div>
+</div>
+
 </div>
 
 <!-- Dashboard tab -->
