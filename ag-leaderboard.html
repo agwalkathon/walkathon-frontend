@@ -1045,6 +1045,15 @@ function toggleExpand(athleteId, gender, trEl) {
     var dp = parseFloat(((inRangeKmExp + dayKm)*base).toFixed(2));
 
     // Check if any challenge excludes normal bonus for this day
+    var myChallengesExp = CHALLENGES.filter(function(c) {
+      if (!c.is_active) return false;
+      var elig = (c.eligible || 'all').toLowerCase();
+      if (elig === 'all') return true;
+      if (elig === 'male'   && g === 'male')   return true;
+      if (elig === 'female' && g === 'female') return true;
+      return false;
+    });
+
     var dayExcludeBonus = myChallengesExp.some(function(c) {
       if (!c.exclude_normal_bonus) return false;
       if (day < c.start_date || day > c.end_date) return false;
@@ -1054,14 +1063,6 @@ function toggleExpand(athleteId, gender, trEl) {
 
     var cp = 0;
     // Challenge bonus per day — use same logic as checkChallenge/calcPoints
-    var myChallengesExp = CHALLENGES.filter(function(c) {
-      if (!c.is_active) return false;
-      var elig = (c.eligible || 'all').toLowerCase();
-      if (elig === 'all') return true;
-      if (elig === 'male'   && g === 'male')   return true;
-      if (elig === 'female' && g === 'female') return true;
-      return false;
-    });
     myChallengesExp.forEach(function(c) {
       var atype = c.range_split ? 'range-split'
         : c.exclude_normal_bonus ? 'per-act-no-bonus'
