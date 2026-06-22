@@ -1004,20 +1004,27 @@ function calcBonus(km) {
   for(var i=0;i<sorted.length;i++){if(km>=Number(sorted[i].km)){result=Number(sorted[i].points||sorted[i].pts||0);break;}}
   return result;
 }
-function checkChallengeSingle(act,ch,cSports) {
-  var actDate=(act.activity_date||'').split('T')[0];
-  if(actDate<ch.start_date||actDate>ch.end_date) return false;
-  if(cSports.indexOf(act.sport_type)===-1) return false;
-  var km=(act.distance_meters||0)/1000;
-  if(ch.distance_type==='fixed'||ch.distance_type==='range'){if(km<ch.distance_min-0.1||km>ch.distance_max+0.1) return false;}
-  else{if(km<ch.distance_min) return false;}
-  if((ch.elevation_criteria||0)>0&&(act.elevation_gain||0)<ch.elevation_criteria) return false;
-  if(ch.start_time_criteria&&act.activity_date&&act.activity_date.indexOf('T')>-1){
-    var timeStr=act.activity_date.split('T')[1]||'';
-    if(!timeStr.startsWith('06:30:00')){
-      var actTime=new Date(act.activity_date),actMins=actTime.getHours()*60+actTime.getMinutes();
-      var parts=ch.start_time_criteria.split(':'),critMins=parseInt(parts[0])*60+parseInt(parts[1]||0);
-      if(Math.abs(actMins-critMins)>30) return false;
+function checkChallengeSingle(act, ch, cSports) {
+  var actDate = (act.activity_date||'').split('T')[0];
+  if (actDate < ch.start_date || actDate > ch.end_date) return false;
+  if (cSports.indexOf(act.sport_type) === -1) return false;
+  var km = (act.distance_meters||0) / 1000;
+  if (ch.distance_type === 'fixed') {
+    if (km < ch.distance_min - 0.1 || km > ch.distance_max + 0.1) return false;
+  } else if (ch.distance_type === 'range') {
+    if (km < ch.distance_min || km > ch.distance_max) return false;
+  } else {
+    if (km < ch.distance_min) return false;
+  }
+  if ((ch.elevation_criteria||0) > 0 && (act.elevation_gain||0) < ch.elevation_criteria) return false;
+  if (ch.start_time_criteria && act.activity_date && act.activity_date.indexOf('T') > -1) {
+    var timeStr = act.activity_date.split('T')[1] || '';
+    if (!timeStr.startsWith('06:30:00')) {
+      var actTime = new Date(act.activity_date);
+      var actMins = actTime.getHours()*60 + actTime.getMinutes();
+      var parts = ch.start_time_criteria.split(':');
+      var critMins = parseInt(parts[0])*60 + parseInt(parts[1]||0);
+      if (Math.abs(actMins - critMins) > 30) return false;
     }
   }
   return true;
