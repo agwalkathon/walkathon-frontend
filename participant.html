@@ -1078,7 +1078,7 @@ async function load() {
     (async function loadRanking(){
       try{
         var [allActsRaw,allRegRaw]=await Promise.all([
-          fetchAll(SUPABASE_URL+'/rest/v1/activities?is_flagged=is.false&is_deleted=is.false&select=strava_athlete_id,distance_meters'),
+          fetchAll(SUPABASE_URL+'/rest/v1/activities?is_deleted=is.false&select=strava_athlete_id,distance_meters,activity_date,is_flagged,sport_type,manual_bonus,elevation_gain'),
           fetchAll(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name,gender,shift,leaderboard_team')
         ]);
         allActs=allActsRaw; allRegRes=allRegRaw;
