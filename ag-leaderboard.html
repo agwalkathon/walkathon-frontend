@@ -842,6 +842,10 @@ async function doRefresh() {
 }
  // global for sport filter
 
+// Global exclusion sets — computed once in loadAll, used by renderBoard
+var teamExcludedMale = [];   // athlete IDs excluded from Team Male board
+var teamExcludedFemale = []; // athlete IDs excluded from Team Female board
+
 async function loadAll() {
   document.getElementById('lb-body').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:60px;color:#bbb"><div class="spinner"></div><span style="font-size:14px">Loading all activities...</span></div>';
   try {
@@ -868,6 +872,27 @@ async function loadAll() {
     if (el) el.textContent = rows.length;
   });
 
+  // ── Compute team exclusion sets ──────────────────────────────────────────
+  // Step 1: Top 3 of Dayshift-Female → excluded from Team Female
+  teamExcludedFemale = (allData['dayshift-female'] || []).slice(0, 3).map(function(r) {
+    return String(r.p.strava_athlete_id);
+  });
+  // Step 2: Top 3 of Dayshift-Male → excluded from Team Male
+  teamExcludedMale = (allData['dayshift-male'] || []).slice(0, 3).map(function(r) {
+    return String(r.p.strava_athlete_id);
+  });
+  // Step 3: Top 3 of Nightshift-All → split by gender into respective exclusion lists
+  (allData['nightshift-all'] || []).slice(0, 3).forEach(function(r) {
+    var g = (r.p.gender || '').toLowerCase();
+    var id = String(r.p.strava_athlete_id);
+    if (g === 'female') {
+      if (teamExcludedFemale.indexOf(id) === -1) teamExcludedFemale.push(id);
+    } else {
+      if (teamExcludedMale.indexOf(id) === -1) teamExcludedMale.push(id);
+    }
+  });
+  // ────────────────────────────────────────────────────────────────────────
+
     applyFilters();
   } catch(err) {
     console.error('loadAll error:', err);
@@ -881,9 +906,16 @@ function renderBoard(rows, board) {
     updateStats([]);
     return;
   }
-  updateStats(rows, board);
-  // For team boards, group rows by team
+  // ── Team exclusion: filter out top individual performers ─────────────────
   var isTeamBoard = board === 'team-male' || board === 'team-female';
+  if (isTeamBoard) {
+    var excludeSet = board === 'team-female' ? teamExcludedFemale : teamExcludedMale;
+    rows = rows.filter(function(row) {
+      return excludeSet.indexOf(String(row.p.strava_athlete_id)) === -1;
+    });
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+  updateStats(rows, board);
   var renderedRows = [];
   if (isTeamBoard) {
     // Group by team, sort teams by total points sum
@@ -901,6 +933,7 @@ function renderBoard(rows, board) {
     teamNames.forEach(function(teamName) {
       // Team header row
       renderedRows.push('<div style="background:#f5f5f5;padding:10px 20px;font-weight:700;color:#1A1A1A;font-size:14px;border-top:2px solid #E8622A">🏙️ '+teamName+'</div>');
+      // Top 2 highlight within each team group
       teams[teamName].forEach(function(row, i) {
         renderedRows.push(buildRow(row, i));
       });
