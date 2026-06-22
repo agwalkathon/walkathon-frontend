@@ -740,20 +740,11 @@
 
 <!-- Leaderboard tab -->
 <div class="content" id="tab-leaderboard" style="display:none;padding:0;background:var(--bg);">
-  <div class="my-banner">
-    <div class="my-info">
-      <div class="my-name" id="lb-my-name">—</div>
-      <div class="my-tags" id="lb-my-tags"></div>
-    </div>
-    <div class="my-pts-block">
-      <div class="my-pts-num" id="lb-my-pts">—</div>
-      <div class="my-pts-lbl">Points</div>
-    </div>
-    <div class="my-rank-block">
-      <div class="my-rank-num" id="lb-my-rank">—</div>
-      <div class="my-rank-lbl">Rank</div>
-    </div>
-  </div>
+  <!-- hidden els for JS compat -->
+  <span id="lb-my-name" style="display:none"></span>
+  <span id="lb-my-tags" style="display:none"></span>
+  <span id="lb-my-pts" style="display:none"></span>
+  <span id="lb-my-rank" style="display:none"></span>
   <div class="lb-tabs">
     <button class="lb-tab active" id="lb-tab-shift" onclick="switchTab('shift')">My Category</button>
     <button class="lb-tab" id="lb-tab-team" onclick="switchTab('team')">My Team</button>
