@@ -76,6 +76,12 @@
     .you-streak-val{font-size:20px;font-weight:800;color:var(--brand);}
     /* Medal prediction card */
     .medal-pred{background:var(--surface);border-radius:var(--radius-sm);padding:16px 14px;display:flex;align-items:center;gap:14px;}
+    .recovery-card{background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--brand);padding:14px 14px;margin-bottom:4px;}
+    .recovery-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .recovery-title{font-size:13px;font-weight:800;color:#fff;}
+    .recovery-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+    .recovery-chips{display:flex;flex-wrap:wrap;gap:7px;}
+    .recovery-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border-radius:20px;padding:6px 11px;font-size:12px;font-weight:600;color:#fff;}
     .heatmap-wrap{background:var(--surface);border-radius:var(--radius-sm);padding:14px 12px;}
     .heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;}
     .hm-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);}
@@ -690,6 +696,20 @@
         <div class="metric-val blue" id="s-acts">—</div>
         <div class="metric-lbl">Activities</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Recovery Suggestion -->
+  <div id="recovery-card-wrap" style="padding:0 0 4px;display:none;">
+    <div class="recovery-card">
+      <div class="recovery-header">
+        <span style="font-size:22px;">🔋</span>
+        <div>
+          <div class="recovery-title" id="recovery-title">Recovery Tips</div>
+          <div class="recovery-sub" id="recovery-sub">You pushed hard — take care of your body</div>
+        </div>
+      </div>
+      <div class="recovery-chips" id="recovery-chips"></div>
     </div>
   </div>
 
@@ -1667,6 +1687,66 @@ async function load() {
       }
     }
 
+
+    // ── Recovery Suggestion ──────────────────────────────────────────────────
+    (function(){
+      var validActs=myActs.filter(function(a){return !a.is_flagged;});
+      if(!validActs.length)return;
+      // Find most recent activity date
+      var sortedDates=validActs.map(function(a){return (a.activity_date||'').split('T')[0];}).filter(Boolean).sort();
+      var lastDate=sortedDates[sortedDates.length-1];
+      if(!lastDate)return;
+      var nowD=new Date(); nowD.setHours(12,0,0,0);
+      var lastD=new Date(lastDate+'T12:00:00');
+      var daysDiff=Math.floor((nowD-lastD)/86400000);
+      if(daysDiff>1)return; // only today or yesterday
+      // Total km on that last date
+      var lastKm=validActs.reduce(function(s,a){return (a.activity_date||'').split('T')[0]===lastDate?s+(a.distance_meters||0)/1000:s;},0);
+      if(lastKm<8)return; // below threshold
+      // Determine intensity
+      var wrap=document.getElementById('recovery-card-wrap');
+      var titleEl=document.getElementById('recovery-title');
+      var subEl=document.getElementById('recovery-sub');
+      var chipsEl=document.getElementById('recovery-chips');
+      if(!wrap)return;
+      var whenLabel=daysDiff===0?'today':'yesterday';
+      var chips,intensity;
+      if(lastKm>=21){
+        intensity='Peak Effort'; // 21km+
+        chips=[
+          {e:'💧',t:'Hydrate now','c':'Drink 500ml water immediately'},
+          {e:'⚡',t:'Electrolytes','c':'Replenish salts lost in sweat'},
+          {e:'🥩',t:'Protein meal','c':'Aim for 25–30g protein'},
+          {e:'🧊',t:'Cold compress','c':'Ice calves & feet for 10 min'},
+          {e:'😴',t:'Sleep 8h+','c':'Your body repairs while you sleep'},
+          {e:'🛑',t:'Rest tomorrow','c':'Let muscles recover fully'}
+        ];
+      } else if(lastKm>=15){
+        intensity='Strong Effort'; // 15–20km
+        chips=[
+          {e:'💧',t:'Stay hydrated','c':'Keep sipping water all day'},
+          {e:'⚡',t:'Electrolytes','c':'Sports drink or coconut water'},
+          {e:'🥩',t:'Protein snack','c':'Eggs, paneer or nuts within 1h'},
+          {e:'🦵',t:'Stretch legs','c':'5 min calf & hamstring stretch'},
+          {e:'😴',t:'Sleep well','c':'Aim for 7–8 hours tonight'}
+        ];
+      } else {
+        intensity='Moderate Effort'; // 8–14km
+        chips=[
+          {e:'💧',t:'Hydrate well','c':'2–3 litres water today'},
+          {e:'⚡',t:'Electrolytes','c':'Add a pinch of salt to water'},
+          {e:'🥩',t:'Protein','c':'Include protein in your next meal'},
+          {e:'🧘',t:'Light stretch','c':'5 min of light stretching helps'}
+        ];
+      }
+      titleEl.textContent='🔋 Recovery Tips · '+lastKm.toFixed(1)+' km '+whenLabel;
+      subEl.textContent=intensity+' — take care of your body today';
+      chipsEl.innerHTML=chips.map(function(c){
+        return '<div class="recovery-chip" title="'+c.c+'">'+c.e+' '+c.t+'</div>';
+      }).join('');
+      wrap.style.display='block';
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Streak
     var activeDays={};
