@@ -721,47 +721,54 @@ function calcPoints(acts, athleteId, gender, shift) {
 
     if (isTcDay) {
       // ── Two-challenges-same-day mode ────────────────────────
-      // Each qualifying activity (one per challenge) gets bracket bonus on its OWN km
-      // Remaining activities (not qualifying for any challenge) get pooled bracket bonus
-      var tcMap     = tcActMap[day] || {};
-      var tcTotalKm = 0;
+      var tcMap      = tcActMap[day] || {};
       var tcBonusPts = 0;
-
-      // Sum all activity km for cap calculation
-      var allDayKm = 0;
+      var allDayKm   = 0;
       dayActs.forEach(function(a){ allDayKm += parseFloat(a.distance_meters||0)/1000; });
 
-      // Apply 21km cap — trim remaining (non-qualifying) acts first
       var qualKmTotal = 0;
       Object.keys(tcMap).forEach(function(aid){ qualKmTotal += tcMap[aid].km; });
-      var remainKm = allDayKm - qualKmTotal;
+      var remainKm = Math.max(0, allDayKm - qualKmTotal);
+
+      // 21km cap — trim remaining first, then trim qualifying acts (largest first)
       if (!isSpecialDay && allDayKm > DAILY_CAP) {
-        var excess = allDayKm - DAILY_CAP;
+        var excess  = allDayKm - DAILY_CAP;
         var remTrim = Math.min(excess, remainKm);
-        remainKm -= remTrim; excess -= remTrim;
-        // If still over, trim qualifying acts proportionally (trim last one first)
-        if (excess > 0) qualKmTotal -= excess;
+        remainKm   -= remTrim; excess -= remTrim;
+        if (excess > 0) {
+          // Trim qualifying acts largest-km first
+          var aids = Object.keys(tcMap).sort(function(a,b){ return tcMap[b].km - tcMap[a].km; });
+          for (var ti2 = 0; ti2 < aids.length && excess > 0; ti2++) {
+            var trim = Math.min(excess, tcMap[aids[ti2]].km);
+            tcMap[aids[ti2]].km -= trim;
+            excess -= trim;
+          }
+        }
       }
-      remainKm     = Math.max(0, parseFloat(remainKm.toFixed(4)));
-      qualKmTotal  = Math.max(0, parseFloat(qualKmTotal.toFixed(4)));
+      remainKm = Math.max(0, parseFloat(remainKm.toFixed(4)));
+      Object.keys(tcMap).forEach(function(aid){
+        tcMap[aid].km = Math.max(0, parseFloat(tcMap[aid].km.toFixed(4)));
+      });
+
+      // Recalc qualKmTotal after cap
+      qualKmTotal = 0;
+      Object.keys(tcMap).forEach(function(aid){ qualKmTotal += tcMap[aid].km; });
 
       var base2     = parseFloat(CONFIG.basePer_km) || 1;
       var dayDistKm = qualKmTotal + remainKm;
       totalDistKm  += dayDistKm;
       totalDistPts += parseFloat((dayDistKm * base2).toFixed(2));
 
-      // Each qualifying activity: bracket bonus on its own km
-      Object.keys(tcMap).forEach(function(aid) {
-        tcBonusPts += calcBonus(tcMap[aid].km);
-      });
+      // Each qualifying act: bracket bonus on its capped km
+      Object.keys(tcMap).forEach(function(aid){ tcBonusPts += calcBonus(tcMap[aid].km); });
       // Remaining pool: bracket bonus on combined remaining km
       tcBonusPts += calcBonus(remainKm);
       totalBonus += tcBonusPts;
 
-      byDay[day]._outRangeKm  = remainKm;
-      byDay[day]._inRangeKm   = 0;
-      byDay[day]._tcMap       = tcMap;
-      byDay[day]._tcRemainKm  = remainKm;
+      byDay[day]._outRangeKm = remainKm;
+      byDay[day]._inRangeKm  = 0;
+      byDay[day]._tcMap      = tcMap;
+      byDay[day]._tcRemainKm = remainKm;
       return;
     }
 
