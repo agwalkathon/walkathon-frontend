@@ -1818,11 +1818,40 @@ load();
 
 
 
+// ── Compute team exclusion sets from LB_REG + LB_ACTS ────────────────────
+// Returns {male: [ids...], female: [ids...]}
+function computeTeamExclusions(){
+  function boardRows(filterFn){
+    return LB_REG.filter(filterFn).map(function(p){
+      return {p:p,pts:calcFullPts(LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id);}),p.gender)};
+    }).filter(function(r){return r.pts.total>0;}).sort(function(a,b){return b.pts.total-a.pts.total;});
+  }
+  var dsF = boardRows(function(p){var g=norm(p.gender),s=norm(p.shift);return g==='female'&&s.indexOf('day')>-1;});
+  var dsM = boardRows(function(p){var g=norm(p.gender),s=norm(p.shift);return (g==='male'||g==='m')&&s.indexOf('day')>-1;});
+  var ns  = boardRows(function(p){return norm(p.shift).indexOf('night')>-1;});
+  var exFemale = dsF.slice(0,3).map(function(r){return String(r.p.strava_athlete_id);});
+  var exMale   = dsM.slice(0,3).map(function(r){return String(r.p.strava_athlete_id);});
+  ns.slice(0,3).forEach(function(r){
+    var g=norm(r.p.gender),id=String(r.p.strava_athlete_id);
+    if(g==='female'){if(exFemale.indexOf(id)===-1)exFemale.push(id);}
+    else{if(exMale.indexOf(id)===-1)exMale.push(id);}
+  });
+  return {male:exMale,female:exFemale};
+}
+// ─────────────────────────────────────────────────────────────────────────
+
 function getRows(mode){
   if(!LB_ME)return[];
   var myGender=norm(LB_ME.gender),myShift=norm(LB_ME.shift),myTeam=norm(LB_ME.leaderboard_team),isNight=myShift.indexOf('night')>-1,isFemale=myGender==='female'||myGender==='f';
   var filtered=LB_REG.filter(function(p){var pg=norm(p.gender),ps=norm(p.shift),pt=norm(p.leaderboard_team),pIsFemale=pg==='female'||pg==='f';if(pIsFemale!==isFemale)return false;if(mode==='team')return pt===myTeam;return ps.indexOf('night')>-1===isNight;});
-  return filtered.map(function(p){return{p:p,pts:calcFullPts(LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id);}),p.gender)};}).filter(function(r){return r.pts.total>0;}).sort(function(a,b){return b.pts.total-a.pts.total;});
+  var rows=filtered.map(function(p){return{p:p,pts:calcFullPts(LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id);}),p.gender)};}).filter(function(r){return r.pts.total>0;}).sort(function(a,b){return b.pts.total-a.pts.total;});
+  // Apply team exclusions for team tab
+  if(mode==='team'){
+    var excl=computeTeamExclusions();
+    var exSet=isFemale?excl.female:excl.male;
+    rows=rows.filter(function(r){return exSet.indexOf(String(r.p.strava_athlete_id))===-1;});
+  }
+  return rows;
 }
 
 function getLastActive(acts) {
