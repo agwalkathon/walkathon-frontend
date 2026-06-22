@@ -1031,7 +1031,7 @@ function calcFullPts(myActs, gender) {
     if(!byDay[d])byDay[d]=[]; byDay[d].push(a);
   });
   var totalDistKm=0,totalDistPts=0,totalBonus=0,totalChallenge=0;
-  var earnedChallenges={},dayBreakdown={},actBreakdown={};
+  var earnedChallenges={},earnedPts={},dayBreakdown={},actBreakdown={};
   var DAILY_CAP=21;
 
   // ── Day loop: range_split + 21km cap (matches ag-leaderboard exactly) ──
@@ -1106,24 +1106,24 @@ function calcFullPts(myActs, gender) {
         var raKm=(a.distance_meters||0)/1000;
         if(raKm>=(ch.distance_min-0.1)&&raKm<=ch.distance_max){inRangePts+=Number(ch.bonus_points)||0;inRangeCount++;}
       });
-      if(inRangeCount>0){earnedChallenges[key]=true;totalChallenge+=inRangePts;}
+      if(inRangeCount>0){earnedChallenges[key]=true;earnedPts[key]=inRangePts;totalChallenge+=inRangePts;}
       continue;
     }
 
     // Per-activity challenge
     var perActPts=Number(ch.per_activity_points)||0;
     if(perActPts>0){
-      var awarded2=false;
+      var awarded2=false,paTotal=0;
       myActs.filter(function(a){return !a.is_flagged;}).forEach(function(a){
         if(!checkChallengeSingle(a,ch,cSports))return;
-        awarded2=true;
+        awarded2=true; paTotal+=perActPts;
         var actDay=(a.activity_date||'').split('T')[0];
         totalChallenge+=perActPts;
         if(actDay&&dayBreakdown[actDay])dayBreakdown[actDay].challenges.push({name:chName,pts:perActPts,actId:a.strava_activity_id});
         if(!actBreakdown[a.strava_activity_id])actBreakdown[a.strava_activity_id]={challenges:[]};
         actBreakdown[a.strava_activity_id].challenges.push({name:chName,pts:perActPts});
       });
-      if(awarded2)earnedChallenges[key]=true;
+      if(awarded2){earnedChallenges[key]=true;earnedPts[key]=paTotal;}
       continue;
     }
 
@@ -1147,7 +1147,7 @@ function calcFullPts(myActs, gender) {
       }
     }
     if(awarded){
-      earnedChallenges[key]=true;totalChallenge+=chPts;
+      earnedChallenges[key]=true;earnedPts[key]=chPts;totalChallenge+=chPts;
       if(awardedDay&&dayBreakdown[awardedDay])dayBreakdown[awardedDay].challenges.push({name:chName,pts:chPts,actId:awardedActId});
       if(awardedActId){if(!actBreakdown[awardedActId])actBreakdown[awardedActId]={challenges:[]};actBreakdown[awardedActId].challenges.push({name:chName,pts:chPts});}
     }
@@ -1165,7 +1165,7 @@ function calcFullPts(myActs, gender) {
   totalChallenge=parseFloat(totalChallenge.toFixed(2));
   return {km:totalDistKm,distPts:totalDistPts,bonusPts:totalBonus,challengePts:totalChallenge,
     total:parseFloat((totalDistPts+totalBonus+totalChallenge).toFixed(2)),
-    dayBreakdown:dayBreakdown,actBreakdown:actBreakdown};
+    dayBreakdown:dayBreakdown,actBreakdown:actBreakdown,earnedPts:earnedPts,earnedChallenges:earnedChallenges};
 }
 async function fetchAll(url) {
   var all=[],from=0,ps=1000;
@@ -1633,7 +1633,23 @@ async function load() {
 
     // Challenges
     var chCard=document.getElementById('challenges-card');
-    if(chCard&&CHALLENGES_LB.length){chCard.innerHTML='';CHALLENGES_LB.slice(0,8).forEach(function(ch){var chPtsVal=Number(ch.bonus_points)||0,earned=false,allDayBreakdowns=fullPts.dayBreakdown||{};for(var day in allDayBreakdowns){var db=allDayBreakdowns[day];if(db.challenges&&db.challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}if(!earned){var ab=fullPts.actBreakdown||{};for(var actId in ab){if(ab[actId].challenges&&ab[actId].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}var today2=new Date().toISOString().split('T')[0],missed=!earned&&ch.end_date&&ch.end_date<today2,statusCls=earned?'won':missed?'missed':'avail',statusIcon=earned?'✓':missed?'✕':'!',div=document.createElement('div');div.className='ch-row';div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+chPtsVal+' pts</div>';chCard.appendChild(div);});}
+    if(chCard&&CHALLENGES_LB.length){chCard.innerHTML='';CHALLENGES_LB.slice(0,8).forEach(function(ch,ci2){
+        var key='ch_'+(ch.id||ci2);
+        var ep=fullPts.earnedPts||{};
+        var ec=fullPts.earnedChallenges||{};
+        var earned=!!ec[key];
+        // Fallback: check dayBreakdown + actBreakdown by name
+        if(!earned){var allDB=fullPts.dayBreakdown||{};for(var day in allDB){if(allDB[day].challenges&&allDB[day].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}
+        if(!earned){var ab=fullPts.actBreakdown||{};for(var actId in ab){if(ab[actId].challenges&&ab[actId].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}
+        // Points: show actual earned (for range_split/per-activity) or configured bonus
+        var displayPts=earned&&ep[key]?ep[key]:Number(ch.bonus_points)||0;
+        var today2=new Date().toISOString().split('T')[0];
+        var missed=!earned&&ch.end_date&&ch.end_date<today2;
+        var statusCls=earned?'won':missed?'missed':'avail';
+        var statusIcon=earned?'✓':missed?'✕':'!';
+        var div=document.createElement('div');div.className='ch-row';
+        div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+(earned?displayPts.toFixed(1):ch.bonus_points)+' pts</div>';
+        chCard.appendChild(div);});}
     else if(chCard)chCard.innerHTML='<p style="font-size:12px;color:var(--muted);padding:14px">No challenges configured.</p>';
 
     // Activities title
