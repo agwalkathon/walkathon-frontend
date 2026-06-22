@@ -1201,15 +1201,6 @@ function calcFullPts(myActs, gender) {
     }
     if(awarded){
       earnedChallenges[key]=true;earnedPts[key]=chPts;totalChallenge+=chPts;
-      // For daily-scope challenges with no specific actId, find the qualifying activity for that day
-      if(!awardedActId&&awardedDay&&byDay[awardedDay]){
-        var dayActsList=byDay[awardedDay];
-        for(var dai=0;dai<dayActsList.length;dai++){
-          if(!dayActsList[dai].is_flagged&&cSports.indexOf(dayActsList[dai].sport_type)>-1){
-            awardedActId=dayActsList[dai].strava_activity_id;break;
-          }
-        }
-      }
       if(awardedDay&&dayBreakdown[awardedDay])dayBreakdown[awardedDay].challenges.push({name:chName,pts:chPts,actId:awardedActId});
       if(awardedActId){if(!actBreakdown[awardedActId])actBreakdown[awardedActId]={challenges:[]};actBreakdown[awardedActId].challenges.push({name:chName,pts:chPts});}
     }
