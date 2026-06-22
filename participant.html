@@ -1436,6 +1436,20 @@ async function load() {
     document.getElementById('standing-shift-rank').innerHTML=shiftRank?ordinal(shiftRank):'—';
     document.getElementById('standing-team-label').textContent=teamLabel;
     document.getElementById('standing-team-rank').innerHTML=teamRank?ordinal(teamRank):'—';
+    // ── Show/hide team rank card based on individual rank ─────────────────
+    // If participant is Top 3 on their individual board → excluded from team
+    // board, so hide team card and expand shift card to full width
+    var isTop3Individual = shiftRank && shiftRank <= 3;
+    var standingGrid = document.querySelector('.standing-grid');
+    var teamCard = document.getElementById('standing-team-rank').closest('.standing-card');
+    if(isTop3Individual){
+      if(teamCard) teamCard.style.display='none';
+      if(standingGrid) standingGrid.style.gridTemplateColumns='1fr';
+    } else {
+      if(teamCard) teamCard.style.display='';
+      if(standingGrid) standingGrid.style.gridTemplateColumns='1fr 1fr';
+    }
+    // ─────────────────────────────────────────────────────────────────────
 
     // ── Pace Goals — dynamic based on medal status ────────────────────────────
     var now=new Date();
