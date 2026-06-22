@@ -1055,17 +1055,19 @@ async function load() {
     [{id:'br',thresh:bronzeThresh},{id:'si',thresh:silverThresh},{id:'go',thresh:goldThresh}].forEach(function(m){
       var done=myPts>=m.thresh;
       var rawPct=(myPts/m.thresh)*100;
-      // Cap at 99 when not done — prevents rounding artifacts showing 100% with pts remaining
-      var pct=done?100:Math.min(99,Math.floor(rawPct));
       var needed=Math.max(0,m.thresh-myPts);
-      var offset=CIRC-(CIRC*pct/100);
+      // Display pct: floor, cap at 99 when not done
+      var displayPct=done?100:Math.min(99,Math.floor(rawPct));
+      // Arc pct: cap at 96 when not done so gap is always visible
+      var arcPct=done?100:Math.min(96,rawPct);
+      var offset=CIRC-(CIRC*arcPct/100);
       var fillEl=document.getElementById('ring-fill-'+m.id);
       var pctEl=document.getElementById('ring-pct-'+m.id);
       var needEl=document.getElementById('ring-need-'+m.id);
       if(fillEl) fillEl.style.strokeDashoffset=done?0:offset;
       if(pctEl){
         if(done){pctEl.textContent='100%';pctEl.style.fontSize='';}
-        else{pctEl.textContent=pct+'%';pctEl.style.fontSize='';}
+        else{pctEl.textContent=displayPct+'%';pctEl.style.fontSize='';}
       }
       if(needEl){
         if(done){needEl.textContent='✓ Achieved';needEl.style.color='var(--green)';}
