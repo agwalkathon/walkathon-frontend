@@ -113,7 +113,7 @@
     .ring-need.done{color:var(--green);}
 
     /* ── Big metric trio ── */
-    .metric-trio{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+    .metric-trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
     .metric-box{
       background:var(--surface);border:none;
       border-radius:var(--radius-sm);
@@ -214,17 +214,11 @@
     .mc-done{position:absolute;top:4px;right:4px;font-size:7px;font-weight:700;background:var(--brand);color:#fff;padding:1px 5px;border-radius:5px;}
 
     /* ── Standing ── */
-    .standing-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border);}
-    .standing-row:last-child{border-bottom:none;}
-    .standing-rank-col{
-      display:flex;align-items:center;justify-content:center;
-      padding:14px 12px;
-      flex-shrink:0;width:72px;
-    }
-    .standing-rank-big{font-size:28px;font-weight:800;color:var(--brand);line-height:1;white-space:nowrap;letter-spacing:-0.5px;}
-    .standing-info{flex:1;min-width:0;padding:14px 16px;border-left:1px solid rgba(255,255,255,0.06);}
-    .standing-cat{font-size:18px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .standing-sub{font-size:14px;color:var(--muted);margin-top:3px;}
+    .standing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .standing-card{background:var(--surface);border-radius:var(--radius-sm);padding:16px 14px;text-align:center;}
+    .standing-rank-big{font-size:36px;font-weight:800;color:var(--brand);line-height:1;letter-spacing:-1px;}
+    .standing-cat{font-size:13px;font-weight:700;color:#fff;margin-top:8px;line-height:1.3;}
+    .standing-sub{font-size:11px;font-weight:600;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.8px;}
 
     /* ── Pace goals ── */
     .pace-row{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid var(--border);}
@@ -655,20 +649,16 @@
 <div class="max-w">
 
   <div class="sec">My Standing</div>
-  <div class="card">
-    <div class="standing-row">
-      <div class="standing-rank-col"><div class="standing-rank-big" id="standing-shift-rank">—</div></div>
-      <div class="standing-info">
-        <div class="standing-cat" id="standing-shift-label">—</div>
-        <div class="standing-sub">Shift category</div>
-      </div>
+  <div class="standing-grid">
+    <div class="standing-card">
+      <div class="standing-rank-big" id="standing-shift-rank">—</div>
+      <div class="standing-cat" id="standing-shift-label">—</div>
+      <div class="standing-sub">Shift</div>
     </div>
-    <div class="standing-row">
-      <div class="standing-rank-col"><div class="standing-rank-big" id="standing-team-rank">—</div></div>
-      <div class="standing-info">
-        <div class="standing-cat" id="standing-team-label">—</div>
-        <div class="standing-sub">Team category</div>
-      </div>
+    <div class="standing-card">
+      <div class="standing-rank-big" id="standing-team-rank">—</div>
+      <div class="standing-cat" id="standing-team-label">—</div>
+      <div class="standing-sub">Team</div>
     </div>
   </div>
 
