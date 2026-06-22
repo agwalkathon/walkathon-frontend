@@ -1078,7 +1078,8 @@ function toggleExpand(athleteId, gender, trEl) {
         });
         return;
       }
-      // one-time: award once if any activity on this day qualifies
+      // one-time: only award on days within the challenge date range
+      if (day < c.start_date || day > c.end_date) return;
       if (c.activity_scope === 'daily') {
         var sports2 = (Array.isArray(c.sport_types) && c.sport_types.length)
           ? c.sport_types : ['Walk','Run','Hike','Ride'];
