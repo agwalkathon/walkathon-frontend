@@ -664,18 +664,21 @@ function calcPoints(acts, athleteId, gender, shift) {
     return c.range_split;
   });
   // Build set of days where bracket bonus is suppressed (per-act-no-bonus)
-  var suppressBonusDays = {};
+  var suppressBonusDays    = {}; // exclude-all or per-act-no-bonus: zero bracket bonus
+  var perActivityBonusDays = {}; // per-activity: bracket bonus per activity km
   myChallenges.forEach(function(c) {
-    var atype = c.range_split ? 'range-split'
-      : c.exclude_normal_bonus ? 'per-act-no-bonus'
-      : (c.per_activity_points > 0 || c.award_type === 'per-act') ? 'per-act'
-      : 'one-time';
-    if (atype !== 'per-act-no-bonus') return;
-    // Check if any activity on each day qualifies for this challenge
+    var nbt = c.normal_bonus_type || 'no-change';
+    // exclude-all and per-act-no-bonus both suppress bracket entirely
+    var suppress    = (nbt === 'exclude-all' || nbt === 'exclude-sum' || c.exclude_normal_bonus || c.award_type === 'per-act-no-bonus');
+    var perActivity = (nbt === 'per-activity');
+    if (!suppress && !perActivity) return;
     Object.keys(byDay).forEach(function(day) {
-      byDay[day].forEach(function(a) {
-        if (checkChallenge(a, c)) suppressBonusDays[day] = true;
-      });
+      if (day < c.start_date || day > c.end_date) return;
+      // Check if any activity on this day qualifies for this challenge
+      var qualifies = byDay[day].some(function(a) { return checkChallenge(a, c); });
+      if (!qualifies) return;
+      if (suppress)    suppressBonusDays[day]    = true;
+      if (perActivity) perActivityBonusDays[day] = true;
     });
   });
 
@@ -805,8 +808,15 @@ function calcPoints(acts, athleteId, gender, shift) {
     totalDistKm  += dayDistKm;
     totalDistPts += parseFloat((dayDistKm * base).toFixed(2));
 
-    // Bracket bonus: only on out-of-range km, suppressed on per-act-no-bonus days
-    if (!suppressBonusDays[day]) {
+    // Bracket bonus
+    if (suppressBonusDays[day]) {
+      // exclude-all or exclude-sum: zero bracket bonus
+    } else if (perActivityBonusDays[day]) {
+      // per-activity: each activity gets bracket bonus on its own km
+      dayActs.forEach(function(a) {
+        if (!a.is_flagged) totalBonus += calcBonus(parseFloat(a.distance_meters||0)/1000);
+      });
+    } else {
       totalBonus += calcBonus(outRangeKm);
     }
 
