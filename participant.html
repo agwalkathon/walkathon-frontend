@@ -1136,6 +1136,7 @@ function openStravaProfile(){
       </svg>
       Connect with Strava
     </a>
+    <div id="strava-connect-msg" style="margin-top: 8px; font-size: 13px; font-weight: 500; display: none; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; text-align: center;"></div>
   </div>
 
   <!-- Profile Details — collapsed by default -->
@@ -1745,6 +1746,7 @@ async function load() {
     window.handleStravaConnect = async function(e) {
       if (e) e.preventDefault();
       var btn = document.getElementById('btn-strava-connect');
+      var msg = document.getElementById('strava-connect-msg');
       if (!btn) return;
       
       var athleteId = reg.strava_athlete_id || (currentSession && currentSession.athleteId);
@@ -1757,6 +1759,7 @@ async function load() {
       btn.style.pointerEvents = 'none';
       btn.style.opacity = '0.7';
       btn.innerHTML = 'Verifying connection status...';
+      if (msg) msg.style.display = 'none';
       
       try {
         var res = await fetch(BACKEND + '/check-authorized', {
@@ -1767,10 +1770,18 @@ async function load() {
         var d = await res.json();
         
         if (d.success && d.authorized) {
-          alert('Your Strava account is already connected and syncing activities!');
-          btn.style.pointerEvents = '';
-          btn.style.opacity = '';
+          if (msg) {
+            msg.style.display = 'block';
+            msg.style.background = 'rgba(16, 185, 129, 0.08)';
+            msg.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+            msg.style.color = '#10b981';
+            msg.innerHTML = '✓ Your Strava account is connected and syncing activities!';
+          }
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
           btn.innerHTML = originalText;
+          btn.removeAttribute('onclick');
         } else {
           // Redirect to Strava OAuth
           var CLIENT_ID = '29159';
@@ -1780,13 +1791,21 @@ async function load() {
             '&response_type=code&scope=read,activity:read&state=walkathon2026';
         }
       } catch (err) {
-        // Fallback: if check fails, redirect to Strava anyway
         console.warn('Connection check failed:', err);
-        var CLIENT_ID = '29159';
-        var REDIRECT = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/index.html';
-        window.location.href = 'https://www.strava.com/oauth/authorize?client_id=' + CLIENT_ID + 
-          '&redirect_uri=' + encodeURIComponent(REDIRECT) + 
-          '&response_type=code&scope=read,activity:read&state=walkathon2026';
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.background = 'rgba(245, 158, 11, 0.08)';
+          msg.style.borderColor = 'rgba(245, 158, 11, 0.2)';
+          msg.style.color = '#f59e0b';
+          msg.innerHTML = '⚠️ Connection check failed. Redirecting to Strava...';
+        }
+        setTimeout(function() {
+          var CLIENT_ID = '29159';
+          var REDIRECT = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/index.html';
+          window.location.href = 'https://www.strava.com/oauth/authorize?client_id=' + CLIENT_ID + 
+            '&redirect_uri=' + encodeURIComponent(REDIRECT) + 
+            '&response_type=code&scope=read,activity:read&state=walkathon2026';
+        }, 1500);
       }
     };
     // Tags for You tab (same as hero tags)
