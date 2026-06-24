@@ -204,6 +204,7 @@
     /* ── WHOOP-style activity tile rows ── */
     #act-list{display:grid;gap:8px;}
     .date-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+    .date-group.multi-activity{background:rgba(99, 102, 241, 0.05);border-color:rgba(99, 102, 241, 0.25);}
     .date-row{display:flex;align-items:center;padding:16px 14px;cursor:pointer;gap:10px;user-select:none;}
     .date-row:active{background:var(--surface2);}
     .date-col{flex:1;}
@@ -228,7 +229,7 @@
       display:flex;align-items:center;justify-content:center;gap:6px;
       font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.3px;
     }
-    .act-tile-icon.walk{background:#0082F0;}
+    .act-tile-icon.walk{background:#10B981;}
     .act-tile-icon.run{background:#0082F0;}
     .act-tile-icon.ride{background:#D97706;}
     .act-tile-icon.hike{background:#8B5CF6;}
@@ -244,7 +245,7 @@
     .flag-valid{background:rgba(34,197,94,0.15);color:#22C55E;}
     .flag-bad{background:rgba(239,68,68,0.15);color:#EF4444;}
     .act-tile-bar{position:absolute;right:8px;top:15%;width:3px;height:70%;border-radius:2px;}
-    .act-tile-bar.walk{background:#0082F0;}
+    .act-tile-bar.walk{background:#10B981;}
     .act-tile-bar.run{background:#0082F0;}
     .act-tile-bar.ride{background:#D97706;}
     .act-tile-bar.hike{background:#8B5CF6;}
@@ -2335,7 +2336,7 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     var dayStepsStr=daySteps>=1000?(daySteps/1000).toFixed(1).replace('.0','')+'k Steps':daySteps+' Steps';
     var dayDistStr=(rawKm%1===0?Math.round(rawKm):rawKm.toFixed(2))+' KM';
 
-    var group=document.createElement('div'); group.className='date-group'; group.id='dg-'+gi;
+    var group=document.createElement('div'); group.className='date-group' + (dayActs.length > 1 ? ' multi-activity' : ''); group.id='dg-'+gi;
     var dateRow=document.createElement('div'); dateRow.className='date-row';
     dateRow.innerHTML='<div class="date-col"><div class="date-label">'+esc(dateStr)+'<span style="color:var(--muted);font-weight:500;font-size:14px;"> | '+actCountStr+'</span></div></div>'+
       '<div style="font-size:13px;font-weight:700;color:var(--muted);margin-right:4px;white-space:nowrap;display:flex;align-items:center;">'+
