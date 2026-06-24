@@ -612,6 +612,54 @@
 </head>
 <body>
 
+<!-- ── Splash Screen ──────────────────────────────────────────────────── -->
+<div id="splash-screen" style="
+  position:fixed;inset:0;z-index:9999;
+  background:#0E1012;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  transition:opacity 0.45s ease, visibility 0.45s ease;
+">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:28px;">
+    <img
+      src="aw_logo_dark.png"
+      alt="Arcgate Walkathon"
+      style="width:min(280px,72vw);opacity:1;
+             animation:splashPulse 1.6s ease-in-out infinite;"
+    >
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="splash-dot" style="animation-delay:0s"></div>
+      <div class="splash-dot" style="animation-delay:0.2s"></div>
+      <div class="splash-dot" style="animation-delay:0.4s"></div>
+    </div>
+  </div>
+</div>
+<style>
+  @keyframes splashPulse{
+    0%,100%{opacity:0.85;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.03);}
+  }
+  .splash-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#E8622A;
+    animation:splashDotBounce 1s ease-in-out infinite;
+  }
+  @keyframes splashDotBounce{
+    0%,80%,100%{transform:scale(0.6);opacity:0.4;}
+    40%{transform:scale(1);opacity:1;}
+  }
+</style>
+<script>
+function hideSplash(){
+  var sp=document.getElementById('splash-screen');
+  if(!sp)return;
+  sp.style.opacity='0';
+  sp.style.visibility='hidden';
+  setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},500);
+}
+</script>
+<!-- ──────────────────────────────────────────────────────────────────── -->
+
 <header class="header">
   <div class="hdr-left">
     <img src="logo-white.png" alt="Arcgate Walkathon" class="hdr-logo-img">
@@ -1756,6 +1804,9 @@ async function load() {
       }
     });
 
+    // ── Phase 1 render complete — dismiss splash ───────────────────────────
+    hideSplash();
+
     // ── Phase 2: ranking data in background (with cache) ────────────────────
     (async function loadRanking(){
       try{
@@ -2130,6 +2181,7 @@ async function load() {
     })();
 
   } catch(e) {
+    hideSplash();
     console.error('Load error:',e.message||e);
     var err='<div class="empty-state"><div class="icon">⚠️</div><p>Could not load data.<br>'+(e.message||'Unknown error')+'</p></div>';
     document.getElementById('act-list').innerHTML=err;
@@ -2335,7 +2387,15 @@ function clearPWACache(){
     });
   } else { window.location.reload(true); }
 }
-load();
+// Show splash only on first session load (not on manual cache-refresh)
+var _splashShown = sessionStorage.getItem('_splashDone');
+if (!_splashShown) {
+  sessionStorage.setItem('_splashDone','1');
+  load().finally(function(){ hideSplash(); });
+} else {
+  hideSplash(); // instant — skip the splash
+  load();
+}
 </script>
 
 <script>
