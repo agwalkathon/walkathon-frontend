@@ -221,28 +221,34 @@
     .date-group.open .acts-inner{display:block;}
 
     /* ── WHOOP-style act tile ── */
-    .act-tile{display:flex;align-items:stretch;gap:12px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden;}
+    .act-tile{display:flex;align-items:center;gap:12px;padding:12px 24px 12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;}
     .act-tile:last-child{border-bottom:none;}
     .act-tile-icon{
-      width:52px;height:44px;border-radius:10px;flex-shrink:0;align-self:center;
-      display:flex;align-items:center;justify-content:center;
-      font-size:16px;font-weight:900;color:#fff;
+      height:36px;padding:0 12px;border-radius:8px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      font-size:14px;font-weight:800;color:#fff;
     }
-    .act-tile-icon.walk{background:#166534;}
-    .act-tile-icon.run{background:#1d4ed8;}
-    .act-tile-icon.ride{background:#92400e;}
-    .act-tile-icon.hike{background:#5b21b6;}
-    .act-tile-icon.other{background:#374151;}
-    .act-tile-body{flex:1;min-width:0;}
-    .act-tile-sport{font-size:13px;font-weight:700;color:var(--label);text-transform:uppercase;letter-spacing:0.5px;}
-    .act-tile-name{font-size:15px;font-weight:700;color:#fff;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .act-tile-meta{font-size:12px;color:var(--muted);margin-top:3px;}
-    .act-tile-right{text-align:right;flex-shrink:0;}
-    .act-tile-dist{font-size:22px;font-weight:900;color:#fff;line-height:1;letter-spacing:-0.3px;}
-    .act-tile-dist-lbl{font-size:11px;font-weight:600;color:var(--label);margin-top:1px;}
+    .act-tile-icon.walk{background:#0082F0;}
+    .act-tile-icon.run{background:#0082F0;}
+    .act-tile-icon.ride{background:#D97706;}
+    .act-tile-icon.hike{background:#8B5CF6;}
+    .act-tile-icon.other{background:#4B5563;}
+    .act-tile-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+    .act-tile-sport{font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.5px;}
+    .act-tile-name{font-size:12px;font-weight:500;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .act-tile-meta{font-size:11px;color:var(--label);margin-top:2px;}
+    .act-tile-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;}
+    .act-tile-dist{font-size:18px;font-weight:900;color:#fff;line-height:1;letter-spacing:-0.3px;}
+    .act-tile-dist-lbl{font-size:10px;font-weight:700;color:var(--muted);margin-top:1px;text-transform:uppercase;}
     .act-tile-flag{font-size:8.5px;font-weight:700;padding:2px 6px;border-radius:5px;margin-top:3px;display:inline-block;}
     .flag-valid{background:rgba(34,197,94,0.15);color:#22C55E;}
     .flag-bad{background:rgba(239,68,68,0.15);color:#EF4444;}
+    .act-tile-bar{position:absolute;right:8px;top:15%;width:3px;height:70%;border-radius:2px;}
+    .act-tile-bar.walk{background:#0082F0;}
+    .act-tile-bar.run{background:#0082F0;}
+    .act-tile-bar.ride{background:#D97706;}
+    .act-tile-bar.hike{background:#8B5CF6;}
+    .act-tile-bar.other{background:#4B5563;}
 
     /* ── Medal progress ── */
     .medal-header-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--border);}
@@ -585,7 +591,7 @@
     justify-content: center;
     background: #1e2130;
     z-index: 9999;
-    transition: top 0.2s ease, opacity 0.2s ease;
+    transition: top 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
     opacity: 0;
     pointer-events: none;
   }
@@ -613,6 +619,12 @@
 </style>
 </head>
 <body>
+
+<!-- Pull-to-refresh indicator -->
+<div id="ptr-indicator">
+  <div class="ptr-arrow">↓</div>
+  <div class="ptr-spinner"></div>
+</div>
 
 <!-- ── Splash Screen ──────────────────────────────────────────────────── -->
 <div id="splash-screen" style="
@@ -2315,10 +2327,9 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     var chPts=parseFloat(dayActs.reduce(function(s,a){var ab=actBreakdown[a.strava_activity_id];return s+(ab?ab.challenges.reduce(function(s2,c){return s2+(c.pts||0);},0):0);},0).toFixed(2));
     var dayTotal=parseFloat((db.distPts+db.bonusPts+chPts).toFixed(2));
     var dateObj=new Date(date+'T00:00:00');
-    var dW=dateObj.toLocaleDateString('en-IN',{weekday:'long'});
     var dN=dateObj.getDate();
-    var dM=dateObj.toLocaleDateString('en-IN',{month:'long'});
-    var dateStr=dW+', '+dN+' '+dM;
+    var dM=dateObj.toLocaleDateString('en-US',{month:'long'});
+    var dateStr=dM+' '+dN;
     // Show scored km (capped) with raw in parens if different
     var kmDiff=Math.abs(rawKm-scoredKm)>0.05;
     var kmLabel=Math.round(scoredKm)+' KM'+(kmDiff?' ('+Math.round(rawKm)+' raw)':'');
@@ -2337,7 +2348,11 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     group.appendChild(dateRow);
     var inner=document.createElement('div'); inner.className='acts-inner';
     dayActs.forEach(function(a){
-      var km=a.distance_meters?(a.distance_meters/1000).toFixed(2):'—';
+      var rawActKm=a.distance_meters?(a.distance_meters/1000):0;
+      var km=rawActKm.toFixed(2);
+      var actSteps=Math.round(rawActKm*1350);
+      var stepsStr=actSteps>=1000?(actSteps/1000).toFixed(1).replace('.0','')+'k':actSteps;
+      
       var dur=a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—';
       var ps=fmtPS(a.avg_speed,a.sport_type);
       var actUrl='https://www.strava.com/activities/'+a.strava_activity_id;
@@ -2345,7 +2360,7 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
       var timeStr=(a.activity_date&&a.activity_date.indexOf('T')>-1)?fmtTime(a.activity_date):'';
       var item=document.createElement('div'); item.className='act-tile';
       item.innerHTML=
-        '<div class="act-tile-icon '+tc+'">'+renderIcon(a.sport_type)+'</div>'+
+        '<div class="act-tile-icon '+tc+'">'+renderIcon(a.sport_type)+' <span>'+stepsStr+'</span></div>'+
         '<div class="act-tile-body">'+
           '<div class="act-tile-sport">'+(a.sport_type||'Activity')+'</div>'+
           '<a class="act-tile-name" href="'+actUrl+'" target="_blank" style="text-decoration:none;color:#fff">'+esc(a.activity_name||'Activity')+'</a>'+
@@ -2356,7 +2371,8 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
           '<div class="act-tile-dist-lbl">km</div>'+
           (function(){var ab2=actBreakdown[a.strava_activity_id]||{challenges:[]};var ac=ab2.challenges||[];var acp=ac.reduce(function(s,c){return s+(c.pts||0);},0);return acp>0?'<div style="font-size:10px;font-weight:700;color:var(--gold);margin-top:2px;">+'+acp.toFixed(1)+' ch</div>':'';})()+
           '<div class="act-tile-flag '+(isFlag?'flag-bad':'flag-valid')+'">'+(isFlag?'⚑ Flagged':'✓ Valid')+'</div>'+
-        '</div>';
+        '</div>'+
+        '<div class="act-tile-bar '+tc+'"></div>';
       inner.appendChild(item);
     });
     group.appendChild(inner); list.appendChild(group);
@@ -2476,15 +2492,95 @@ function showTab(tab){
 })();
 // ──────────────────────────────────────────────────────────────────────────
 
-function refreshData(){
+function refreshData(isPull){
   // Clear personal-data cache so we always fetch fresh data on manual refresh
   var s = currentSession || JSON.parse(localStorage.getItem('wk_user')||'{}');
   if (s && s.athleteId) cacheClear(s.athleteId);
 
-  showSplash();
   document.getElementById('flagged-banner').style.display='none';
-  load().finally(function(){ hideSplash(); });
+
+  if (isPull) {
+    var ptr = document.getElementById('ptr-indicator');
+    if (ptr) {
+      ptr.classList.add('ptr-visible', 'ptr-loading');
+    }
+    load().finally(function(){
+      if (ptr) {
+        ptr.classList.remove('ptr-visible', 'ptr-loading', 'ptr-ready');
+        ptr.style.transform = '';
+      }
+    });
+  } else {
+    showSplash();
+    load().finally(function(){ hideSplash(); });
+  }
 }
+
+// ── Pull-to-Refresh Touch Handlers ────────────────────────────────────────
+(function(){
+  var ptrStartY = 0;
+  var ptrActive = false;
+  var ptrThreshold = 85; // px
+  var ptrIndicator = null;
+
+  document.addEventListener('touchstart', function(e) {
+    if (!ptrIndicator) ptrIndicator = document.getElementById('ptr-indicator');
+    if (!ptrIndicator) return;
+    
+    // Ignore if loading is active
+    if (ptrIndicator.classList.contains('ptr-loading')) {
+      ptrActive = false;
+      return;
+    }
+
+    // Only active if we are scrolled to the top
+    if (window.scrollY === 0 && e.touches.length === 1) {
+      ptrStartY = e.touches[0].clientY;
+      ptrActive = true;
+    } else {
+      ptrActive = false;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!ptrActive || !ptrIndicator) return;
+    var currentY = e.touches[0].clientY;
+    var diff = currentY - ptrStartY;
+
+    if (diff > 0) {
+      // Pulling down
+      ptrIndicator.classList.add('ptr-visible');
+      if (diff >= ptrThreshold) {
+        ptrIndicator.classList.add('ptr-ready');
+      } else {
+        ptrIndicator.classList.remove('ptr-ready');
+      }
+      
+      // Pull down visual displacement (dampened)
+      var yTranslate = Math.min(diff * 0.5, 45); 
+      ptrIndicator.style.transform = 'translateY(' + yTranslate + 'px)';
+
+      // Prevent default browser refresh/behavior
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', function(e) {
+    if (!ptrActive || !ptrIndicator) return;
+    ptrActive = false;
+    var currentY = e.changedTouches[0].clientY;
+    var diff = currentY - ptrStartY;
+
+    if (diff >= ptrThreshold) {
+      refreshData(true);
+    } else {
+      ptrIndicator.style.transform = '';
+      ptrIndicator.classList.remove('ptr-visible', 'ptr-ready');
+    }
+  }, { passive: true });
+})();
 
 // ── Leaderboard shared vars (declared here so Phase 1 can populate them) ──
 var LB_ME=null,LB_REG=[],LB_ACTS=[],LB_currentTab='shift';
