@@ -1225,7 +1225,7 @@ function initPushAfterLogin() {
     }
 
     document.addEventListener('touchstart', function(e) {
-      if (getScrollTop() === 0 && e.touches.length === 1) {
+      if (getScrollTop() === 0 && e.touches.length === 1 && e.touches[0].clientY <= 80) {
         startY = e.touches[0].screenY;
         pulling = true;
       }
