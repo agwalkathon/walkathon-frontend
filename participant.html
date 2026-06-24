@@ -224,9 +224,9 @@
     .act-tile{display:flex;align-items:center;gap:12px;padding:12px 24px 12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;}
     .act-tile:last-child{border-bottom:none;}
     .act-tile-icon{
-      height:36px;padding:0 12px;border-radius:8px;flex-shrink:0;
+      height:32px;padding:0 10px;border-radius:8px;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;gap:6px;
-      font-size:14px;font-weight:800;color:#fff;
+      font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:0.3px;
     }
     .act-tile-icon.walk{background:#0082F0;}
     .act-tile-icon.run{background:#0082F0;}
@@ -2330,18 +2330,16 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
     var dN=dateObj.getDate();
     var dM=dateObj.toLocaleDateString('en-US',{month:'long'});
     var dateStr=dM+' '+dN;
-    // Show scored km (capped) with raw in parens if different
-    var kmDiff=Math.abs(rawKm-scoredKm)>0.05;
-    var kmLabel=Math.round(scoredKm)+' KM'+(kmDiff?' ('+Math.round(rawKm)+' raw)':'');
-    var actWord=dayActs.length===1?'1 activity':dayActs.length+' activities';
+    var actCountStr=dayActs.length+'x';
+    var daySteps=Math.round(rawKm*1350);
+    var dayStepsStr=daySteps>=1000?(daySteps/1000).toFixed(1).replace('.0','')+'k Steps':daySteps+' Steps';
+    var dayDistStr=(rawKm%1===0?Math.round(rawKm):rawKm.toFixed(2))+' KM';
+
     var group=document.createElement('div'); group.className='date-group'; group.id='dg-'+gi;
     var dateRow=document.createElement('div'); dateRow.className='date-row';
-    dateRow.innerHTML='<div class="date-col"><div class="date-label">'+esc(dateStr)+'<span style="color:var(--muted);font-weight:500;font-size:14px;"> | '+kmLabel+'</span></div><div class="date-sub">'+actWord+'</div></div>'+
-      '<div class="date-pts-strip">'+
-        '<span class="dpill dist">'+db.distPts.toFixed(1)+'</span>'+
-        (db.bonusPts>0?'<span class="dpill bonus"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>+'+db.bonusPts+'</span>':'')+
-        (chPts>0?'<span class="dpill chall"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'+chPts.toFixed(1)+'</span>':'')+
-        '<span class="dpill total">'+dayTotal.toFixed(1)+'</span>'+
+    dateRow.innerHTML='<div class="date-col"><div class="date-label">'+esc(dateStr)+'<span style="color:var(--muted);font-weight:500;font-size:14px;"> | '+actCountStr+'</span></div></div>'+
+      '<div style="font-size:13px;font-weight:700;color:var(--muted);margin-right:4px;white-space:nowrap;display:flex;align-items:center;">'+
+        esc(dayDistStr)+' | '+esc(dayStepsStr)+
       '</div>'+
       '<div class="date-chevron">▼</div>';
     dateRow.addEventListener('click',(function(id){return function(){toggleDay(id);}})('dg-'+gi));
@@ -2352,6 +2350,7 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
       var km=rawActKm.toFixed(2);
       var actSteps=Math.round(rawActKm*1350);
       var stepsStr=actSteps>=1000?(actSteps/1000).toFixed(1).replace('.0','')+'k':actSteps;
+      var sportStr=(a.sport_type||'Activity').toUpperCase();
       
       var dur=a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—';
       var ps=fmtPS(a.avg_speed,a.sport_type);
@@ -2360,10 +2359,9 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
       var timeStr=(a.activity_date&&a.activity_date.indexOf('T')>-1)?fmtTime(a.activity_date):'';
       var item=document.createElement('div'); item.className='act-tile';
       item.innerHTML=
-        '<div class="act-tile-icon '+tc+'">'+renderIcon(a.sport_type)+' <span>'+stepsStr+'</span></div>'+
+        '<div class="act-tile-icon '+tc+'">'+renderIcon(a.sport_type)+' <span>'+sportStr+' · '+stepsStr+'</span></div>'+
         '<div class="act-tile-body">'+
-          '<div class="act-tile-sport">'+(a.sport_type||'Activity')+'</div>'+
-          '<a class="act-tile-name" href="'+actUrl+'" target="_blank" style="text-decoration:none;color:#fff">'+esc(a.activity_name||'Activity')+'</a>'+
+          '<a class="act-tile-name" href="'+actUrl+'" target="_blank" style="text-decoration:none;color:#fff;font-size:14px;font-weight:700;">'+esc(a.activity_name||'Activity')+'</a>'+
           '<div class="act-tile-meta">'+(timeStr?timeStr+' · ':'')+dur+' · '+ps+'</div>'+
         '</div>'+
         '<div class="act-tile-right">'+
