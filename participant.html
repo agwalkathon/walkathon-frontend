@@ -161,7 +161,7 @@
     .metric-lbl{font-size:10px;font-weight:700;color:var(--label);text-transform:uppercase;letter-spacing:1.2px;margin-top:8px;}
 
     /* ── Content area ── */
-    .content{flex:1;padding:14px 20px 90px;display:none;overflow-x:hidden;}
+    .content{flex:1;padding:14px 20px 90px;display:none;overflow-x:hidden;touch-action:pan-y;}
     .content.active{display:block;}
     .max-w{max-width:540px;margin:0 auto;}
 
@@ -615,16 +615,17 @@
 <!-- ── Splash Screen ──────────────────────────────────────────────────── -->
 <div id="splash-screen" style="
   position:fixed;inset:0;z-index:9999;
-  background:#ffffff;
+  background:#0E1012;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   transition:opacity 0.4s ease;
 ">
   <div style="display:flex;flex-direction:column;align-items:center;gap:32px;">
     <img
-      src="logo-horizontal.png"
+      src="aw_logo_dark.png"
       alt="Walkathon"
       style="width:min(260px,68vw);
+             filter: brightness(0) invert(1);
              animation:splashPulse 1.8s ease-in-out infinite;"
     >
     <div style="display:flex;gap:9px;align-items:center;">
@@ -1900,6 +1901,7 @@ async function load() {
       if(teamCard) teamCard.style.display='';
       if(standingGrid) standingGrid.style.gridTemplateColumns='1fr 1fr';
     }
+    })();
     // ─────────────────────────────────────────────────────────────────────
 
     // ── Pace Goals — dynamic based on medal status ────────────────────────────
@@ -2160,52 +2162,39 @@ async function load() {
     document.getElementById('streak-bars').innerHTML=days7.map(function(d){return'<div class="sbar '+(d.isToday?'dim':d.active?'on':'off')+'"></div>';}).join('');
     document.getElementById('streak-labels').innerHTML=labels7.map(function(l){return'<span class="sdlbl">'+l+'</span>';}).join('');
 
-    // Challenges
-    var chCard=document.getElementById('challenges-card');
-    if(chCard&&CHALLENGES_LB.length){chCard.innerHTML='';var sortedChallenges=CHALLENGES_LB.slice().sort(function(a,b){return (b.start_date||'').localeCompare(a.start_date||'');});sortedChallenges.slice(0,8).forEach(function(ch,ci2){
+    // ── Challenges (Phase 1 — CHALLENGES_LB already loaded) ──────────────────
+    (function renderChallenges(){
+      var chCard=document.getElementById('challenges-card');
+      if(!chCard)return;
+      if(!CHALLENGES_LB.length){
+        chCard.innerHTML='<p style="font-size:12px;color:var(--muted);padding:14px">No challenges configured.</p>';
+        return;
+      }
+      chCard.innerHTML='';
+      var sortedCh=CHALLENGES_LB.slice().sort(function(a,b){return (b.start_date||'').localeCompare(a.start_date||'');});
+      sortedCh.slice(0,8).forEach(function(ch,ci2){
         var key='ch_'+(ch.id||ci2);
         var ep=fullPts.earnedPts||{};
         var ec=fullPts.earnedChallenges||{};
         var earned=!!ec[key];
-        // Fallback: check dayBreakdown + actBreakdown by name
         if(!earned){var allDB=fullPts.dayBreakdown||{};for(var day in allDB){if(allDB[day].challenges&&allDB[day].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}
         if(!earned){var ab=fullPts.actBreakdown||{};for(var actId in ab){if(ab[actId].challenges&&ab[actId].challenges.some(function(x){return x.name===ch.name;})){earned=true;break;}}}
-        // Points: show actual earned (for range_split/per-activity) or configured bonus
         var displayPts=earned&&ep[key]?ep[key]:Number(ch.bonus_points)||0;
         var today2=new Date().toISOString().split('T')[0];
         var missed=!earned&&ch.end_date&&ch.end_date<today2;
         var statusCls=earned?'won':missed?'missed':'avail';
-        var statusIcon=earned?'✓':missed?'✕':'!';
+        var statusIcon=earned?'\u2713':missed?'\u2715':'!';
         var div=document.createElement('div');div.className='ch-row';
-        div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title" style="text-transform:uppercase;letter-spacing:0.5px;">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' – '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+(earned?displayPts.toFixed(1):ch.bonus_points)+' pts</div>';
-        chCard.appendChild(div);});}
-    else if(chCard)chCard.innerHTML='<p style="font-size:12px;color:var(--muted);padding:14px">No challenges configured.</p>';
+        div.innerHTML='<div class="ch-dot '+statusCls+'">'+statusIcon+'</div><div class="ch-body"><div class="ch-title" style="text-transform:uppercase;letter-spacing:0.5px;">'+esc(ch.name)+'</div><div class="ch-sub">'+(ch.start_date===ch.end_date?ch.start_date:ch.start_date+' \u2013 '+ch.end_date)+'</div></div><div class="ch-pts '+statusCls+'">+'+(earned?displayPts.toFixed(1):ch.bonus_points)+' pts</div>';
+        chCard.appendChild(div);
+      });
+    })();
 
-    // Activities title
+    // ── Activities title ──────────────────────────────────────────────────────
     var flaggedCount=myActs.filter(function(a){return a.is_flagged;}).length;
     var uniqueDays=new Set(myActs.filter(function(a){return !a.is_flagged;}).map(function(a){return(a.activity_date||'').split('T')[0];})).size;
-    document.getElementById('act-section-title').textContent=uniqueDays+' Days · '+myActs.length+' Activities'+(flaggedCount?' · '+flaggedCount+' Flagged':'');
-    })().catch(function(e){console.warn('Ranking:',e);});
+    document.getElementById('act-section-title').textContent=uniqueDays+' Days \u00b7 '+myActs.length+' Activities'+(flaggedCount?' \u00b7 '+flaggedCount+' Flagged':'');
 
-    renderActivities(myActs,fullPts.dayBreakdown,fullPts.actBreakdown,reg.gender);
-    (function(){
-      var vA=myActs.filter(function(a){return !a.is_flagged;});
-      if(!vA.length)return;
-      var lng=vA.reduce(function(m,a){return(a.distance_meters||0)>(m.distance_meters||0)?a:m;},vA[0]);
-      var el=document.getElementById('pb-longest');if(el)el.textContent=(lng.distance_meters/1000).toFixed(1)+' km';
-      var pA=vA.filter(function(a){return a.avg_speed>0&&['Walk','Run','Hike','VirtualRun'].indexOf(a.sport_type)>-1;});
-      if(pA.length){var fp=pA.reduce(function(m,a){return a.avg_speed>m.avg_speed?a:m;},pA[0]);var ps=1000/fp.avg_speed,pm=Math.floor(ps/60),psc=Math.round(ps%60);var el2=document.getElementById('pb-pace');if(el2)el2.textContent=pm+':'+(psc<10?'0':'')+psc;}
-      var tA=vA.filter(function(a){return a.moving_time_seconds>0;});
-      if(tA.length){var lt=tA.reduce(function(m,a){return a.moving_time_seconds>m.moving_time_seconds?a:m;},tA[0]);var th=Math.floor(lt.moving_time_seconds/3600),tm2=Math.floor((lt.moving_time_seconds%3600)/60);var el3=document.getElementById('pb-time');if(el3)el3.textContent=th>0?th+'h '+tm2+'m':tm2+'m';}
-      var dK={};vA.forEach(function(a){var d=(a.activity_date||'').split('T')[0];if(d)dK[d]=(dK[d]||0)+(a.distance_meters||0)/1000;});
-      var bd=Object.keys(dK).reduce(function(m,d){return dK[d]>dK[m]?d:m;},Object.keys(dK)[0]);
-      if(bd){var el4=document.getElementById('pb-bestday');if(el4)el4.textContent=Math.round(dK[bd])+' km';var el5=document.getElementById('pb-bestday-date');if(el5){var bdo=new Date(bd+'T12:00:00');el5.textContent=bdo.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}}
-      var tC={};vA.forEach(function(a){var t=a.sport_type||'Other';tC[t]=(tC[t]||0)+1;});
-      var tCol={Walk:'rgba(34,197,94,0.15)',Run:'rgba(96,165,250,0.15)',Ride:'rgba(255,208,0,0.15)',Hike:'rgba(167,139,250,0.15)',Other:'rgba(255,255,255,0.08)'};
-      var tTxt={Walk:'var(--green)',Run:'var(--blue)',Ride:'var(--gold)',Hike:'var(--purple)',Other:'var(--muted)'};
-      var bd2=document.getElementById('act-type-breakdown');
-      if(bd2){bd2.innerHTML='';Object.keys(tC).sort(function(a,b){return tC[b]-tC[a];}).forEach(function(t){var pill=document.createElement('span');pill.style.cssText='display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:700;background:'+(tCol[t]||tCol.Other)+';color:'+(tTxt[t]||tTxt.Other)+';';pill.textContent=t+' · '+tC[t];bd2.appendChild(pill);});}
-    })();
 
     // ── All Phase 1 content rendered — now safe to dismiss splash ────────────
     hideSplash();
@@ -2337,8 +2326,6 @@ function showTab(tab){
 (function(){
   var touchStartX = 0, touchStartY = 0;
   var MIN_SWIPE_X = 55;   // minimum horizontal px to count as a swipe
-  var MAX_ANGLE   = 0.55; // tan(~29°)
-  // null = undecided, 'h' = horizontal lock, 'v' = vertical (ignore)
   var _swipeDir = null;
 
   document.addEventListener('touchstart', function(e){
@@ -2349,25 +2336,29 @@ function showTab(tab){
 
   // Non-passive so we can call preventDefault() when it's a horizontal swipe
   document.addEventListener('touchmove', function(e){
-    if (_swipeDir === 'v') return; // already decided it's a vertical scroll — let it go
     if (touchStartY > window.innerHeight - 80) return; // bottom nav zone
+    if (_swipeDir === 'v') return;
 
     var dx = e.changedTouches[0].clientX - touchStartX;
     var dy = e.changedTouches[0].clientY - touchStartY;
     var absDx = Math.abs(dx);
     var absDy = Math.abs(dy);
 
-    // Need at least 8px movement before deciding direction
-    if (absDx < 8 && absDy < 8) return;
-
     if (_swipeDir === null) {
-      // First time we have enough movement — decide direction
-      _swipeDir = absDy / absDx > MAX_ANGLE ? 'v' : 'h';
+      // Decide direction as early as 3 pixels of movement to block vertical scroll before it starts
+      if (absDx > 3 || absDy > 3) {
+        if (absDx > absDy * 0.8) {
+          _swipeDir = 'h';
+        } else {
+          _swipeDir = 'v';
+        }
+      }
     }
 
     if (_swipeDir === 'h') {
-      // It's horizontal — block the browser from scrolling the page
-      e.preventDefault();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
     }
   }, { passive: false });
 
@@ -2420,15 +2411,8 @@ function clearPWACache(){
     });
   } else { window.location.reload(true); }
 }
-// Show splash only on first session load (not on manual cache-refresh)
-var _splashShown = sessionStorage.getItem('_splashDone');
-if (!_splashShown) {
-  sessionStorage.setItem('_splashDone','1');
-  load().finally(function(){ hideSplash(); });
-} else {
-  hideSplash(); // instant — skip the splash
-  load();
-}
+// Show splash screen on every page load until all resources/data are preloaded
+load().finally(function(){ hideSplash(); });
 </script>
 
 <script>
