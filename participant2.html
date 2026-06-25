@@ -903,9 +903,10 @@ async function load() {
     }
 
     var paceCard=document.getElementById('pace-card');
-    paceCard.innerHTML='';
+    if(paceCard){
+      paceCard.innerHTML='';
 
-    if(myPts>=goldThresh){
+      if(myPts>=goldThresh){
       // Gold achieved — performance + rivalry card
       var daysElapsed=Math.max(1,(now-new Date('2026-06-01'))/86400000);
       var avgKmDay=fullPts.km/daysElapsed;
@@ -981,6 +982,7 @@ async function load() {
       } else {
         paceCard.appendChild(paceRow('rgba(34,197,94,0.12)',icoPaceChk,'Max daily bonus earned!',todayKm.toFixed(1)+' km today','+7 pts','var(--green)'));
       }
+    }
     }
 
 
