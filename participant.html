@@ -1484,6 +1484,9 @@ function calcFullPts(myActs, gender, shift) {
 
       var base2     = parseFloat(CONFIG_LB.basePer_km) || 1;
       var dayDistKm = qualKmTotal + remainKm;
+      if (!isSpecial && dayDistKm > DAILY_CAP) {
+        dayDistKm = DAILY_CAP;
+      }
       totalDistKm  += dayDistKm;
       totalDistPts += parseFloat((dayDistKm * base2).toFixed(2));
 
