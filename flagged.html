@@ -137,7 +137,8 @@ tr:hover td{background:#FAFAFA}
 <aside class="sidebar">
 <div class="sb-section">Main</div>
 <a href="admin.html" class="sb-item"><i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span></a>
-<a href="activities.html" class="sb-item active"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="activities.html" class="sb-item"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="flagged.html" class="sb-item active"><i class="ti ti-flag"></i><span class="sb-label">Flagged Activities</span></a>
 <a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
 <a href="participants.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
 <a href="participant-requests.html" class="sb-item"><i class="ti ti-user-check"></i><span class="sb-label">Requests</span></a>
@@ -211,6 +212,9 @@ var SUPABASE_URL  = 'https://jhdgkncpkrttvemvwukc.supabase.co';
 var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 var BACKEND_URL   = 'https://walkathon-backend-hv9j.onrender.com';
 var HDR = { apikey: SUPABASE_ANON, Authorization: 'Bearer '+SUPABASE_ANON };
+
+async function fetchAllRows(baseUrl,hdrs){var all=[],pageSize=1000,from=0;while(true){var to=from+pageSize-1;var r=await fetch(baseUrl+(baseUrl.includes('?')?'&':'?')+'limit='+pageSize+'&offset='+from,{headers:Object.assign({},hdrs,{'Range-Unit':'items','Range':from+'-'+to})});if(!r.ok){console.error('fetchAllRows error',r.status,baseUrl);break}var page=await r.json();if(!Array.isArray(page)||page.length===0)break;all=all.concat(page);if(page.length<pageSize)break;from+=pageSize}return all}
+
 var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
 function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
 function fmtTime(d) { return new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
@@ -243,35 +247,45 @@ async function recheckAll(){
 }
 async function loadData(){
   document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8">Loading...</td></tr>';
-  var rR=await fetch(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name',{headers:HDR});
-  (await rR.json()).forEach(function(r){ regMap[r.strava_athlete_id]=r.full_name; });
-  var url=currentTab==='flagged'
-    ?SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.true&is_deleted=eq.false&order=activity_date.desc'
-    :SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.true&order=activity_date.desc';
-  var acts=await (await fetch(url,{headers:HDR})).json();
-  var sum=document.getElementById('summary');
-  if(currentTab==='flagged'){ sum.className=acts.length?'summary warn':'summary ok'; sum.textContent=acts.length?'⚠️ '+acts.length+' activit'+(acts.length===1?'y':'ies')+' flagged for review':'✅ No flagged activities — everything looks clean!'; }
-  else { sum.className='summary info'; sum.textContent='🗑️ '+acts.length+' deleted activit'+(acts.length===1?'y':'ies')+'— can be restored anytime'; }
-  if(!acts.length){ document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8">'+(currentTab==='flagged'?'🎉 No flagged activities!':'No deleted activities')+'</td></tr>'; return; }
-  document.getElementById('flagged-body').innerHTML=acts.map(function(a){
-    var name=regMap[a.strava_athlete_id]||'Unknown';
-    var safeReason=(a.flag_reason||'').replace(/'/g,"\\'");
-    var actions=currentTab==='flagged'
-      ?'<button class="btn btn-orange" onclick="openFlagModal('+a.id+',\''+name+'\',\''+safeReason+'\')">✏️ Edit</button>'
-       +'<button class="btn btn-green" onclick="doAction('+a.id+',\'unflag\',\'\')">✅ Clear</button>'
-       +'<button class="btn btn-red" onclick="doAction('+a.id+',\'delete\',\''+safeReason+'\')">🗑️ Delete</button>'
-      :'<button class="btn btn-blue" onclick="doAction('+a.id+',\'restore\',\'\')">↩️ Restore</button>';
-    return '<tr id="row-'+a.id+'">'
-      +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+name+'</a></td>'
-      +'<td><a href="https://www.strava.com/activities/'+a.strava_activity_id+'" target="_blank" class="act-link">'+(a.activity_name||'—')+'</a></td>'
-      +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
-      +'<td>'+fmtDate(a.activity_date)+' '+fmtTime(a.activity_date)+'</td>'
-      +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
-      +'<td>'+(a.avg_speed?(a.avg_speed*3.6).toFixed(1)+' km/h':'—')+'</td>'
-      +'<td><span class="flag-reason">'+(a.flag_reason||'—')+'</span></td>'
-      +'<td>'+actions+'</td>'
-      +'</tr>';
-  }).join('');
+  try {
+    var regs = await fetchAllRows(SUPABASE_URL+'/rest/v1/registration?select=strava_athlete_id,full_name', HDR);
+    regMap = {};
+    regs.forEach(function(r){
+      if (r.strava_athlete_id != null) {
+        regMap[String(r.strava_athlete_id).trim()] = r.full_name;
+      }
+    });
+    var url=currentTab==='flagged'
+      ?SUPABASE_URL+'/rest/v1/activities?is_flagged=eq.true&is_deleted=eq.false&order=activity_date.desc'
+      :SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.true&order=activity_date.desc';
+    var acts = await fetchAllRows(url, HDR);
+    var sum=document.getElementById('summary');
+    if(currentTab==='flagged'){ sum.className=acts.length?'summary warn':'summary ok'; sum.textContent=acts.length?'⚠️ '+acts.length+' activit'+(acts.length===1?'y':'ies')+' flagged for review':'✅ No flagged activities — everything looks clean!'; }
+    else { sum.className='summary info'; sum.textContent='🗑️ '+acts.length+' deleted activit'+(acts.length===1?'y':'ies')+'— can be restored anytime'; }
+    if(!acts.length){ document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8">'+(currentTab==='flagged'?'🎉 No flagged activities!':'No deleted activities')+'</td></tr>'; return; }
+    document.getElementById('flagged-body').innerHTML=acts.map(function(a){
+      var name=regMap[String(a.strava_athlete_id).trim()]||'Unknown';
+      var safeReason=(a.flag_reason||'').replace(/'/g,"\\'");
+      var actions=currentTab==='flagged'
+        ?'<button class="btn btn-orange" onclick="openFlagModal('+a.id+',\''+name+'\',\''+safeReason+'\')">✏️ Edit</button>'
+         +'<button class="btn btn-green" onclick="doAction('+a.id+',\'unflag\',\'\')">✅ Clear</button>'
+         +'<button class="btn btn-red" onclick="doAction('+a.id+',\'delete\',\''+safeReason+'\')">🗑️ Delete</button>'
+        :'<button class="btn btn-blue" onclick="doAction('+a.id+',\'restore\',\'\')">↩️ Restore</button>';
+      return '<tr id="row-'+a.id+'">'
+        +'<td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+name+'</a></td>'
+        +'<td><a href="https://www.strava.com/activities/'+a.strava_activity_id+'" target="_blank" class="act-link">'+(a.activity_name||'—')+'</a></td>'
+        +'<td><span class="badge '+bc(a.sport_type)+'">'+(a.sport_type||'—')+'</span></td>'
+        +'<td>'+fmtDate(a.activity_date)+' '+fmtTime(a.activity_date)+'</td>'
+        +'<td>'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
+        +'<td>'+(a.avg_speed?(a.avg_speed*3.6).toFixed(1)+' km/h':'—')+'</td>'
+        +'<td><span class="flag-reason">'+(a.flag_reason||'—')+'</span></td>'
+        +'<td>'+actions+'</td>'
+        +'</tr>';
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    document.getElementById('flagged-body').innerHTML='<tr class="loading-row"><td colspan="8" style="color:#c62828">Error loading data. Please try again.</td></tr>';
+  }
 }
 document.getElementById('flag-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
 loadData();
