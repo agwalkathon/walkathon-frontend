@@ -148,6 +148,34 @@ tr:hover td{background:#FAFAFA}
   border-bottom: 1px solid var(--border);
   padding: 16px 24px !important;
 }
+.activity-metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.meta-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.meta-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
 .splits-container {
   display: flex;
   gap: 24px;
@@ -415,7 +443,7 @@ async function loadActivities(){
       var actUrl='https://www.strava.com/activities/'+a.strava_activity_id;
       var athleteName=r&&r.full_name?r.full_name:'Unknown';
       var statusBadge=a.is_flagged?'<span class="badge badge-invalid" style="cursor:pointer" onclick="openModal('+a.id+')">🚩 '+esc(a.flag_reason||'Flagged')+'</span>':'<span class="badge badge-valid" style="cursor:pointer" onclick="openModal('+a.id+')">✅ Valid</span>';
-      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'"><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
+      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'" data-device="'+esc(a.device_name||'—')+'" data-elapsed="'+(a.elapsed_time_seconds?fmtDur(a.elapsed_time_seconds):'—')+'" data-avg-hr="'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'" data-max-hr="'+(a.max_heart_rate?a.max_heart_rate.toFixed(0)+' bpm':'—')+'" data-calories="'+(a.calories?a.calories.toFixed(0)+' kcal':'—')+'" data-steps="'+(a.steps||'—')+'" data-flagged="'+(a.is_flagged?'Yes':'No')+'" data-flag-reason="'+esc(a.flag_reason||'—')+'" data-deleted="'+(a.is_deleted?'Yes':'No')+'" data-bonus="'+(a.manual_bonus||0)+' points"><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
     }).join('');
     setTimeout(initScrollSync,100);
   }catch(e){
@@ -458,6 +486,32 @@ document.getElementById('activities-body').addEventListener('click', function(e)
 
 async function toggleRowSplits(row) {
   var next = row.nextSibling;
+  
+  // Extract metadata attributes from the clicked row
+  var dev = row.getAttribute('data-device');
+  var ela = row.getAttribute('data-elapsed');
+  var avghr = row.getAttribute('data-avg-hr');
+  var maxhr = row.getAttribute('data-max-hr');
+  var cal = row.getAttribute('data-calories');
+  var steps = row.getAttribute('data-steps');
+  var flg = row.getAttribute('data-flagged');
+  var flgr = row.getAttribute('data-flag-reason');
+  var del = row.getAttribute('data-deleted');
+  var bon = row.getAttribute('data-bonus');
+
+  var metaHtml = '<div class="activity-metadata-grid">' +
+    '<div class="meta-item"><span class="meta-label">Device Name</span><span class="meta-value">' + esc(dev) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Elapsed Time</span><span class="meta-value">' + esc(ela) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Avg Heart Rate</span><span class="meta-value">' + esc(avghr) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Max Heart Rate</span><span class="meta-value">' + esc(maxhr) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Calories</span><span class="meta-value">' + esc(cal) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Steps</span><span class="meta-value">' + esc(steps) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Is Flagged</span><span class="meta-value">' + esc(flg) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Flag Reason</span><span class="meta-value">' + esc(flgr) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Is Deleted</span><span class="meta-value">' + esc(del) + '</span></div>' +
+    '<div class="meta-item"><span class="meta-label">Manual Bonus</span><span class="meta-value">' + esc(bon) + '</span></div>' +
+    '</div>';
+
   if (next && next.classList && next.classList.contains('detail-row')) {
     var isHidden = next.style.display === 'none';
     next.style.display = isHidden ? '' : 'none';
@@ -470,7 +524,7 @@ async function toggleRowSplits(row) {
   
   var detailRow = document.createElement('tr');
   detailRow.className = 'detail-row';
-  detailRow.innerHTML = '<td colspan="10"><div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
+  detailRow.innerHTML = '<td colspan="10">' + metaHtml + '<div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
   
   row.parentNode.insertBefore(detailRow, row.nextSibling);
   
@@ -479,18 +533,11 @@ async function toggleRowSplits(row) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var splits = await res.json();
     
-    if (!splits || splits.length === 0) {
-      detailRow.querySelector('td').innerHTML = '<div style="padding:4px 0;font-size:12px;color:#888;">No split data recorded for this activity.</div>';
-      return;
-    }
-    
-    var metricSplits = splits.filter(function(s) { return s.split_type === 'metric'; });
-    var standardSplits = splits.filter(function(s) { return s.split_type === 'standard'; });
-    
-    var html = '<div class="splits-container">';
+    var html = metaHtml;
+    var metricSplits = splits ? splits.filter(function(s) { return s.split_type === 'metric'; }) : [];
     
     if (metricSplits.length > 0) {
-      html += '<div class="splits-col"><h4><i class="ti ti-flame"></i> Kilometre Splits (Metric)</h4><table class="splits-table"><thead><tr><th>Split</th><th>Distance</th><th>Time</th><th>Pace</th><th>Elevation</th></tr></thead><tbody>';
+      html += '<div class="splits-container"><div class="splits-col"><h4><i class="ti ti-flame"></i> Kilometre Splits (Metric)</h4><table class="splits-table"><thead><tr><th>Split</th><th>Distance</th><th>Time</th><th>Pace</th><th>Elevation</th></tr></thead><tbody>';
       metricSplits.forEach(function(s) {
         var dist = (s.distance_meters / 1000).toFixed(2) + ' km';
         var time = fmtDurSplit(s.moving_time_seconds);
@@ -498,26 +545,15 @@ async function toggleRowSplits(row) {
         var elev = s.elevation_difference ? (s.elevation_difference > 0 ? '+' : '') + s.elevation_difference.toFixed(0) + ' m' : '—';
         html += '<tr><td>' + s.split_number + '</td><td>' + dist + '</td><td>' + time + '</td><td>' + pace + '</td><td>' + elev + '</td></tr>';
       });
-      html += '</tbody></table></div>';
+      html += '</tbody></table></div></div>';
+    } else {
+      html += '<div style="padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:#888;">No split data recorded for this activity.</div>';
     }
     
-    if (standardSplits.length > 0) {
-      html += '<div class="splits-col"><h4><i class="ti ti-flame"></i> Mile Splits (Standard)</h4><table class="splits-table"><thead><tr><th>Split</th><th>Distance</th><th>Time</th><th>Pace</th><th>Elevation</th></tr></thead><tbody>';
-      standardSplits.forEach(function(s) {
-        var dist = (s.distance_meters / 1609.34).toFixed(2) + ' mi';
-        var time = fmtDurSplit(s.moving_time_seconds);
-        var pace = fmtPSSplit(s.avg_speed, 'standard');
-        var elev = s.elevation_difference ? (s.elevation_difference > 0 ? '+' : '') + s.elevation_difference.toFixed(0) + ' m' : '—';
-        html += '<tr><td>' + s.split_number + '</td><td>' + dist + '</td><td>' + time + '</td><td>' + pace + '</td><td>' + elev + '</td></tr>';
-      });
-      html += '</tbody></table></div>';
-    }
-    
-    html += '</div>';
     detailRow.querySelector('td').innerHTML = html;
   } catch (err) {
     console.error('Error fetching splits:', err);
-    detailRow.querySelector('td').innerHTML = '<div style="padding:4px 0;font-size:12px;color:#c62828;">Error loading split data: ' + esc(err.message) + '</div>';
+    detailRow.querySelector('td').innerHTML = metaHtml + '<div style="padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:#c62828;">Error loading split data: ' + esc(err.message) + '</div>';
   }
 }
 
