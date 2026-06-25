@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -704,7 +704,7 @@ function exportCSV() {
   if (!rows.length) { alert('No data to export.'); return; }
   const headers = ['Full Name','Employee Code','Gender','Email','WhatsApp','Shift','T-Shirt Size','Team','Team Lead','Strava ID','Activities','Distance (km)','Strava Connected'];
   const data = rows.map(r => [
-    r.full_name||'', r.employee_code||'', r.gender||'', r.email||'',
+    r.full_name||'', r.emp_code||'', r.gender||'', r.email||'',
     r.whatsapp||'', r.shift||'', r.tshirt_size||'', r.leaderboard_team||'',
     r.team_lead||'', r.strava_athlete_id||'',
     r.cnt||0, r.dist ? (r.dist/1000).toFixed(2) : '0',
