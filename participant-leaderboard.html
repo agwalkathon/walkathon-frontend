@@ -485,6 +485,35 @@ function calcFullPts(myActs, gender) {
   totalDistPts = parseFloat(totalDistPts.toFixed(2));
 
   // Challenge bonus
+  function applyMaxBaseCap(challengeObj, dayStr, actObj) {
+    var maxBase = parseFloat(challengeObj.max_base_points);
+    if (isNaN(maxBase) || maxBase === null || maxBase === undefined) return;
+    var baseVal = parseFloat(CONFIG.basePer_km) || 1;
+    
+    if (challengeObj.activity_scope === 'daily') {
+      if (!dayStr || !byDay[dayStr]) return;
+      var dayKmTotal = 0;
+      byDay[dayStr].forEach(function(a){ dayKmTotal += (parseFloat(a.distance_meters)||0)/1000; });
+      var isSpecial = SPECIAL_DAYS.indexOf(dayStr) !== -1;
+      if (!isSpecial && dayKmTotal > 21) { dayKmTotal = 21; }
+      
+      var currentDayDistPts = dayKmTotal * baseVal;
+      if (currentDayDistPts > maxBase) {
+        var diff = currentDayDistPts - maxBase;
+        totalDistPts -= diff;
+        totalDistKm -= (diff / baseVal);
+      }
+    } else if (actObj) {
+      var actKm = (parseFloat(actObj.distance_meters) || 0) / 1000;
+      var actDistPts = actKm * baseVal;
+      if (actDistPts > maxBase) {
+        var diff = actDistPts - maxBase;
+        totalDistPts -= diff;
+        totalDistKm -= (diff / baseVal);
+      }
+    }
+  }
+
   for (var ci = 0; ci < CHALLENGES.length; ci++) {
     var c = CHALLENGES[ci];
     var key = 'ch_' + (c.id || ci);
@@ -514,6 +543,7 @@ function calcFullPts(myActs, gender) {
         if (raKm >= (c.distance_min - 0.1) && raKm <= c.distance_max) {
           inRangePts += Number(c.bonus_points) || 0;
           inRangeCount++;
+          applyMaxBaseCap(c, raDate, ra);
         }
       }
       if (inRangeCount > 0) {
@@ -529,7 +559,11 @@ function calcFullPts(myActs, gender) {
     if (perActPts > 0) {
       var count = 0;
       for (var ai2 = 0; ai2 < myActs.length; ai2++) {
-        if (checkChallenge(myActs[ai2], c)) count++;
+        var act2 = myActs[ai2];
+        if (checkChallenge(act2, c)) {
+          count++;
+          applyMaxBaseCap(c, (act2.activity_date || '').split('T')[0], act2);
+        }
       }
       if (count > 0) {
         earnedChallenges[key] = true;
@@ -539,6 +573,8 @@ function calcFullPts(myActs, gender) {
       continue;
     }
 
+    var awardedDay = null;
+    var awardedAct = null;
     if (c.activity_scope === 'daily') {
       var cDays = Object.keys(byDay).filter(function(d) {
         return d >= c.start_date && d <= c.end_date;
@@ -566,11 +602,16 @@ function calcFullPts(myActs, gender) {
         } else {
           qualifies = dayTotalKm >= c.distance_min;
         }
-        if (qualifies) awarded = true;
+        if (qualifies) { awarded = true; awardedDay = day2; }
       }
     } else {
       for (var ai = 0; ai < myActs.length; ai++) {
-        if (checkChallenge(myActs[ai], c)) { awarded = true; break; }
+        if (checkChallenge(myActs[ai], c)) {
+          awarded = true;
+          awardedAct = myActs[ai];
+          awardedDay = (myActs[ai].activity_date || '').split('T')[0];
+          break;
+        }
       }
     }
 
@@ -578,6 +619,7 @@ function calcFullPts(myActs, gender) {
       earnedChallenges[key] = true;
       totalChallenge += Number(c.bonus_points) || 0;
       challengeNames.push(c.name);
+      applyMaxBaseCap(c, awardedDay, awardedAct);
     }
   }
 
