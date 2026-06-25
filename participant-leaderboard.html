@@ -678,7 +678,7 @@ function renderRows(rows, prevRanks) {
         '</div>'+
         '<div class="row-right" style="display:flex;align-items:center;gap:6px;">'+
           '<div class="row-pts">'+
-            '<span class="row-pts-num">'+r.pts.total.toFixed(1)+'</span>'+
+            '<span class="row-pts-num">'+r.pts.total.toFixed(2)+'</span>'+
             '<span class="row-pts-unit"> pts</span>'+
             (rowMedal?'<span class="row-medal">'+rowMedal+'</span>':'')+
           '</div>'+
@@ -700,7 +700,7 @@ function renderRows(rows, prevRanks) {
         '<div class="detail-cell"><div class="detail-cell-lbl">⭐ Dist Pts</div><div class="detail-cell-val brand">'+r.pts.distPts.toFixed(1)+'</div></div>'+
         '<div class="detail-cell"><div class="detail-cell-lbl">⚡ Bonus</div><div class="detail-cell-val gold">'+r.pts.bonusPts+'</div></div>'+
         (chalHtml||'<div class="detail-cell"><div class="detail-cell-lbl">🎯 Challenge</div><div class="detail-cell-val" style="color:var(--label)">—</div></div>')+
-        '<div class="detail-cell" style="grid-column:span '+(r.pts.challengePts>0?'2':'3')+'"><div class="detail-cell-lbl">🏆 Total</div><div class="detail-cell-val brand" style="font-size:18px;">'+r.pts.total.toFixed(1)+'</div></div>'+
+        '<div class="detail-cell" style="grid-column:span '+(r.pts.challengePts>0?'2':'3')+'"><div class="detail-cell-lbl">🏆 Total</div><div class="detail-cell-val brand" style="font-size:18px;">'+r.pts.total.toFixed(2)+'</div></div>'+
       '</div>'+
       '<div class="detail-meta">'+
         '<span class="last-active-chip'+(laInfo.recent?' recent':'')+'">'+laInfo.text+'</span>'+
@@ -841,7 +841,7 @@ async function boot(){
     document.getElementById('my-tags').innerHTML=tags.map(function(t){return'<span class="my-tag">'+esc(t)+'</span>';}).join('');
     buildTabs(); renderRows(getRows(currentTab));
     var allRows=getRows(currentTab),myRow=allRows.find(function(r){return String(r.p.strava_athlete_id)===String(s.athleteId);});
-    document.getElementById('my-pts').textContent=myRow?myRow.pts.total.toFixed(1):'—';
+    document.getElementById('my-pts').textContent=myRow?myRow.pts.total.toFixed(2):'—';
   }catch(e){console.error('Leaderboard boot error:',e);document.getElementById('lb-list').innerHTML='<div class="empty-box"><div class="ei">⚠️</div><p>Could not load leaderboard.<br>Tap refresh to try again.</p></div>';}
 }
 
