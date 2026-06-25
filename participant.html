@@ -3026,6 +3026,14 @@ function renderStanding() {
 
 (function(){var hash=window.location.hash.replace('#','');if(hash==='activities'||hash==='dashboard'||hash==='you'||hash==='leaderboard')showTab(hash);})();
 function clearPWACache(){
+  try {
+    for (var i = localStorage.length - 1; i >= 0; i--) {
+      var key = localStorage.key(i);
+      if (key && key.indexOf('agwalk_') === 0) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch(e) {}
   if('caches' in window){
     caches.keys().then(function(names){
       return Promise.all(names.map(function(n){return caches.delete(n);}));
@@ -3585,6 +3593,14 @@ function lbClearCache() {
   var btn = document.getElementById('clear-cache-btn');
   btn.style.opacity = '0.4';
   btn.style.pointerEvents = 'none';
+  try {
+    for (var i = localStorage.length - 1; i >= 0; i--) {
+      var key = localStorage.key(i);
+      if (key && key.indexOf('agwalk_') === 0) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch(e) {}
   if ('caches' in window) {
     caches.keys().then(function(names) {
       return Promise.all(names.map(function(name) { return caches.delete(name); }));
