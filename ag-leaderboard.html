@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -592,6 +592,13 @@ function checkChallenge(act, c) {
     if (km < dMin) return false;
   }
 
+  // Elevation criteria — activity must meet minimum elevation gain
+  var elevReq = parseFloat(c.elevation_criteria) || 0;
+  if (elevReq > 0) {
+    var actElev = parseFloat(act.elevation_gain || 0);
+    if (actElev < elevReq) return false;
+  }
+
   // Start time criteria — activity must start AT OR BEFORE this time
   if (c.start_time_criteria) {
     var timeStr = (act.activity_date || '').split('T')[1] || '';
@@ -649,11 +656,11 @@ function calcPoints(acts, athleteId, gender, shift) {
   });
 
   // ── Step 3: eligible challenges for this athlete ────────────────
+  var _shiftN = (shift || '').toLowerCase();
+  var _isNightShift = _shiftN.indexOf('night') > -1;
   var myChallenges = CHALLENGES.filter(function(c) {
     if (!c.is_active) return false;
     var elig = (c.eligible || 'all').toLowerCase();
-    if (elig === 'all') return true;
-    if (elig === 'male'   && (gender || '').toLowerCase() === 'male')   return true;
     if (elig === 'female' && (gender || '').toLowerCase() === 'female') return true;
     return false;
   });
