@@ -408,11 +408,16 @@ function checkChallenge(act, challenge) {
   return true;
 }
 
-function calcFullPts(myActs, gender) {
-  var validActs = myActs.filter(function(a){ return !a.is_flagged; });
+function calcFullPts(myActs, gender, shift) {
+  var athleteId = myActs.length ? myActs[0].strava_athlete_id : null;
+
+  // ── Step 1: filter valid activities ────────────────────────────
+  var validActs = myActs.filter(function(a) { return !a.is_flagged; });
   validActs.forEach(function(a) {
-    a.base_km = (parseFloat(a.distance_meters) || 0) / 1000.0;
+    a.base_km = parseFloat(a.distance_meters || 0) / 1000;
   });
+
+  // ── Step 2: group by day ────────────────────────────────────────
   var byDay = {};
   validActs.forEach(function(a) {
     var d = (a.activity_date || '').split('T')[0];
@@ -421,85 +426,230 @@ function calcFullPts(myActs, gender) {
     byDay[d].push(a);
   });
 
-  var totalDistKm = 0.0, totalDistPts = 0.0, totalBonus = 0, totalChallenge = 0;
-  var earnedChallenges = {}, challengeNames = [];
+  // ── Step 3: eligible challenges ────────────────────────────────
+  var _shiftN = (shift || '').toLowerCase();
+  var _isNightShift = _shiftN.indexOf('night') > -1;
+  var myChallenges = (Array.isArray(CHALLENGES) ? CHALLENGES : []).filter(function(c) {
+    if (!c.is_active) return false;
+    var elig = (c.eligible || 'all').toLowerCase();
+    if (elig === 'all')        return true;
+    if (elig === 'male'      && (gender || '').toLowerCase() === 'male')   return true;
+    if (elig === 'female'    && (gender || '').toLowerCase() === 'female') return true;
+    if (elig === 'dayshift'  && !_isNightShift) return true;
+    if (elig === 'nightshift' && _isNightShift) return true;
+    return false;
+  });
+
+  // ── Step 4: suppress bracket bonus on per-act-no-bonus days ────
+  var suppressBonusDays    = {};
+  var perActivityBonusDays = {};
+  myChallenges.forEach(function(c) {
+    var nbt         = c.normal_bonus_type || 'no-change';
+    var suppress    = (nbt === 'exclude-all' || nbt === 'exclude-sum' || c.exclude_normal_bonus || c.award_type === 'per-act-no-bonus');
+    var perActivity = (nbt === 'per-activity');
+    if (!suppress && !perActivity) return;
+    Object.keys(byDay).forEach(function(day) {
+      if (day < c.start_date || day > c.end_date) return;
+      var qualifies = byDay[day].some(function(a) { return checkChallenge(a, c); });
+      if (!qualifies) return;
+      if (suppress)    suppressBonusDays[day]    = true;
+      if (perActivity) perActivityBonusDays[day] = true;
+    });
+  });
+  myChallenges.forEach(function(c) {
+    var atype = c.range_split ? 'range-split'
+      : c.exclude_normal_bonus ? 'per-act-no-bonus'
+      : (c.award_type === 'two-challenges-same-day') ? 'two-challenges-same-day'
+      : (parseFloat(c.per_activity_points) > 0 || c.award_type === 'per-act') ? 'per-act'
+      : 'one-time';
+    if (atype !== 'per-act-no-bonus') return;
+    Object.keys(byDay).forEach(function(day) {
+      byDay[day].forEach(function(a) {
+        if (checkChallenge(a, c)) suppressBonusDays[day] = true;
+      });
+    });
+  });
+
+  // ── Pre-compute two-challenges-same-day ─────────────────────────
+  var tcDays   = {};
+  var tcActMap = {}; // day -> { actId -> { km, challenge } }
+  myChallenges.filter(function(c){ return c.award_type === 'two-challenges-same-day'; })
+    .forEach(function(c) {
+      Object.keys(byDay).forEach(function(day) {
+        if (day < c.start_date || day > c.end_date) return;
+        tcDays[day] = true;
+        if (!tcActMap[day]) tcActMap[day] = {};
+        var sorted = byDay[day].slice().sort(function(a,b){
+          return (a.activity_date||'').localeCompare(b.activity_date||'');
+        });
+        for (var ti = 0; ti < sorted.length; ti++) {
+          var a = sorted[ti];
+          if (tcActMap[day][a.strava_activity_id]) continue;
+          if (a.is_flagged) continue;
+          var tcKm     = parseFloat(a.distance_meters || 0) / 1000;
+          var tcMin    = parseFloat(c.distance_min) || 0;
+          var tcMax    = parseFloat(c.distance_max) || 0;
+          var tcType   = c.distance_type || 'fixed';
+          var tcSports = (Array.isArray(c.sport_types) && c.sport_types.length) ? c.sport_types : ['Walk','Run','Hike','Ride'];
+          if (tcSports.indexOf(a.sport_type) === -1) continue;
+          var tcPass = false;
+          if (tcType === 'fixed')      tcPass = tcKm >= tcMin - 0.1 && tcKm <= tcMax + 0.1;
+          else if (tcType === 'range') tcPass = tcKm >= tcMin && tcKm <= tcMax;
+          else                         tcPass = tcKm >= tcMin;
+          if (!tcPass) continue;
+          tcActMap[day][a.strava_activity_id] = { km: tcKm, challenge: c };
+          break;
+        }
+      });
+    });
+
+  // ── Step 5: per-day distance + bonus ───────────────────────────
+  var totalDistKm  = 0;
+  var totalDistPts = 0;
+  var totalBonus   = 0;
+  var DAILY_CAP    = 21;
+  var dayBreakdown = {};
+  var actBreakdown = {};
 
   Object.keys(byDay).forEach(function(day) {
-    var dayActs = byDay[day];
-    var inRangeKm = 0.0, outRangeKm = 0.0;
+    var dayActs   = byDay[day];
+    var isSpecial = SPECIAL_DAYS.indexOf(day) !== -1;
+    var isTcDay = tcDays[day] || false;
+
+    if (isTcDay) {
+      var tcMap      = tcActMap[day] || {};
+      var tcBonusPts = 0;
+      var allDayKm   = 0;
+      dayActs.forEach(function(a){ allDayKm += a.base_km; });
+
+      var qualKmTotal = 0;
+      Object.keys(tcMap).forEach(function(aid){ qualKmTotal += tcMap[aid].km; });
+      var remainKm = Math.max(0, allDayKm - qualKmTotal);
+
+      if (!isSpecial && allDayKm > DAILY_CAP) {
+        var excess  = allDayKm - DAILY_CAP;
+        var remTrim = Math.min(excess, remainKm);
+        remainKm   -= remTrim;
+      }
+      remainKm = Math.max(0, parseFloat(remainKm.toFixed(4)));
+
+      var base2     = parseFloat(CONFIG.basePer_km) || 1;
+      var dayDistKm = qualKmTotal + remainKm;
+      if (!isSpecial && dayDistKm > DAILY_CAP) {
+        dayDistKm = DAILY_CAP;
+      }
+      totalDistKm  += dayDistKm;
+      totalDistPts += parseFloat((dayDistKm * base2).toFixed(2));
+
+      Object.keys(tcMap).forEach(function(aid){ tcBonusPts += calcBonus(tcMap[aid].km); });
+      tcBonusPts += calcBonus(remainKm);
+      totalBonus += tcBonusPts;
+
+      byDay[day]._outRangeKm = remainKm;
+      byDay[day]._inRangeKm  = 0;
+      byDay[day]._tcMap      = tcMap;
+      byDay[day]._tcRemainKm = remainKm;
+      dayBreakdown[day] = {
+        km: dayDistKm, distPts: parseFloat((dayDistKm * base2).toFixed(2)),
+        bonusPts: tcBonusPts, challenges: [], inRangeKm: 0, capped: (!isSpecial && allDayKm > DAILY_CAP)
+      };
+      return;
+    }
 
     var rsChallenge = null;
-    for (var ri = 0; ri < CHALLENGES.length; ri++) {
-      var rc = CHALLENGES[ri];
-      if (rc.range_split && rc.is_active && day >= rc.start_date && day <= rc.end_date) {
-        rsChallenge = rc; break;
-      }
+    for (var ri = 0; ri < myChallenges.length; ri++) {
+      var rc = myChallenges[ri];
+      if (rc.range_split && day >= rc.start_date && day <= rc.end_date) { rsChallenge = rc; break; }
     }
 
+    var inRangeKm  = 0;
+    var outRangeKm = 0;
     dayActs.forEach(function(a) {
-      var actKm = a.base_km;
+      var km = a.base_km;
       if (rsChallenge) {
-        var cST = Array.isArray(rsChallenge.sport_types) && rsChallenge.sport_types.length
+        var cST  = (Array.isArray(rsChallenge.sport_types) && rsChallenge.sport_types.length)
           ? rsChallenge.sport_types : ['Walk','Run','Hike','Ride'];
-        var inRange = cST.indexOf(a.sport_type) > -1
-          && actKm >= (rsChallenge.distance_min - 0.1)
-          && actKm <= rsChallenge.distance_max;
-        if (inRange) { inRangeKm += actKm; return; }
+        var dMin = parseFloat(rsChallenge.distance_min) || 0;
+        var dMax = parseFloat(rsChallenge.distance_max) || 0;
+        if (cST.indexOf(a.sport_type) > -1 && km >= dMin - 0.1 && km <= dMax) {
+          inRangeKm += km; return;
+        }
       }
-      outRangeKm += actKm;
+      outRangeKm += km;
     });
 
-    var DAILY_CAP = 21;
-    var isSpecialDay = SPECIAL_DAYS.indexOf(day) !== -1;
-    inRangeKm  = parseFloat(inRangeKm.toFixed(4));
-    outRangeKm = parseFloat(outRangeKm.toFixed(4));
-    var combinedKm = inRangeKm + outRangeKm;
-    if (!isSpecialDay && combinedKm > DAILY_CAP) {
-      var excess = combinedKm - DAILY_CAP;
+    var combined = inRangeKm + outRangeKm;
+    if (!isSpecial && combined > DAILY_CAP) {
+      var excess  = combined - DAILY_CAP;
       var outTrim = Math.min(excess, outRangeKm);
-      outRangeKm = parseFloat((outRangeKm - outTrim).toFixed(4));
-      excess -= outTrim;
-      if (excess > 0) inRangeKm = parseFloat((inRangeKm - excess).toFixed(4));
+      outRangeKm -= outTrim; excess -= outTrim;
+      if (excess > 0) inRangeKm -= excess;
     }
-    inRangeKm  = parseFloat(inRangeKm.toFixed(4));
-    outRangeKm = parseFloat(outRangeKm.toFixed(4));
+    inRangeKm  = Math.max(0, parseFloat(inRangeKm.toFixed(4)));
+    outRangeKm = Math.max(0, parseFloat(outRangeKm.toFixed(4)));
 
-    var base = parseFloat(CONFIG.basePer_km) || 1;
-    totalDistKm  += inRangeKm + outRangeKm;
-    totalDistPts += parseFloat(((inRangeKm + outRangeKm) * base).toFixed(2));
-    byDay[day]._dayKm     = outRangeKm;
-    byDay[day]._inRangeKm = inRangeKm;
+    var base      = parseFloat(CONFIG.basePer_km) || 1;
+    var dayDistKm = inRangeKm + outRangeKm;
+    totalDistKm  += dayDistKm;
+    totalDistPts += parseFloat((dayDistKm * base).toFixed(2));
+
+    var bp;
+    if (suppressBonusDays[day]) {
+      bp = 0;
+    } else if (perActivityBonusDays[day]) {
+      bp = 0;
+      dayActs.forEach(function(a) {
+        if (!a.is_flagged) bp += calcBonus(parseFloat(a.distance_meters||0)/1000);
+      });
+    } else {
+      bp = calcBonus(outRangeKm);
+    }
+    totalBonus += bp;
+
+    byDay[day]._outRangeKm = outRangeKm;
+    byDay[day]._inRangeKm  = inRangeKm;
+    dayBreakdown[day] = {
+      km: dayDistKm, distPts: parseFloat((dayDistKm * base).toFixed(2)),
+      bonusPts: bp, challenges: [], inRangeKm: inRangeKm, capped: (!isSpecial && combined > DAILY_CAP)
+    };
   });
 
-  // Recalculate bonus — exclude days covered by exclude_normal_bonus challenges
-  var excludeBonusDays = {};
-  for (var ci2 = 0; ci2 < CHALLENGES.length; ci2++) {
-    var c2 = CHALLENGES[ci2];
-    if (!c2.exclude_normal_bonus) continue;
-    Object.keys(byDay).forEach(function(day) {
-      if (day >= c2.start_date && day <= c2.end_date) excludeBonusDays[day] = true;
-    });
-  }
-  totalBonus = 0;
-  Object.keys(byDay).forEach(function(day) {
-    if (!excludeBonusDays[day]) totalBonus += calcBonus(byDay[day]._dayKm || 0);
-  });
+  // ── Step 6: challenge bonus ─────────────────────────────────────
+  var totalChallenge = 0;
+  var earnedChallenges = {};
+  var earnedPts = {};
 
-  totalDistKm  = parseFloat(totalDistKm.toFixed(2));
-  totalDistPts = parseFloat(totalDistPts.toFixed(2));
-
-  // Challenge bonus
   function recalcDayBase(day) {
     var dayActs = byDay[day] || [];
-    var isSpecialDay = SPECIAL_DAYS.indexOf(day) !== -1;
+    var isSpecial = SPECIAL_DAYS.indexOf(day) !== -1;
+    var isTcDay = tcDays[day] || false;
     var baseVal = parseFloat(CONFIG.basePer_km) || 1;
 
-    var rsChallenge = null;
-    for (var ri = 0; ri < CHALLENGES.length; ri++) {
-      var rc = CHALLENGES[ri];
-      if (rc.range_split && rc.is_active && day >= rc.start_date && day <= rc.end_date) {
-        rsChallenge = rc; break;
+    if (isTcDay) {
+      var tcMap = tcActMap[day] || {};
+      var allDayKm = 0;
+      dayActs.forEach(function(a){ allDayKm += a.base_km; });
+
+      var qualKmTotal = 0;
+      Object.keys(tcMap).forEach(function(aid){ 
+        var actObj = validActs.find(function(a){ return String(a.strava_activity_id) === String(aid); });
+        qualKmTotal += actObj ? actObj.base_km : tcMap[aid].km; 
+      });
+      var remainKm = Math.max(0, allDayKm - qualKmTotal);
+
+      if (!isSpecial && allDayKm > DAILY_CAP) {
+        var excess  = allDayKm - DAILY_CAP;
+        var remTrim = Math.min(excess, remainKm);
+        remainKm   -= remTrim;
       }
+      remainKm = Math.max(0, parseFloat(remainKm.toFixed(4)));
+      return qualKmTotal + remainKm;
+    }
+
+    var rsChallenge = null;
+    for (var ri = 0; ri < myChallenges.length; ri++) {
+      var rc = myChallenges[ri];
+      if (rc.range_split && day >= rc.start_date && day <= rc.end_date) { rsChallenge = rc; break; }
     }
 
     var inRangeKm  = 0;
@@ -508,23 +658,23 @@ function calcFullPts(myActs, gender) {
     dayActs.forEach(function(a) {
       var km = a.base_km;
       if (rsChallenge) {
-        var cST = Array.isArray(rsChallenge.sport_types) && rsChallenge.sport_types.length
+        var cST  = (Array.isArray(rsChallenge.sport_types) && rsChallenge.sport_types.length)
           ? rsChallenge.sport_types : ['Walk','Run','Hike','Ride'];
-        var inRange = cST.indexOf(a.sport_type) > -1
-          && km >= (rsChallenge.distance_min - 0.1)
-          && km <= rsChallenge.distance_max;
-        if (inRange) { inRangeKm += km; return; }
+        var dMin = parseFloat(rsChallenge.distance_min) || 0;
+        var dMax = parseFloat(rsChallenge.distance_max) || 0;
+        if (cST.indexOf(a.sport_type) > -1 && km >= dMin - 0.1 && km <= dMax) {
+          inRangeKm += km; return;
+        }
       }
       outRangeKm += km;
     });
 
     var combined = inRangeKm + outRangeKm;
-    if (!isSpecialDay && combined > DAILY_CAP) {
-      var excess   = combined - DAILY_CAP;
-      var outTrim  = Math.min(excess, outRangeKm);
-      outRangeKm   = parseFloat((outRangeKm - outTrim).toFixed(4));
-      excess      -= outTrim;
-      if (excess > 0) inRangeKm = parseFloat((inRangeKm - excess).toFixed(4));
+    if (!isSpecial && combined > DAILY_CAP) {
+      var excess  = combined - DAILY_CAP;
+      var outTrim = Math.min(excess, outRangeKm);
+      outRangeKm -= outTrim; excess -= outTrim;
+      if (excess > 0) inRangeKm -= excess;
     }
     inRangeKm  = Math.max(0, parseFloat(inRangeKm.toFixed(4)));
     outRangeKm = Math.max(0, parseFloat(outRangeKm.toFixed(4)));
@@ -532,164 +682,165 @@ function calcFullPts(myActs, gender) {
     return inRangeKm + outRangeKm;
   }
 
-  function applyMaxBaseCap(challengeObj, dayStr, actObj) {
+  function applyMaxBaseCap(challengeObj, dayStr, actIdStr) {
     var maxBase = parseFloat(challengeObj.max_base_points);
     if (isNaN(maxBase) || maxBase === null || maxBase === undefined) return;
     var baseVal = parseFloat(CONFIG.basePer_km) || 1;
+    if (!dayBreakdown[dayStr]) return;
     
-    var oldDayKm = 0;
-    if (byDay[dayStr]) {
-      var inKm = byDay[dayStr]._inRangeKm || 0;
-      var outKm = byDay[dayStr]._dayKm || 0;
-      oldDayKm = inKm + outKm;
-    }
+    var oldDayKm = dayBreakdown[dayStr].km;
     
     if (challengeObj.activity_scope === 'daily') {
       var newDayKm = Math.min(oldDayKm, maxBase / baseVal);
       var diffKm = oldDayKm - newDayKm;
       if (diffKm > 0) {
+        dayBreakdown[dayStr].km = newDayKm;
+        dayBreakdown[dayStr].distPts = parseFloat((newDayKm * baseVal).toFixed(2));
         totalDistKm -= diffKm;
         totalDistPts -= (diffKm * baseVal);
-        if (byDay[dayStr]) {
-          var ratio = newDayKm / oldDayKm;
-          byDay[dayStr]._inRangeKm *= ratio;
-          byDay[dayStr]._dayKm *= ratio;
-        }
       }
-    } else if (actObj) {
-      var cappedKm = maxBase / baseVal;
-      if (actObj.base_km > cappedKm) {
-        actObj.base_km = cappedKm;
-        var newDayKm = recalcDayBase(dayStr);
-        var diffKm = oldDayKm - newDayKm;
-        if (diffKm > 0) {
-          totalDistKm -= diffKm;
-          totalDistPts -= (diffKm * baseVal);
-          if (byDay[dayStr]) {
-            var ratio = newDayKm / oldDayKm;
-            byDay[dayStr]._inRangeKm *= ratio;
-            byDay[dayStr]._dayKm *= ratio;
+    } else if (actIdStr) {
+      var qualifyingAct = validActs.find(function(a) { return String(a.strava_activity_id) === String(actIdStr); });
+      if (qualifyingAct) {
+        var cappedKm = maxBase / baseVal;
+        if (qualifyingAct.base_km > cappedKm) {
+          qualifyingAct.base_km = cappedKm;
+          var newDayKm = recalcDayBase(dayStr);
+          var diffKm = oldDayKm - newDayKm;
+          if (diffKm > 0) {
+            dayBreakdown[dayStr].km = newDayKm;
+            dayBreakdown[dayStr].distPts = parseFloat((newDayKm * baseVal).toFixed(2));
+            totalDistKm -= diffKm;
+            totalDistPts -= (diffKm * baseVal);
           }
         }
       }
     }
   }
 
-  for (var ci = 0; ci < CHALLENGES.length; ci++) {
-    var c = CHALLENGES[ci];
-    var key = 'ch_' + (c.id || ci);
-    if (earnedChallenges[key]) continue;
+  myChallenges.forEach(function(c) {
+    var atype = c.range_split ? 'range-split'
+      : c.exclude_normal_bonus ? 'per-act-no-bonus'
+      : (c.award_type === 'two-challenges-same-day') ? 'two-challenges-same-day'
+      : (parseFloat(c.per_activity_points) > 0 || c.award_type === 'per-act') ? 'per-act'
+      : 'one-time';
+    var bp2   = parseFloat(c.bonus_points) || 0;
+    var cName = c.name || 'Challenge';
+    var key   = 'ch_' + (c.id || c.name);
 
-    var g = (gender || '').toLowerCase();
-    var eligible = c.eligible === 'all'
-      || c.eligible === g
-      || c.eligible === 'dayshift'
-      || c.eligible === 'nightshift';
-    if (!eligible) continue;
-
-    var cSportTypes = Array.isArray(c.sport_types) && c.sport_types.length
-      ? c.sport_types : ['Walk','Run','Hike','Ride'];
-    var awarded = false;
-
-    // range_split challenge
-    if (c.range_split) {
-      var inRangePts = 0, inRangeCount = 0;
-      for (var rsi = 0; rsi < myActs.length; rsi++) {
-        var ra = myActs[rsi];
-        if (ra.is_flagged) continue;
-        var raDate = (ra.activity_date || '').split('T')[0];
-        if (raDate < c.start_date || raDate > c.end_date) continue;
-        if (cSportTypes.indexOf(ra.sport_type) === -1) continue;
-        var raKm = (ra.distance_meters || 0) / 1000;
-        if (raKm >= (c.distance_min - 0.1) && raKm <= c.distance_max) {
-          inRangePts += Number(c.bonus_points) || 0;
-          inRangeCount++;
-          applyMaxBaseCap(c, raDate, ra);
-        }
-      }
-      if (inRangeCount > 0) {
-        earnedChallenges[key] = true;
-        totalChallenge += inRangePts;
-        challengeNames.push(c.name);
-      }
-      continue;
-    }
-
-    // per_activity challenge
-    var perActPts = Number(c.per_activity_points) || 0;
-    if (perActPts > 0) {
-      var count = 0;
-      for (var ai2 = 0; ai2 < myActs.length; ai2++) {
-        var act2 = myActs[ai2];
-        if (checkChallenge(act2, c)) {
-          count++;
-          applyMaxBaseCap(c, (act2.activity_date || '').split('T')[0], act2);
-        }
-      }
-      if (count > 0) {
-        earnedChallenges[key] = true;
-        totalChallenge += count * perActPts;
-        challengeNames.push(c.name);
-      }
-      continue;
-    }
-
-    var awardedDay = null;
-    var awardedAct = null;
-    if (c.activity_scope === 'daily') {
-      var cDays = Object.keys(byDay).filter(function(d) {
-        return d >= c.start_date && d <= c.end_date;
-      });
-      var cDaysIST = Object.keys(byDay).filter(function(d) {
-        var next = new Date(d + 'T00:00:00Z');
-        next.setDate(next.getDate() + 1);
-        var nextStr = next.toISOString().split('T')[0];
-        return nextStr >= c.start_date && nextStr <= c.end_date && cDays.indexOf(d) === -1;
-      });
-      var allCDays = cDays.concat(cDaysIST);
-      for (var di = 0; di < allCDays.length; di++) {
-        if (awarded) break;
-        var day2 = allCDays[di];
-        var dayActs2 = byDay[day2] || [];
-        var hasMatchingSport = dayActs2.some(function(a){ return cSportTypes.indexOf(a.sport_type) > -1; });
-        if (!hasMatchingSport) continue;
-        var dayTotalKm = 0;
-        dayActs2.forEach(function(a){
-          if (cSportTypes.indexOf(a.sport_type) > -1) dayTotalKm += (a.distance_meters || 0) / 1000;
+    if (atype === 'two-challenges-same-day') {
+      Object.keys(tcActMap).forEach(function(day) {
+        Object.keys(tcActMap[day]).forEach(function(aid) {
+          if (tcActMap[day][aid].challenge.id === c.id) {
+            totalChallenge += bp2; earnedChallenges[key] = true; earnedPts[key] = (earnedPts[key]||0) + bp2;
+            if (dayBreakdown[day]) dayBreakdown[day].challenges.push({name:cName, pts:bp2, actId:aid});
+            if (!actBreakdown[aid]) actBreakdown[aid] = {challenges:[]};
+            actBreakdown[aid].challenges.push({name:cName, pts:bp2});
+            applyMaxBaseCap(c, day, aid);
+          }
         });
-        var qualifies = false;
-        if (c.distance_type === 'fixed' || c.distance_type === 'range') {
-          qualifies = dayTotalKm >= c.distance_min - 0.1 && dayTotalKm <= c.distance_max + 0.1;
-        } else {
-          qualifies = dayTotalKm >= c.distance_min;
+      });
+      return;
+    }
+
+    if (atype === 'range-split') {
+      var rsTotal = 0;
+      validActs.forEach(function(a) {
+        if (checkChallenge(a, c)) {
+          rsTotal += bp2;
+          var d = (a.activity_date || '').split('T')[0];
+          if (dayBreakdown[d]) dayBreakdown[d].challenges.push({name:cName, pts:bp2, actId:a.strava_activity_id});
+          if (!actBreakdown[a.strava_activity_id]) actBreakdown[a.strava_activity_id] = {challenges:[]};
+          actBreakdown[a.strava_activity_id].challenges.push({name:cName, pts:bp2});
+          applyMaxBaseCap(c, d, a.strava_activity_id);
         }
-        if (qualifies) { awarded = true; awardedDay = day2; }
+      });
+      if (rsTotal > 0) {
+        totalChallenge += rsTotal; earnedChallenges[key] = true; earnedPts[key] = (earnedPts[key]||0) + rsTotal;
       }
+      return;
+    }
+
+    if (atype === 'per-act' || atype === 'per-act-no-bonus') {
+      var paTotal = 0;
+      validActs.forEach(function(a) {
+        if (checkChallenge(a, c)) {
+          paTotal += bp2;
+          var d = (a.activity_date || '').split('T')[0];
+          if (dayBreakdown[d]) dayBreakdown[d].challenges.push({name:cName, pts:bp2, actId:a.strava_activity_id});
+          if (!actBreakdown[a.strava_activity_id]) actBreakdown[a.strava_activity_id] = {challenges:[]};
+          actBreakdown[a.strava_activity_id].challenges.push({name:cName, pts:bp2});
+          applyMaxBaseCap(c, d, a.strava_activity_id);
+        }
+      });
+      if (paTotal > 0) {
+        totalChallenge += paTotal; earnedChallenges[key] = true; earnedPts[key] = (earnedPts[key]||0) + paTotal;
+      }
+      return;
+    }
+
+    var awarded = false;
+    var awardedDay = null;
+    var awardedActId = null;
+    if (c.activity_scope === 'daily') {
+      Object.keys(byDay).forEach(function(day) {
+        if (awarded) return;
+        if (day < c.start_date || day > c.end_date) return;
+        var sports = (Array.isArray(c.sport_types) && c.sport_types.length)
+          ? c.sport_types : ['Walk','Run','Hike','Ride'];
+        var dayKm = 0;
+        byDay[day].forEach(function(a) {
+          if (sports.indexOf(a.sport_type) > -1 && !a.is_flagged)
+            dayKm += parseFloat(a.distance_meters || 0) / 1000;
+        });
+        var dMin = parseFloat(c.distance_min) || 0;
+        var dMax = parseFloat(c.distance_max) || 0;
+        var dType = c.distance_type || 'fixed';
+        if (dType === 'fixed') {
+          if (dayKm >= dMin - 0.1 && dayKm <= dMax + 0.1) { awarded = true; awardedDay = day; }
+        } else if (dType === 'range') {
+          if (dayKm >= dMin && dayKm <= dMax) { awarded = true; awardedDay = day; }
+        } else {
+          if (dayKm >= dMin) { awarded = true; awardedDay = day; }
+        }
+      });
     } else {
-      for (var ai = 0; ai < myActs.length; ai++) {
-        if (checkChallenge(myActs[ai], c)) {
+      for (var i = 0; i < validActs.length; i++) {
+        if (checkChallenge(validActs[i], c)) {
           awarded = true;
-          awardedAct = myActs[ai];
-          awardedDay = (myActs[ai].activity_date || '').split('T')[0];
+          awardedActId = validActs[i].strava_activity_id;
+          awardedDay = (validActs[i].activity_date || '').split('T')[0];
           break;
         }
       }
     }
 
     if (awarded) {
-      earnedChallenges[key] = true;
-      totalChallenge += Number(c.bonus_points) || 0;
-      challengeNames.push(c.name);
-      applyMaxBaseCap(c, awardedDay, awardedAct);
+      totalChallenge += bp2; earnedChallenges[key] = true; earnedPts[key] = (earnedPts[key]||0) + bp2;
+      if (awardedDay && dayBreakdown[awardedDay]) {
+        dayBreakdown[awardedDay].challenges.push({name: cName, pts: bp2, actId: awardedActId});
+      }
+      if (awardedActId) {
+        if (!actBreakdown[awardedActId]) actBreakdown[awardedActId] = {challenges:[]};
+        actBreakdown[awardedActId].challenges.push({name: cName, pts: bp2});
+      }
+      applyMaxBaseCap(c, awardedDay, awardedActId);
     }
-  }
-
-  // Manual bonus
-  myActs.filter(function(a){ return !a.is_flagged && parseFloat(a.manual_bonus) > 0; }).forEach(function(a) {
-    totalChallenge += parseFloat(a.manual_bonus) || 0;
   });
 
-  totalChallenge = parseFloat(totalChallenge.toFixed(2));
+  // Manual bonus
+  validActs.forEach(function(a) {
+    var mb = parseFloat(a.manual_bonus) || 0;
+    if (!mb) return;
+    totalChallenge += mb;
+    var d = (a.activity_date || '').split('T')[0];
+    if (dayBreakdown[d]) dayBreakdown[d].challenges.push({name: 'Manual bonus', pts: mb, actId: a.strava_activity_id});
+    if (!actBreakdown[a.strava_activity_id]) actBreakdown[a.strava_activity_id] = {challenges:[]};
+    actBreakdown[a.strava_activity_id].challenges.push({name: 'Manual bonus', pts: mb});
+  });
+
+  totalDistKm  = parseFloat(totalDistKm.toFixed(2));
+  totalDistPts = parseFloat(totalDistPts.toFixed(2));
 
   return {
     km:          totalDistKm,
@@ -707,7 +858,7 @@ function getRows(mode){
   if(!ME)return[];
   var myGender=norm(ME.gender),myShift=norm(ME.shift),myTeam=norm(ME.leaderboard_team),isNight=myShift.indexOf('night')>-1,isFemale=myGender==='female'||myGender==='f';
   var filtered=REG.filter(function(p){var pg=norm(p.gender),ps=norm(p.shift),pt=norm(p.leaderboard_team),pIsFemale=pg==='female'||pg==='f';if(pIsFemale!==isFemale)return false;if(mode==='team')return pt===myTeam;return ps.indexOf('night')>-1===isNight;});
-  return filtered.map(function(p){return{p:p,pts:calcFullPts(ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id);}),p.gender)};}).filter(function(r){return r.pts.total>0;}).sort(function(a,b){return b.pts.total-a.pts.total;});
+  return filtered.map(function(p){return{p:p,pts:calcFullPts(ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id);}),p.gender,p.shift)};}).filter(function(r){return r.pts.total>0;}).sort(function(a,b){return b.pts.total-a.pts.total;});
 }
 
 function getLastActive(acts) {
