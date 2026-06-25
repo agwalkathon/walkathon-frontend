@@ -1295,7 +1295,7 @@ function userGuard() {
 }
 function logout() { localStorage.removeItem('wk_user'); sessionStorage.removeItem('wk_admin'); window.location.href = 'index.html'; }
 function esc(v) { return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-function fmtTime(d) { return new Date(d).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+function fmtTime(d) { var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d; return new Date(naive).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
 function fmtDur(s) { var h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?h+'h '+m+'m':m+'m'; }
 function fmtPS(ms,t) { if(!ms) return '—'; if(t==='Ride'||t==='VirtualRide'||t==='MountainBikeRide') return (ms*3.6).toFixed(1)+' km/h'; var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60); return min+':'+(sec<10?'0':'')+sec+'/km'; }
 
