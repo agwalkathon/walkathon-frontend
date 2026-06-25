@@ -191,7 +191,7 @@ tr:hover td{background:#FAFAFA}
     </div>
 
     <!-- Strava API Rate Limit Status Dashboard -->
-    <div class="card" id="rate-limit-dashboard" style="margin-bottom:16px;padding:20px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border-color);">
+    <div class="card" id="rate-limit-dashboard" style="margin-bottom:16px;padding:20px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);flex:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
         <div style="display:flex;align-items:center;gap:8px;">
           <h3 style="margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--text);">
@@ -241,7 +241,7 @@ tr:hover td{background:#FAFAFA}
       </div>
 
       <!-- Diagnostic Status Indicator Panel -->
-      <div id="api-status-banner" style="border-radius:8px;padding:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all 0.15s;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);color:var(--text-muted);">
+      <div id="api-status-banner" style="border-radius:8px;padding:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all 0.15s;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text-muted);">
         <span id="api-status-icon" style="font-size:16px;"></span>
         <span id="api-status-text">Checking status...</span>
       </div>
@@ -257,7 +257,7 @@ tr:hover td{background:#FAFAFA}
         <option value="connected">Strava connected</option>
         <option value="notconnected">Not connected</option>
       </select>
-      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:6px;padding:5px 10px;height:38px;box-sizing:border-box;">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:5px 10px;height:38px;box-sizing:border-box;">
         <label for="sync-date" style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;white-space:nowrap;margin:0;">Sync From:</label>
         <input type="date" id="sync-date" value="2026-06-22" style="background:transparent;border:none;color:var(--text);font-size:12px;padding:0;outline:none;cursor:pointer;font-family:inherit;">
       </div>
