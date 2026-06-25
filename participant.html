@@ -2767,7 +2767,21 @@ function refreshData(isPull){
 
 // ── Leaderboard shared vars (declared here so Phase 1 can populate them) ──
 var LB_ME=null,LB_REG=[],LB_ACTS=[],LB_currentTab='shift';
-var LB_bronzeThresh=100,LB_silverThresh=150,LB_goldThresh=200;
+
+// Gender-aware medal helper — mirrors ag-leaderboard getMedal().
+// Uses medalData loaded in Phase 1 (falls back to defaults if not yet loaded).
+function getMedalLB(pts, gender) {
+  var gKey = (String(gender||'').trim().toLowerCase() === 'female') ? 'female' : 'male';
+  var thresh = { gold:{male:300,female:250}, silver:{male:200,female:150}, bronze:{male:125,female:100} };
+  if (typeof medalData !== 'undefined' && Array.isArray(medalData) && medalData.length && medalData[0] && medalData[0].config_value) {
+    thresh = medalData[0].config_value;
+  }
+  var g = Number((thresh.gold   ||{})[gKey]) || (gKey==='female'?250:300);
+  var s = Number((thresh.silver ||{})[gKey]) || (gKey==='female'?150:200);
+  var b = Number((thresh.bronze ||{})[gKey]) || (gKey==='female'?100:125);
+  return pts >= g ? '🥇' : pts >= s ? '🥈' : pts >= b ? '🥉' : '';
+}
+
 function norm(s){return String(s||'').trim().toLowerCase();}
 
 function renderStanding() {
@@ -3131,7 +3145,7 @@ function renderRows(rows, prevRanks) {
     var topCls=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
     var rankIcon=i===0?'1':i===1?'2':i===2?'3':'#'+(i+1);
     var rankColCls=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
-    var mPts=r.pts.total,rowMedal=mPts>=LB_goldThresh?'🥇':mPts>=LB_silverThresh?'🥈':mPts>=LB_bronzeThresh?'🥉':'';
+    var mPts=r.pts.total,rowMedal=getMedalLB(mPts,r.p.gender);
     var teamName=(r.p.leaderboard_team||'').replace(/^Team\s+/i,'');
 
     // Rank movement
