@@ -1766,7 +1766,7 @@ async function load() {
       medalData   = await medalRes.json(); cacheSet('medals', medalData);
     }
     var allActs=[],allRegRes=[];
-    if(Array.isArray(cfgRows))cfgRows.forEach(function(row){if(row.config_key==='bonus_points')CONFIG_LB.bonus=row.config_value.map(function(b){return{km:Number(b.km),points:Number(b.points||b.pts||0)};});if(row.config_key==='base_points_per_km')CONFIG_LB.basePer_km=parseFloat(row.config_value)||1;});
+    if(Array.isArray(cfgRows))cfgRows.forEach(function(row){if(row.config_key==='bonus_points')CONFIG_LB.bonus=row.config_value.map(function(b){return{km:Number(b.km),points:Number(b.points||b.pts||0)};});if(row.config_key==='base_points')CONFIG_LB.basePer_km=parseFloat(row.config_value.per_km)||1;if(row.config_key==='base_points_per_km')CONFIG_LB.basePer_km=parseFloat(row.config_value)||1;});
     CHALLENGES_LB=Array.isArray(chRows)?chRows:[];
     SPECIAL_DAYS_LB=Array.isArray(sdRows)?sdRows.map(function(x){return x.special_date;}):[];
     var regs=regJsonData; var reg=Array.isArray(regs)&&regs.length?regs[0]:{};
