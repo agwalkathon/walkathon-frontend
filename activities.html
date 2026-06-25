@@ -131,6 +131,77 @@ tr:hover td{background:#FAFAFA}
 @media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px;flex-direction:column}.topbar{padding:0 16px;height:54px;flex-shrink:0;}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
 @media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
 
+/* Activity Splits UI */
+.activity-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.activity-row:hover td {
+  background: #F3F4F6 !important;
+}
+.activity-row.expanded td {
+  background: #FFF0EA !important;
+  border-bottom-color: var(--brand-light);
+}
+.detail-row td {
+  background: #FAFAFA !important;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px !important;
+}
+.splits-container {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.splits-col {
+  flex: 1;
+  min-width: 280px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.splits-col h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.splits-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.splits-table th {
+  background: #F9FAFB;
+  padding: 6px 10px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid var(--border);
+}
+.splits-table td {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  border-bottom: 1px solid #F3F4F6 !important;
+  color: var(--text-primary) !important;
+}
+.splits-table tr:last-child td {
+  border-bottom: none !important;
+}
+.splits-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0;
+}
+
   </style>
 </head>
 <body>
@@ -344,7 +415,7 @@ async function loadActivities(){
       var actUrl='https://www.strava.com/activities/'+a.strava_activity_id;
       var athleteName=r&&r.full_name?r.full_name:'Unknown';
       var statusBadge=a.is_flagged?'<span class="badge badge-invalid" style="cursor:pointer" onclick="openModal('+a.id+')">🚩 '+esc(a.flag_reason||'Flagged')+'</span>':'<span class="badge badge-valid" style="cursor:pointer" onclick="openModal('+a.id+')">✅ Valid</span>';
-      return'<tr><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
+      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'"><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
     }).join('');
     setTimeout(initScrollSync,100);
   }catch(e){
@@ -375,6 +446,99 @@ if(nameInput) {
     }
   });
 }
+document.getElementById('activities-body').addEventListener('click', function(e) {
+  var target = e.target;
+  if (target.closest('a') || target.closest('button') || target.closest('.badge') || target.closest('select') || target.closest('input') || target.closest('.editable') || target.tagName === 'INPUT') {
+    return;
+  }
+  var row = target.closest('tr.activity-row');
+  if (!row) return;
+  toggleRowSplits(row);
+});
+
+async function toggleRowSplits(row) {
+  var next = row.nextSibling;
+  if (next && next.classList && next.classList.contains('detail-row')) {
+    var isHidden = next.style.display === 'none';
+    next.style.display = isHidden ? '' : 'none';
+    row.classList.toggle('expanded', isHidden);
+    return;
+  }
+  
+  var stravaId = row.getAttribute('data-strava-id');
+  row.classList.add('expanded');
+  
+  var detailRow = document.createElement('tr');
+  detailRow.className = 'detail-row';
+  detailRow.innerHTML = '<td colspan="10"><div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
+  
+  row.parentNode.insertBefore(detailRow, row.nextSibling);
+  
+  try {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/activity_splits?activity_id=eq.' + stravaId + '&order=split_type.asc,split_number.asc', { headers: HDR });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var splits = await res.json();
+    
+    if (!splits || splits.length === 0) {
+      detailRow.querySelector('td').innerHTML = '<div style="padding:4px 0;font-size:12px;color:#888;">No split data recorded for this activity.</div>';
+      return;
+    }
+    
+    var metricSplits = splits.filter(function(s) { return s.split_type === 'metric'; });
+    var standardSplits = splits.filter(function(s) { return s.split_type === 'standard'; });
+    
+    var html = '<div class="splits-container">';
+    
+    if (metricSplits.length > 0) {
+      html += '<div class="splits-col"><h4><i class="ti ti-flame"></i> Kilometre Splits (Metric)</h4><table class="splits-table"><thead><tr><th>Split</th><th>Distance</th><th>Time</th><th>Pace</th><th>Elevation</th></tr></thead><tbody>';
+      metricSplits.forEach(function(s) {
+        var dist = (s.distance_meters / 1000).toFixed(2) + ' km';
+        var time = fmtDurSplit(s.moving_time_seconds);
+        var pace = fmtPSSplit(s.avg_speed, 'metric');
+        var elev = s.elevation_difference ? (s.elevation_difference > 0 ? '+' : '') + s.elevation_difference.toFixed(0) + ' m' : '—';
+        html += '<tr><td>' + s.split_number + '</td><td>' + dist + '</td><td>' + time + '</td><td>' + pace + '</td><td>' + elev + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    
+    if (standardSplits.length > 0) {
+      html += '<div class="splits-col"><h4><i class="ti ti-flame"></i> Mile Splits (Standard)</h4><table class="splits-table"><thead><tr><th>Split</th><th>Distance</th><th>Time</th><th>Pace</th><th>Elevation</th></tr></thead><tbody>';
+      standardSplits.forEach(function(s) {
+        var dist = (s.distance_meters / 1609.34).toFixed(2) + ' mi';
+        var time = fmtDurSplit(s.moving_time_seconds);
+        var pace = fmtPSSplit(s.avg_speed, 'standard');
+        var elev = s.elevation_difference ? (s.elevation_difference > 0 ? '+' : '') + s.elevation_difference.toFixed(0) + ' m' : '—';
+        html += '<tr><td>' + s.split_number + '</td><td>' + dist + '</td><td>' + time + '</td><td>' + pace + '</td><td>' + elev + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    
+    html += '</div>';
+    detailRow.querySelector('td').innerHTML = html;
+  } catch (err) {
+    console.error('Error fetching splits:', err);
+    detailRow.querySelector('td').innerHTML = '<div style="padding:4px 0;font-size:12px;color:#c62828;">Error loading split data: ' + esc(err.message) + '</div>';
+  }
+}
+
+function fmtDurSplit(s) {
+  if (!s) return '—';
+  var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  var out = '';
+  if (h > 0) out += h + ':';
+  out += String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+  return out;
+}
+
+function fmtPSSplit(ms, system) {
+  if (!ms) return '—';
+  var dist = system === 'metric' ? 1000 : 1609.34;
+  var p = dist / ms;
+  var min = Math.floor(p/60), sec = Math.round(p%60);
+  if (sec === 60) { min++; sec = 0; }
+  return min + ':' + String(sec).padStart(2, '0') + ' /' + (system === 'metric' ? 'km' : 'mi');
+}
+
 setDefaultTodayFilters();
 loadRegistrations().then(function(){
   loadActivities();
