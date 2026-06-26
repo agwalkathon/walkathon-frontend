@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <link rel="icon" type="image/png" href="favicon.png">
-  <title>Email Send — Arcgate Walkathon 2026</title>
+  <title>Email Send â€” Arcgate Walkathon 2026</title>
   <style>
 :root{--brand:#E8622A;--brand-light:#FFF0EA;--brand-mid:#f97d4e;--sidebar-bg:#0F1117;--sidebar-w:64px;--sidebar-exp:220px;--page-bg:#F4F6FA;--card-bg:#fff;--text-primary:#0F1117;--text-secondary:#6B7280;--text-muted:#9CA3AF;--border:rgba(0,0,0,.07);--shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);--shadow-lg:0 12px 40px rgba(0,0,0,.12);--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--font:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -164,7 +164,7 @@ tr:hover td{background:#FAFAFA}
 .field textarea{resize:vertical;min-height:80px}
 .field.span2{grid-column:span 2}
 
-/* ── Email Send page-specific ── */
+/* â”€â”€ Email Send page-specific â”€â”€ */
 
 
 
@@ -232,7 +232,7 @@ tr:hover td{background:#FAFAFA}
 <a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
 <a href="athletedtl.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
 <div class="sb-section" style="margin-top:10px;">Config</div>
-<a href="ag-config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Settings</span></a>
+<a href="config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Configuration</span></a>
 <a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
 <a href="email-send.html" class="sb-item active"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
 <a href="audit-log.html" class="sb-item"><i class="ti ti-shield-check"></i><span class="sb-label">Audit Log</span></a>
@@ -243,24 +243,24 @@ tr:hover td{background:#FAFAFA}
   <div class="content">
 <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="smtp" onclick="switchTab('smtp')">⚙️ SMTP Config</button>
-    <button class="tab-btn" data-tab="jobs" onclick="switchTab('jobs')">📅 Email Jobs</button>
-    <button class="tab-btn" data-tab="templates" onclick="switchTab('templates')">📝 Templates</button>
-    <button class="tab-btn" data-tab="send" onclick="switchTab('send')">🚀 Send Now</button>
+    <button class="tab-btn active" data-tab="smtp" onclick="switchTab('smtp')">âš™ï¸ SMTP Config</button>
+    <button class="tab-btn" data-tab="jobs" onclick="switchTab('jobs')">ðŸ“… Email Jobs</button>
+    <button class="tab-btn" data-tab="templates" onclick="switchTab('templates')">ðŸ“ Templates</button>
+    <button class="tab-btn" data-tab="send" onclick="switchTab('send')">ðŸš€ Send Now</button>
   </div>
 
-  <!-- ── TAB 1: Email Config ── -->
+  <!-- â”€â”€ TAB 1: Email Config â”€â”€ -->
   <div class="tab-pane active" id="tab-smtp">
     <div class="card">
       <div class="card-head">
-        <div class="card-head-left"><span>⚙️</span><h2>Email Configuration</h2></div>
+        <div class="card-head-left"><span>âš™ï¸</span><h2>Email Configuration</h2></div>
       </div>
       <div class="card-body">
         <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff8f5;border:1.5px solid #E8622A;border-radius:10px;margin-bottom:20px">
           <div style="width:20px;height:20px;background:#0B60FF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0">B</div>
           <div>
             <div style="font-size:13px;font-weight:600;color:#E8622A">Powered by Brevo</div>
-            <div style="font-size:12px;color:#888">HTTP-based email API — send to any address, no domain verification needed</div>
+            <div style="font-size:12px;color:#888">HTTP-based email API â€” send to any address, no domain verification needed</div>
           </div>
         </div>
         <div class="field-grid">
@@ -275,33 +275,33 @@ tr:hover td{background:#FAFAFA}
           <div class="field"><label>Reply-To Email</label><input type="text" id="smtp-reply" placeholder="walkathon@arcgate.com"></div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-primary" id="smtp-save-btn" onclick="saveSmtp()">💾 Save Settings</button>
+          <button class="btn btn-primary" id="smtp-save-btn" onclick="saveSmtp()">ðŸ’¾ Save Settings</button>
           <div style="display:flex;align-items:center;gap:6px">
             <input type="text" id="smtp-test-to" placeholder="Send test to: your@email.com" style="padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font,Poppins);width:240px">
-            <button class="btn btn-ghost" onclick="testSmtp()">🔌 Send Test Email</button>
+            <button class="btn btn-ghost" onclick="testSmtp()">ðŸ”Œ Send Test Email</button>
           </div>
           <span id="smtp-status" style="font-size:13px;padding:8px 14px;border-radius:8px;display:none"></span>
         </div>
         <div style="margin-top:20px;padding:14px 16px;background:#f5f5f5;border-radius:8px;font-size:12px;color:#666;line-height:1.9">
           <strong>Setup steps:</strong><br>
-          1. Get API key from <a href="https://app.brevo.com/settings/keys/api" target="_blank" style="color:#E8622A">Brevo → SMTP &amp; API → API Keys</a><br>
-          2. Add a verified sender email at <a href="https://app.brevo.com/senders" target="_blank" style="color:#E8622A">Brevo → Senders</a> (confirm the email link they send)<br>
-          3. Paste API key above → Save → Send Test Email
+          1. Get API key from <a href="https://app.brevo.com/settings/keys/api" target="_blank" style="color:#E8622A">Brevo â†’ SMTP &amp; API â†’ API Keys</a><br>
+          2. Add a verified sender email at <a href="https://app.brevo.com/senders" target="_blank" style="color:#E8622A">Brevo â†’ Senders</a> (confirm the email link they send)<br>
+          3. Paste API key above â†’ Save â†’ Send Test Email
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── TAB 2: Email Jobs ── -->
+  <!-- â”€â”€ TAB 2: Email Jobs â”€â”€ -->
   <div class="tab-pane" id="tab-jobs">
     <!-- New Job Form -->
     <div class="card">
       <div class="card-head">
-        <div class="card-head-left"><span>➕</span><h2>Create Email Job</h2></div>
+        <div class="card-head-left"><span>âž•</span><h2>Create Email Job</h2></div>
       </div>
       <div class="card-body">
         <div class="field-grid">
-          <div class="field"><label>Job Name</label><input type="text" id="job-name" placeholder="Weekly Leaderboard — June 2026"></div>
+          <div class="field"><label>Job Name</label><input type="text" id="job-name" placeholder="Weekly Leaderboard â€” June 2026"></div>
           <div class="field"><label>Event (filter recipients)</label>
             <select id="job-event">
               <option value="">All Events (all participants)</option>
@@ -309,7 +309,7 @@ tr:hover td{background:#FAFAFA}
           </div>
           <div class="field"><label>Email Template</label>
             <select id="job-tpl">
-              <option value="">— Select template —</option>
+              <option value="">â€” Select template â€”</option>
             </select>
           </div>
           <div class="field"><label>Send Frequency</label>
@@ -330,9 +330,9 @@ tr:hover td{background:#FAFAFA}
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()">💾 Save Job</button>
-          <button class="btn btn-ghost" onclick="previewRecipients()">👥 Preview Recipients</button>
-          <span id="job-saved" style="display:none;color:#2e7d32;font-size:13px">✅ Job saved!</span>
+          <button class="btn btn-primary" id="job-save-btn" onclick="saveJob()">ðŸ’¾ Save Job</button>
+          <button class="btn btn-ghost" onclick="previewRecipients()">ðŸ‘¥ Preview Recipients</button>
+          <span id="job-saved" style="display:none;color:#2e7d32;font-size:13px">âœ… Job saved!</span>
         </div>
 
         <!-- Recipients preview -->
@@ -349,8 +349,8 @@ tr:hover td{background:#FAFAFA}
     <!-- Existing Jobs -->
     <div class="card">
       <div class="card-head">
-        <div class="card-head-left"><span>📋</span><h2>Configured Jobs</h2><span class="badge-count" id="jobs-count">0</span></div>
-        <button class="btn btn-ghost btn-sm" onclick="loadJobs()">🔄 Refresh</button>
+        <div class="card-head-left"><span>ðŸ“‹</span><h2>Configured Jobs</h2><span class="badge-count" id="jobs-count">0</span></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadJobs()">ðŸ”„ Refresh</button>
       </div>
       <div class="card-body" id="jobs-list">
         <div style="text-align:center;padding:32px;color:#bbb">Loading jobs...</div>
@@ -358,55 +358,55 @@ tr:hover td{background:#FAFAFA}
     </div>
   </div>
 
-  <!-- ── TAB 3: Templates ── -->
+  <!-- â”€â”€ TAB 3: Templates â”€â”€ -->
   <div class="tab-pane" id="tab-templates">
     <!-- Preset Templates -->
     <div class="card" style="margin-bottom:16px">
       <div class="card-head">
-        <div class="card-head-left"><span>⚡</span><h2>Load a Preset Template</h2></div>
+        <div class="card-head-left"><span>âš¡</span><h2>Load a Preset Template</h2></div>
       </div>
       <div class="card-body">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <select id="preset-sel" style="flex:1;min-width:240px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font,Poppins)">
-            <option value="">— Choose a preset —</option>
-            <option value="leaderboard_live">🏆 Leaderboard Live</option>
-            <option value="red_flag">🚩 Major Red Flag Activities</option>
-            <option value="disqualified">❌ Disqualified from Event</option>
-            <option value="top3">🥇 You are in Top 3</option>
-            <option value="registration_approved">✅ Registration Approved</option>
+            <option value="">â€” Choose a preset â€”</option>
+            <option value="leaderboard_live">ðŸ† Leaderboard Live</option>
+            <option value="red_flag">ðŸš© Major Red Flag Activities</option>
+            <option value="disqualified">âŒ Disqualified from Event</option>
+            <option value="top3">ðŸ¥‡ You are in Top 3</option>
+            <option value="registration_approved">âœ… Registration Approved</option>
           </select>
-          <button class="btn btn-primary" onclick="loadPreset()">⬇ Load into Editor</button>
+          <button class="btn btn-primary" onclick="loadPreset()">â¬‡ Load into Editor</button>
         </div>
-        <p style="font-size:12px;color:#aaa;margin-top:8px">Loads the preset into the editor below — edit as needed, then save.</p>
+        <p style="font-size:12px;color:#aaa;margin-top:8px">Loads the preset into the editor below â€” edit as needed, then save.</p>
       </div>
     </div>
 
     <!-- New Template -->
     <div class="card">
       <div class="card-head">
-        <div class="card-head-left"><span>➕</span><h2>Add Template</h2></div>
+        <div class="card-head-left"><span>âž•</span><h2>Add Template</h2></div>
       </div>
       <div class="card-body">
         <div class="field-grid">
           <div class="field"><label>Template Name</label><input type="text" id="tpl-name" placeholder="Weekly Leaderboard"></div>
-          <div class="field"><label>Email Subject</label><input type="text" id="tpl-subject" placeholder="Your Walkathon Week {{week_number}} Summary 🏃"></div>
+          <div class="field"><label>Email Subject</label><input type="text" id="tpl-subject" placeholder="Your Walkathon Week {{week_number}} Summary ðŸƒ"></div>
           <div class="field span2"><label>Description</label><input type="text" id="tpl-desc" placeholder="Weekly rank and distance summary sent every Monday"></div>
         </div>
         <div class="field" style="margin-bottom:16px">
-          <label>HTML Body <span style="font-size:11px;color:#aaa;font-weight:400;text-transform:none">— edit HTML on the left, live preview on the right</span></label>
+          <label>HTML Body <span style="font-size:11px;color:#aaa;font-weight:400;text-transform:none">â€” edit HTML on the left, live preview on the right</span></label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden;min-height:320px">
             <div style="display:flex;flex-direction:column;border-right:1px solid #e8e8e8">
               <div style="padding:6px 10px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:11px;color:#888;font-weight:600">HTML EDITOR</div>
-              <textarea id="tpl-body" oninput="livePreview()" style="flex:1;min-height:300px;font-family:monospace;font-size:12px;border:none;outline:none;resize:none;padding:12px;background:#fafafa;line-height:1.6" placeholder="Paste or type HTML here — preview updates live →"></textarea>
+              <textarea id="tpl-body" oninput="livePreview()" style="flex:1;min-height:300px;font-family:monospace;font-size:12px;border:none;outline:none;resize:none;padding:12px;background:#fafafa;line-height:1.6" placeholder="Paste or type HTML here â€” preview updates live â†’"></textarea>
             </div>
             <div style="display:flex;flex-direction:column">
               <div style="padding:6px 10px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:11px;color:#888;font-weight:600">LIVE PREVIEW</div>
-              <iframe id="tpl-live-preview" style="flex:1;min-height:300px;border:none;width:100%;background:white" srcdoc="<p style='color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px'>Preview will appear here as you type HTML →</p>"></iframe>
+              <iframe id="tpl-live-preview" style="flex:1;min-height:300px;border:none;width:100%;background:white" srcdoc="<p style='color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px'>Preview will appear here as you type HTML â†’</p>"></iframe>
             </div>
           </div>
         </div>
         <div style="margin-bottom:14px">
-          <div style="font-size:12px;color:#888;margin-bottom:6px">Available variables — click to copy:</div>
+          <div style="font-size:12px;color:#888;margin-bottom:6px">Available variables â€” click to copy:</div>
           <div class="vars">
             <span class="var-chip" onclick="insertVar('{{participant_name}}')">{{participant_name}}</span>
             <span class="var-chip" onclick="insertVar('{{rank}}')">{{rank}}</span>
@@ -424,8 +424,8 @@ tr:hover td{background:#FAFAFA}
           </div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn btn-primary" id="tpl-save-btn" onclick="saveTemplate()">💾 Save Template</button>
-          <button class="btn btn-ghost" onclick="previewCurrentTpl()">👁 Preview</button>
+          <button class="btn btn-primary" id="tpl-save-btn" onclick="saveTemplate()">ðŸ’¾ Save Template</button>
+          <button class="btn btn-ghost" onclick="previewCurrentTpl()">ðŸ‘ Preview</button>
           <span id="tpl-status" style="display:none"></span>
         </div>
       </div>
@@ -434,8 +434,8 @@ tr:hover td{background:#FAFAFA}
     <!-- Template list -->
     <div class="card">
       <div class="card-head">
-        <div class="card-head-left"><span>📝</span><h2>Email Templates</h2><span class="badge-count" id="tpls-count">0</span></div>
-        <button class="btn btn-ghost btn-sm" onclick="loadTemplates()">🔄 Refresh</button>
+        <div class="card-head-left"><span>ðŸ“</span><h2>Email Templates</h2><span class="badge-count" id="tpls-count">0</span></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadTemplates()">ðŸ”„ Refresh</button>
       </div>
       <div class="card-body" id="tpls-list">
         <div style="text-align:center;padding:32px;color:#bbb">Loading templates...</div>
@@ -443,15 +443,15 @@ tr:hover td{background:#FAFAFA}
     </div>
   </div>
 
-  <!-- ── TAB 4: Send Now ── -->
+  <!-- â”€â”€ TAB 4: Send Now â”€â”€ -->
   <div class="tab-pane" id="tab-send">
     <div class="card">
-      <div class="card-head"><div class="card-head-left"><span>🚀</span><h2>Send Email Now</h2></div></div>
+      <div class="card-head"><div class="card-head-left"><span>ðŸš€</span><h2>Send Email Now</h2></div></div>
       <div class="card-body">
         <div class="field-grid">
           <div class="field"><label>Select Job</label>
             <select id="send-job">
-              <option value="">— Select a job —</option>
+              <option value="">â€” Select a job â€”</option>
             </select>
           </div>
           <div class="field"><label>Or select Event manually</label>
@@ -461,7 +461,7 @@ tr:hover td{background:#FAFAFA}
           </div>
           <div class="field"><label>Template</label>
             <select id="send-tpl">
-              <option value="">— Select template —</option>
+              <option value="">â€” Select template â€”</option>
             </select>
           </div>
           <div class="field"><label>Test mode (send to 1 address)</label>
@@ -470,9 +470,9 @@ tr:hover td{background:#FAFAFA}
         </div>
         <p style="font-size:12px;color:#888;margin-bottom:16px">Leave test email blank to send to all matched participants. Fill test email to send only to that address first.</p>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-ghost" onclick="previewSend()">👥 Preview recipients</button>
-          <button class="btn btn-green" id="send-btn" onclick="startSend(false)">🚀 Send to All</button>
-          <button class="btn btn-primary" onclick="startSend(true)">🧪 Test Send (1 email)</button>
+          <button class="btn btn-ghost" onclick="previewSend()">ðŸ‘¥ Preview recipients</button>
+          <button class="btn btn-green" id="send-btn" onclick="startSend(false)">ðŸš€ Send to All</button>
+          <button class="btn btn-primary" onclick="startSend(true)">ðŸ§ª Test Send (1 email)</button>
         </div>
 
         <!-- Recipients preview for send -->
@@ -498,8 +498,8 @@ tr:hover td{background:#FAFAFA}
 
     <!-- Send History -->
     <div class="card">
-      <div class="card-head"><div class="card-head-left"><span>📜</span><h2>Send History</h2></div>
-        <button class="btn btn-ghost btn-sm" onclick="loadHistory()">🔄 Refresh</button>
+      <div class="card-head"><div class="card-head-left"><span>ðŸ“œ</span><h2>Send History</h2></div>
+        <button class="btn btn-ghost btn-sm" onclick="loadHistory()">ðŸ”„ Refresh</button>
       </div>
       <div class="card-body" id="history-list">
         <div style="text-align:center;padding:32px;color:#bbb">Loading history...</div>
@@ -508,7 +508,7 @@ tr:hover td{background:#FAFAFA}
   </div>
 </div>
 
-<footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
+<footer class="site-footer"><span>Â© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
 </div><!-- /main -->
 <script>
 
@@ -519,7 +519,7 @@ var H = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'appl
 var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
 authGuard();
 
-// ── Supabase helpers ───────────────────────────────────
+// â”€â”€ Supabase helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function dbGet(table, query) {
   query = query || '';
   var r = await fetch(SB + '/rest/v1/' + table + query, { headers: H });
@@ -552,7 +552,7 @@ async function dbDelete(table, query) {
   if (!r.ok) { var d = await r.json(); throw new Error(d.message || JSON.stringify(d)); }
 }
 
-// ── UI helpers ─────────────────────────────────────────
+// â”€â”€ UI helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function esc(v) {
   return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -579,7 +579,7 @@ function setBtnLoading(id, loading, originalText) {
   btn.textContent = loading ? 'Saving...' : originalText;
 }
 
-// ── Tab switching ──────────────────────────────────────
+// â”€â”€ Tab switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(function(b) {
     b.classList.toggle('active', b.getAttribute('data-tab') === name);
@@ -593,7 +593,7 @@ function switchTab(name) {
   if (name === 'send')      { loadTemplateSelect('send-tpl'); loadEventSelect('send-event'); loadHistory(); }
 }
 
-// ── SMTP Config ────────────────────────────────────────
+// â”€â”€ SMTP Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadSmtp() {
   try {
     var r = await fetch('https://walkathon-backend-hv9j.onrender.com/get-smtp');
@@ -612,8 +612,8 @@ async function loadSmtp() {
 }
 
 async function saveSmtp() {
-  setBtnLoading('smtp-save-btn', true, '💾 Save Settings');
-  setStatus('smtp-status', 'wait', '⏳ Saving...');
+  setBtnLoading('smtp-save-btn', true, 'ðŸ’¾ Save Settings');
+  setStatus('smtp-status', 'wait', 'â³ Saving...');
   var fields = ['brevo_key','from_name','from_email','reply'];
   var cfg = {};
   fields.forEach(function(k) {
@@ -628,18 +628,18 @@ async function saveSmtp() {
     });
     var d = await r.json();
     if (!d.success) throw new Error(d.error || 'Save failed');
-    setStatus('smtp-status', 'ok', '✅ Settings saved!');
+    setStatus('smtp-status', 'ok', 'âœ… Settings saved!');
   } catch(e) {
-    setStatus('smtp-status', 'err', '❌ Save failed: ' + e.message);
+    setStatus('smtp-status', 'err', 'âŒ Save failed: ' + e.message);
     console.error('saveSmtp:', e);
   }
-  setBtnLoading('smtp-save-btn', false, '💾 Save Settings');
+  setBtnLoading('smtp-save-btn', false, 'ðŸ’¾ Save Settings');
 }
 
 async function testSmtp() {
   var testTo = document.getElementById('smtp-test-to').value.trim();
   if (!testTo) { alert('Enter a "Send test to" email address first.'); return; }
-  setStatus('smtp-status', 'wait', '⏳ Saving & sending test email to ' + testTo + '...');
+  setStatus('smtp-status', 'wait', 'â³ Saving & sending test email to ' + testTo + '...');
   await saveSmtp();
   try {
     var r = await fetch('https://walkathon-backend-hv9j.onrender.com/test-email', {
@@ -650,25 +650,25 @@ async function testSmtp() {
     var d;
     try { d = JSON.parse(txt); } catch(e) { throw new Error('Backend returned: ' + txt.slice(0,120)); }
     setStatus('smtp-status', d.success ? 'ok' : 'err',
-      d.success ? '✅ Test email sent to ' + testTo + '! Check inbox.' : '❌ ' + (d.error || JSON.stringify(d)));
+      d.success ? 'âœ… Test email sent to ' + testTo + '! Check inbox.' : 'âŒ ' + (d.error || JSON.stringify(d)));
   } catch(e) {
-    setStatus('smtp-status', 'err', '❌ ' + e.message);
+    setStatus('smtp-status', 'err', 'âŒ ' + e.message);
   }
 }
 
-// ── Templates ──────────────────────────────────────────
+// â”€â”€ Templates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadPreset() {
   var key = document.getElementById('preset-sel').value;
   if (!key) { alert('Select a preset first.'); return; }
   var PRESETS = {
     leaderboard_live: {
       name: 'Leaderboard Live',
-      subject: '🏆 Arcgate Walkathon 2026 — Leaderboard Update',
+      subject: 'ðŸ† Arcgate Walkathon 2026 â€” Leaderboard Update',
       desc: 'Leaderboard update with current rank, km, and points',
       body: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#f5f5f5">
 <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
   <div style="background:#E8622A;padding:28px 32px;text-align:center">
-    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">🏆 Leaderboard Update</h1>
+    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">ðŸ† Leaderboard Update</h1>
     <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026</p>
   </div>
   <div style="padding:28px 32px">
@@ -685,21 +685,21 @@ function loadPreset() {
     </div>
     <p style="color:#555;font-size:14px">Team: <strong>{{team_name}}</strong></p>
     <div style="text-align:center;margin:24px 0">
-      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Full Leaderboard →</a>
+      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Full Leaderboard â†’</a>
     </div>
-    <p style="color:#888;font-size:12px">Keep walking, keep earning points. Every step counts! 🚶‍♂️</p>
+    <p style="color:#888;font-size:12px">Keep walking, keep earning points. Every step counts! ðŸš¶â€â™‚ï¸</p>
   </div>
-  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 · Sent by Admin</div>
+  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 Â· Sent by Admin</div>
 </div></body></html>`
     },
     red_flag: {
       name: 'Red Flag Activities',
-      subject: '🚩 Action Required — Flagged Activity on Your Walkathon Profile',
+      subject: 'ðŸš© Action Required â€” Flagged Activity on Your Walkathon Profile',
       desc: 'Inform participant about a flagged/suspicious activity',
       body: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#f5f5f5">
 <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
   <div style="background:#c62828;padding:28px 32px;text-align:center">
-    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">🚩 Activity Flagged for Review</h1>
+    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">ðŸš© Activity Flagged for Review</h1>
     <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026</p>
   </div>
   <div style="padding:28px 32px">
@@ -711,19 +711,19 @@ function loadPreset() {
       <div style="font-size:13px;color:#c62828;margin-top:8px;font-weight:600">Reason: {{flag_reason}}</div>
     </div>
     <p style="color:#555;font-size:14px;line-height:1.6">If you believe this is an error, please reach out to the walkathon admin team with your activity details. We'll review and update the status promptly.</p>
-    <p style="color:#888;font-size:12px;margin-top:24px">This is an automated alert. Please do not reply to this email — contact your admin directly.</p>
+    <p style="color:#888;font-size:12px;margin-top:24px">This is an automated alert. Please do not reply to this email â€” contact your admin directly.</p>
   </div>
-  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 · Sent by Admin</div>
+  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 Â· Sent by Admin</div>
 </div></body></html>`
     },
     disqualified: {
       name: 'Disqualified from Event',
-      subject: '❌ Important — Disqualification Notice | Arcgate Walkathon 2026',
+      subject: 'âŒ Important â€” Disqualification Notice | Arcgate Walkathon 2026',
       desc: 'Notify participant they have been disqualified from the event',
       body: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#f5f5f5">
 <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
   <div style="background:#424242;padding:28px 32px;text-align:center">
-    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">❌ Disqualification Notice</h1>
+    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">âŒ Disqualification Notice</h1>
     <p style="color:rgba(255,255,255,.75);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026</p>
   </div>
   <div style="padding:28px 32px">
@@ -736,12 +736,12 @@ function loadPreset() {
     <p style="color:#555;font-size:14px;line-height:1.6">This decision was made in accordance with the walkathon's fair-play policy. If you have any questions or would like to appeal, please contact the admin team within 48 hours.</p>
     <p style="color:#888;font-size:12px;margin-top:24px">We appreciate your participation and hope to see you in future events.</p>
   </div>
-  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 · Sent by Admin</div>
+  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 Â· Sent by Admin</div>
 </div></body></html>`
     },
     top3: {
       name: 'You Are in Top 3',
-      subject: '🥇 Congratulations! You\'re in the Top 3 — Arcgate Walkathon 2026',
+      subject: 'ðŸ¥‡ Congratulations! You\'re in the Top 3 â€” Arcgate Walkathon 2026',
       desc: 'Celebrate participant reaching top 3 on the leaderboard',
       body: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#f5f5f5">
 <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
@@ -751,7 +751,7 @@ function loadPreset() {
     <p style="color:rgba(255,255,255,.9);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026</p>
   </div>
   <div style="padding:28px 32px;text-align:center">
-    <p style="color:#333;font-size:16px;font-weight:600">🎉 Amazing work, <strong>{{participant_name}}</strong>!</p>
+    <p style="color:#333;font-size:16px;font-weight:600">ðŸŽ‰ Amazing work, <strong>{{participant_name}}</strong>!</p>
     <p style="color:#555;font-size:14px;line-height:1.6">You've climbed to <strong>Rank {{rank}}</strong> on the leaderboard. You're among the top performers of Arcgate Walkathon 2026!</p>
     <div style="background:#fff8f5;border:2px solid #E8622A;border-radius:12px;padding:20px;margin:20px 0">
       <div style="font-size:36px;font-weight:800;color:#E8622A">#{{rank}}</div>
@@ -760,27 +760,27 @@ function loadPreset() {
         <div><div style="font-size:18px;font-weight:700;color:#333">{{total_points}} pts</div><div style="font-size:11px;color:#888">Points</div></div>
       </div>
     </div>
-    <p style="color:#555;font-size:14px">Keep going — every step keeps you at the top! 🏆</p>
+    <p style="color:#555;font-size:14px">Keep going â€” every step keeps you at the top! ðŸ†</p>
     <div style="margin:24px 0">
-      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Leaderboard →</a>
+      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">View Leaderboard â†’</a>
     </div>
   </div>
-  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 · Sent by Admin</div>
+  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 Â· Sent by Admin</div>
 </div></body></html>`
     },
     registration_approved: {
       name: 'Registration Approved',
-      subject: '✅ You\'re In! Registration Approved — Arcgate Walkathon 2026',
+      subject: 'âœ… You\'re In! Registration Approved â€” Arcgate Walkathon 2026',
       desc: 'Welcome email after registration approval with Strava connect instructions',
       body: `<!DOCTYPE html><html><body style="margin:0;padding:0;font-family:Poppins,Arial,sans-serif;background:#f5f5f5">
 <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">
   <div style="background:#E8622A;padding:28px 32px;text-align:center">
-    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">✅ Registration Approved!</h1>
-    <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026 — June 2026</p>
+    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">âœ… Registration Approved!</h1>
+    <p style="color:rgba(255,255,255,.85);margin:6px 0 0;font-size:14px">Arcgate Walkathon 2026 â€” June 2026</p>
   </div>
   <div style="padding:28px 32px">
     <p style="color:#333;font-size:15px">Hi <strong>{{participant_name}}</strong>,</p>
-    <p style="color:#555;font-size:14px;line-height:1.6">Great news — your registration for <strong>Arcgate Walkathon 2026</strong> has been approved! 🎉</p>
+    <p style="color:#555;font-size:14px;line-height:1.6">Great news â€” your registration for <strong>Arcgate Walkathon 2026</strong> has been approved! ðŸŽ‰</p>
     <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:10px;padding:18px;margin:20px 0">
       <div style="font-size:14px;font-weight:700;color:#166534;margin-bottom:8px">Next Step: Connect Your Strava Account</div>
       <p style="font-size:13px;color:#166534;margin:0;line-height:1.6">All your activities are tracked via Strava. Please connect your account to start earning points.</p>
@@ -788,15 +788,15 @@ function loadPreset() {
     <ol style="color:#555;font-size:14px;line-height:2;padding-left:20px">
       <li>Visit the Walkathon portal</li>
       <li>Click <strong>"Connect with Strava"</strong></li>
-      <li>Authorize the app — your walks, runs, and hikes will sync automatically</li>
+      <li>Authorize the app â€” your walks, runs, and hikes will sync automatically</li>
       <li>Track your points on the live leaderboard</li>
     </ol>
     <div style="text-align:center;margin:24px 0">
-      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">Open Walkathon Portal →</a>
+      <a href="{{leaderboard_url}}" style="background:#E8622A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">Open Walkathon Portal â†’</a>
     </div>
-    <p style="color:#888;font-size:12px;line-height:1.6">The event runs throughout June 2026. Activities recorded on Strava from June 1 onward will count. Walk, run, hike, or ride — every km earns points!</p>
+    <p style="color:#888;font-size:12px;line-height:1.6">The event runs throughout June 2026. Activities recorded on Strava from June 1 onward will count. Walk, run, hike, or ride â€” every km earns points!</p>
   </div>
-  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 · Sent by Admin</div>
+  <div style="background:#f8f8f8;padding:16px 32px;text-align:center;font-size:11px;color:#aaa">Arcgate Walkathon 2026 Â· Sent by Admin</div>
 </div></body></html>`
     }
   };
@@ -829,9 +829,9 @@ async function loadTemplates() {
         + '<div class="tpl-head">'
         + '<span class="tpl-name">' + esc(t.name) + '</span>'
         + '<div style="display:flex;gap:8px">'
-        + '<button class="btn btn-ghost btn-sm" onclick="editTpl(' + t.id + ')">✏️ Edit</button>'
-        + '<button class="btn btn-ghost btn-sm" onclick="previewTpl(' + t.id + ')">👁 Preview</button>'
-        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteTpl(' + t.id + ')">🗑</button>'
+        + '<button class="btn btn-ghost btn-sm" onclick="editTpl(' + t.id + ')">âœï¸ Edit</button>'
+        + '<button class="btn btn-ghost btn-sm" onclick="previewTpl(' + t.id + ')">ðŸ‘ Preview</button>'
+        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteTpl(' + t.id + ')">ðŸ—‘</button>'
         + '</div></div>'
         + '<div class="tpl-desc">' + esc(t.description || '') + '</div>'
         + '<div style="font-size:12px;color:#666;margin-bottom:6px">Subject: <strong>' + esc(t.subject || '') + '</strong></div>'
@@ -839,7 +839,7 @@ async function loadTemplates() {
         + '</div>';
     }).join('');
   } catch(e) {
-    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
+    list.innerHTML = '<div style="color:#c62828;padding:16px">âŒ ' + e.message + '</div>';
   }
 }
 
@@ -850,8 +850,8 @@ async function saveTemplate() {
   var desc = document.getElementById('tpl-desc').value.trim();
   if (!name) { alert('Template name is required.'); return; }
   if (!body) { alert('HTML body is required.'); return; }
-  setBtnLoading('tpl-save-btn', true, '💾 Save Template');
-  setStatus('tpl-status', 'wait', '⏳ Saving...');
+  setBtnLoading('tpl-save-btn', true, 'ðŸ’¾ Save Template');
+  setStatus('tpl-status', 'wait', 'â³ Saving...');
   try {
     var editId = document.getElementById('tpl-save-btn').getAttribute('data-edit-id');
     if (editId) {
@@ -860,13 +860,13 @@ async function saveTemplate() {
     } else {
       await dbInsert('email_templates', { name: name, subject: subj, body_html: body, description: desc });
     }
-    setStatus('tpl-status', 'ok', '✅ Template saved!');
+    setStatus('tpl-status', 'ok', 'âœ… Template saved!');
     loadTemplates();
   } catch(e) {
-    setStatus('tpl-status', 'err', '❌ Save failed: ' + e.message);
+    setStatus('tpl-status', 'err', 'âŒ Save failed: ' + e.message);
     console.error('saveTemplate:', e);
   }
-  setBtnLoading('tpl-save-btn', false, '💾 Save Template');
+  setBtnLoading('tpl-save-btn', false, 'ðŸ’¾ Save Template');
 }
 
 async function editTpl(id) {
@@ -879,7 +879,7 @@ async function editTpl(id) {
     document.getElementById('tpl-body').value = t.body_html || '';
     document.getElementById('tpl-desc').value = t.description || '';
     document.getElementById('tpl-save-btn').setAttribute('data-edit-id', id);
-    document.getElementById('tpl-save-btn').textContent = '💾 Update Template';
+    document.getElementById('tpl-save-btn').textContent = 'ðŸ’¾ Update Template';
     switchTab('templates');
     livePreview();
     window.scrollTo(0, 0);
@@ -907,7 +907,7 @@ async function previewTpl(id) {
 function livePreview() {
   var body = document.getElementById('tpl-body').value;
   var frame = document.getElementById('tpl-live-preview');
-  if (frame) frame.srcdoc = body || '<p style="color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px">Preview will appear here as you type HTML →</p>';
+  if (frame) frame.srcdoc = body || '<p style="color:#bbb;font-family:sans-serif;text-align:center;padding:40px 20px;font-size:13px">Preview will appear here as you type HTML â†’</p>';
 }
 
 function previewCurrentTpl() {
@@ -942,7 +942,7 @@ async function loadTemplateSelect(selectId) {
   } catch(e) { console.warn('loadTemplateSelect:', e.message); }
 }
 
-// ── Events dropdown ────────────────────────────────────
+// â”€â”€ Events dropdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadEventSelect(selectId) {
   try {
     var rows = await dbGet('registration', '?select=event_name&order=event_name');
@@ -962,7 +962,7 @@ async function loadEventSelect(selectId) {
   } catch(e) { console.warn('loadEventSelect:', e.message); }
 }
 
-// ── Jobs ───────────────────────────────────────────────
+// â”€â”€ Jobs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadJobs() {
   var list = document.getElementById('jobs-list');
   list.innerHTML = '<div style="padding:20px;color:#aaa">Loading...</div>';
@@ -979,25 +979,25 @@ async function loadJobs() {
     var freqMap = { manual: 'Manual', daily: 'Daily', weekly: 'Weekly', weekly_monday: 'Every Monday', weekly_friday: 'Every Friday' };
     list.innerHTML = rows.map(function(j) {
       var pill = j.status === 'active'
-        ? '<span class="pill pill-green">● Active</span>'
-        : '<span class="pill pill-grey">⏸ Paused</span>';
+        ? '<span class="pill pill-green">â— Active</span>'
+        : '<span class="pill pill-grey">â¸ Paused</span>';
       return '<div class="job-card">'
         + '<div class="job-info">'
         + '<div class="job-title">' + esc(j.name) + '</div>'
         + '<div class="job-meta">'
-        + '<span>📅 ' + (freqMap[j.frequency] || j.frequency) + (j.send_time ? ' at ' + j.send_time : '') + '</span>'
-        + '<span>📝 ' + esc(tm[j.template_id] || 'No template') + '</span>'
-        + '<span>🎯 ' + esc(j.event_name || 'All participants') + '</span>'
+        + '<span>ðŸ“… ' + (freqMap[j.frequency] || j.frequency) + (j.send_time ? ' at ' + j.send_time : '') + '</span>'
+        + '<span>ðŸ“ ' + esc(tm[j.template_id] || 'No template') + '</span>'
+        + '<span>ðŸŽ¯ ' + esc(j.event_name || 'All participants') + '</span>'
         + '</div></div>'
         + '<div style="display:flex;align-items:center;gap:10px">'
         + pill
         + '<button class="btn btn-ghost btn-sm" onclick="toggleJob(' + j.id + ',\'' + j.status + '\')">'
-        + (j.status === 'active' ? '⏸ Pause' : '▶ Resume') + '</button>'
-        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteJob(' + j.id + ')">🗑</button>'
+        + (j.status === 'active' ? 'â¸ Pause' : 'â–¶ Resume') + '</button>'
+        + '<button class="btn btn-sm" style="background:#ffebee;color:#c62828" onclick="deleteJob(' + j.id + ')">ðŸ—‘</button>'
         + '</div></div>';
     }).join('');
   } catch(e) {
-    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
+    list.innerHTML = '<div style="color:#c62828;padding:16px">âŒ ' + e.message + '</div>';
   }
 }
 
@@ -1010,21 +1010,21 @@ async function saveJob() {
   var status = document.getElementById('job-status').value;
   if (!name) { alert('Job name is required.'); return; }
   if (!tplId) { alert('Please select a template. Go to Templates tab first.'); return; }
-  setBtnLoading('job-save-btn', true, '💾 Save Job');
-  setStatus('job-status', 'wait', '⏳ Saving...');
+  setBtnLoading('job-save-btn', true, 'ðŸ’¾ Save Job');
+  setStatus('job-status', 'wait', 'â³ Saving...');
   try {
     await dbInsert('email_jobs', {
       name: name, event_name: event || null,
       template_id: parseInt(tplId),
       frequency: freq, send_time: time, status: status
     });
-    setStatus('job-status', 'ok', '✅ Job saved!');
+    setStatus('job-status', 'ok', 'âœ… Job saved!');
     loadJobs();
   } catch(e) {
-    setStatus('job-status', 'err', '❌ Save failed: ' + e.message);
+    setStatus('job-status', 'err', 'âŒ Save failed: ' + e.message);
     console.error('saveJob:', e);
   }
-  setBtnLoading('job-save-btn', false, '💾 Save Job');
+  setBtnLoading('job-save-btn', false, 'ðŸ’¾ Save Job');
 }
 
 async function toggleJob(id, current) {
@@ -1042,7 +1042,7 @@ async function deleteJob(id) {
   } catch(e) { alert('Delete failed: ' + e.message); }
 }
 
-// ── Recipients helpers ─────────────────────────────────
+// â”€â”€ Recipients helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function getRecipients(eventName) {
   var q = '?select=strava_athlete_id,full_name,email,event_name,leaderboard_team';
   if (eventName) q += '&event_name=eq.' + encodeURIComponent(eventName);
@@ -1056,20 +1056,20 @@ async function previewRecipients() {
     var recips = await getRecipients(eventName);
     document.getElementById('recip-count').textContent = recips.length + ' recipients' + (eventName ? ' for: ' + eventName : ' (all events)');
     document.getElementById('recip-body').innerHTML = recips.slice(0, 30).map(function(r, i) {
-      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'—') + '</td><td>' + esc(r.email||'—') + '</td><td>' + esc(r.event_name||'—') + '</td></tr>';
-    }).join('') + (recips.length > 30 ? '<tr><td colspan="4" style="text-align:center;color:#888">…and ' + (recips.length-30) + ' more</td></tr>' : '');
+      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'â€”') + '</td><td>' + esc(r.email||'â€”') + '</td><td>' + esc(r.event_name||'â€”') + '</td></tr>';
+    }).join('') + (recips.length > 30 ? '<tr><td colspan="4" style="text-align:center;color:#888">â€¦and ' + (recips.length-30) + ' more</td></tr>' : '');
     document.getElementById('recip-preview').style.display = 'block';
   } catch(e) { alert('Error: ' + e.message); }
 }
 
-// ── Send Now ───────────────────────────────────────────
+// â”€â”€ Send Now â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function previewSend() {
   var eventName = document.getElementById('send-event').value;
   try {
     var recips = await getRecipients(eventName);
     document.getElementById('send-recip-count').textContent = recips.length + ' recipients';
     document.getElementById('send-recip-body').innerHTML = recips.slice(0, 20).map(function(r, i) {
-      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'—') + '</td><td>' + esc(r.email||'—') + '</td><td>' + esc(r.event_name||'—') + '</td></tr>';
+      return '<tr><td style="color:#aaa">' + (i+1) + '</td><td>' + esc(r.full_name||'â€”') + '</td><td>' + esc(r.email||'â€”') + '</td><td>' + esc(r.event_name||'â€”') + '</td></tr>';
     }).join('');
     document.getElementById('send-recip-preview').style.display = 'block';
   } catch(e) { alert('Error: ' + e.message); }
@@ -1094,15 +1094,15 @@ async function startSend(testOnly) {
 
   try {
     var tpls = await dbGet('email_templates', '?id=eq.' + tplId);
-    if (!tpls[0]) { log('❌ Template not found', 'log-err'); return; }
-    log('📝 Template: ' + tpls[0].name);
+    if (!tpls[0]) { log('âŒ Template not found', 'log-err'); return; }
+    log('ðŸ“ Template: ' + tpls[0].name);
 
     var recips = testOnly ? [{ full_name: 'Test', email: testEmail, event_name: 'Test' }] : await getRecipients(eventName);
-    log('👥 Recipients: ' + recips.length);
+    log('ðŸ‘¥ Recipients: ' + recips.length);
 
-    if (!recips.length) { log('⚠️ No recipients with valid email addresses.', 'log-warn'); return; }
+    if (!recips.length) { log('âš ï¸ No recipients with valid email addresses.', 'log-warn'); return; }
 
-    log('🚀 Sending via backend...');
+    log('ðŸš€ Sending via backend...');
     var r = await fetch('https://walkathon-backend-hv9j.onrender.com/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1112,21 +1112,21 @@ async function startSend(testOnly) {
     if (result.success) {
       document.getElementById('send-prog-fill').style.width = '100%';
       document.getElementById('send-prog-pct').textContent = '100%';
-      log('━━━━━━━━━━━━━━━━━━━━', 'log-info');
-      log('✅ Sent: ' + result.sent);
-      if (result.failed) log('❌ Failed: ' + result.failed, 'log-err');
-      log('━━━━━━━━━━━━━━━━━━━━', 'log-info');
+      log('â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”', 'log-info');
+      log('âœ… Sent: ' + result.sent);
+      if (result.failed) log('âŒ Failed: ' + result.failed, 'log-err');
+      log('â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”', 'log-info');
       await dbInsert('email_send_history', { template_id: parseInt(tplId), event_name: eventName || null, recipients_count: result.sent, failed_count: result.failed || 0, test_mode: testOnly, status: 'sent' });
       loadHistory();
     } else {
-      log('❌ Send failed: ' + (result.error || 'Unknown error'), 'log-err');
+      log('âŒ Send failed: ' + (result.error || 'Unknown error'), 'log-err');
     }
   } catch(e) {
-    log('❌ Error: ' + e.message, 'log-err');
+    log('âŒ Error: ' + e.message, 'log-err');
   }
 }
 
-// ── Send History ───────────────────────────────────────
+// â”€â”€ Send History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadHistory() {
   var list = document.getElementById('history-list');
   list.innerHTML = '<div style="padding:20px;color:#aaa">Loading...</div>';
@@ -1140,7 +1140,7 @@ async function loadHistory() {
       + rows.map(function(h) {
         return '<tr>'
           + '<td>' + new Date(h.sent_at || h.created_at).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</td>'
-          + '<td>' + esc(tm[h.template_id] || '—') + '</td>'
+          + '<td>' + esc(tm[h.template_id] || 'â€”') + '</td>'
           + '<td>' + esc(h.event_name || 'All') + '</td>'
           + '<td style="color:#2e7d32;font-weight:600">' + (h.recipients_count || 0) + '</td>'
           + '<td style="color:' + (h.failed_count > 0 ? '#c62828' : '#888') + '">' + (h.failed_count || 0) + '</td>'
@@ -1149,11 +1149,11 @@ async function loadHistory() {
       }).join('')
       + '</tbody></table>';
   } catch(e) {
-    list.innerHTML = '<div style="color:#c62828;padding:16px">❌ ' + e.message + '</div>';
+    list.innerHTML = '<div style="color:#c62828;padding:16px">âŒ ' + e.message + '</div>';
   }
 }
 
-// ── Persist form fields via localStorage ──────────────
+// â”€â”€ Persist form fields via localStorage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var PERSIST_FIELDS = [
   'smtp-from_name','smtp-from_email','smtp-reply','smtp-test-to',
   'tpl-name','tpl-subject','tpl-desc',
@@ -1191,7 +1191,7 @@ function attachPersistListeners() {
       localStorage.setItem('wk_email_' + id, el.value);
     });
   });
-  // tpl-body separately (debounced — don't save on every keypress)
+  // tpl-body separately (debounced â€” don't save on every keypress)
   var bodyEl = document.getElementById('tpl-body');
   if (bodyEl) {
     var bodyTimer;
@@ -1212,10 +1212,10 @@ function clearTplForm() {
     localStorage.removeItem('wk_email_' + id);
   });
   var btn = document.getElementById('tpl-save-btn');
-  if (btn) { btn.removeAttribute('data-edit-id'); btn.textContent = '💾 Save Template'; }
+  if (btn) { btn.removeAttribute('data-edit-id'); btn.textContent = 'ðŸ’¾ Save Template'; }
 }
 
-// ── Init ───────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 restoreFieldsFromStorage();
 attachPersistListeners();
 loadSmtp();
