@@ -3280,6 +3280,11 @@ function initializeFeedTab(enabled) {
 var _feedLoaded = false;
 var _feedData = [];
 
+function formatMarkdown(text) {
+  if (!text) return '';
+  return String(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+
 async function loadFeed() {
   var list = document.getElementById('feed-list');
   if (list) {
@@ -3370,7 +3375,7 @@ function renderFeed() {
           </div>
         </div>
         <div class="feed-card-body">
-          ${item.body}
+          ${formatMarkdown(item.body)}
         </div>
         <div class="feed-card-actions">
           ${reactionButtonsHtml}
@@ -4016,7 +4021,7 @@ function updateInAppNotificationBanner() {
     var pillLabel = isBroadcast ? '📢 Broadcast' : '🔔 Notification';
     var emoji = getNotifEmoji(n.title, n.body);
     var timeStr = timeAgo(n.created_at);
-    var html = _buildBannerHtml(type, pillLabel, emoji, esc(n.title), esc(n.body), null, key, timeStr);
+    var html = _buildBannerHtml(type, pillLabel, emoji, esc(n.title), formatMarkdown(esc(n.body)), null, key, timeStr);
     banner.setAttribute('data-banner-key', key);
     banner.innerHTML = html;
     banner.style.display = 'block';
@@ -4170,7 +4175,7 @@ function renderNotifications() {
         '<div style="background: rgba(252,97,0,0.12); color: var(--brand); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-top: 1px;">' + emoji + '</div>' +
         '<div style="flex: 1; min-width: 0;">' +
           '<div style="font-size: 12.5px; font-weight: 600; color: #fff; line-height: 1.3; word-wrap: break-word;">' + esc(n.title) + '</div>' +
-          '<div style="font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; word-wrap: break-word;">' + esc(n.body) + '</div>' +
+          '<div style="font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; word-wrap: break-word;">' + formatMarkdown(esc(n.body)) + '</div>' +
           '<div style="font-size: 9.5px; color: ' + (n.is_virtual ? '#FC6100' : 'var(--label)') + '; margin-top: 4px; font-weight: ' + (n.is_virtual ? '600' : 'normal') + ';">' + timeStr + '</div>' +
         '</div>' +
       '</div>';
@@ -4206,6 +4211,8 @@ async function clearNotifications(e) {
 async function checkMilestoneNotifications(athleteId, currentRank, currentPoints, currentGender, myActs, reg) {
   // Wait until historical notifications are loaded from DB to prevent race condition/duplicate triggers
   if (!_notificationsLoaded) return;
+  if (window._checkingMilestones) return;
+  window._checkingMilestones = true;
 
   try {
     var keyRank = 'agprev_prev_rank_' + athleteId;
@@ -4493,6 +4500,8 @@ async function checkMilestoneNotifications(athleteId, currentRank, currentPoints
     localStorage.setItem(keyChallenges, JSON.stringify(completedChallenges));
   } catch (err) {
     console.warn('Failed to check milestone notifications:', err);
+  } finally {
+    window._checkingMilestones = false;
   }
 }
 
