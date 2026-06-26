@@ -871,12 +871,27 @@ function logout() {
 
 // ── Helpers ──
 function fmtDate(d) {
-  var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;
-  return new Date(naive).toLocaleDateString('en-IN', { day:'2-digit', month:'short' });
+  if (!d) return '';
+  try {
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', timeZone: 'Asia/Kolkata' });
+  } catch (e) {
+    var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;
+    return new Date(naive).toLocaleDateString('en-IN', { day:'2-digit', month:'short' });
+  }
 }
-function fmtTime(d) {
-  var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;
-  return new Date(naive).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+function fmtTime(d, startTime) {
+  if (!d) return '';
+  if (startTime === null || startTime === undefined || startTime === '') return '';
+  try {
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return '';
+    return dt.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true, timeZone: 'Asia/Kolkata' });
+  } catch (e) {
+    var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;
+    return new Date(naive).toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+  }
 }
 function fmtDist(m) {
   if (!m) return '—';
@@ -1023,7 +1038,7 @@ async function load() {
           <span class="pill ${a.is_flagged ? 'pill-flag' : 'pill-clean'}">${a.is_flagged ? '🚩 Flagged' : '✅ Clean'}</span>
         </div>
         <div class="act-dist">${fmtDist(a.distance_meters)}</div>
-        <div class="act-time">${fmtDate(a.activity_date)}<br><span style="font-size:10px">${fmtTime(a.activity_date)}</span></div>
+        <div class="act-time">${fmtDate(a.activity_date)}<br><span style="font-size:10px">${fmtTime(a.activity_date, a.start_time)}</span></div>
       </div>`;
   }).join('');
 }
