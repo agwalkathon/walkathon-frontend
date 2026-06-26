@@ -322,6 +322,9 @@
       -webkit-overflow-scrolling: touch;
       padding: 14px 20px 90px;
     }
+    .hidden-tab {
+      display: none !important;
+    }
     .max-w{max-width:540px;margin:0 auto;}
 
     /* ── Section label ── */
@@ -1356,7 +1359,7 @@ document.addEventListener('click', function(e) {
 </div>
 
 <!-- Updates tab -->
-<div class="content" id="tab-feed" style="display:none;">
+<div class="content hidden-tab" id="tab-feed">
 <div class="max-w">
   <div class="sec">Updates & Achievements</div>
   <div id="feed-list">
@@ -3232,20 +3235,20 @@ function initializeFeedTab(enabled) {
       TAB_ORDER.splice(3, 0, 'feed');
     }
     if (bnavFeed) bnavFeed.style.display = '';
-    if (tabFeed) tabFeed.style.display = 'block';
+    if (tabFeed) tabFeed.classList.remove('hidden-tab');
   } else {
     var idx = TAB_ORDER.indexOf('feed');
     if (idx !== -1) {
       TAB_ORDER.splice(idx, 1);
     }
     if (bnavFeed) bnavFeed.style.display = 'none';
-    if (tabFeed) tabFeed.style.display = 'none';
+    if (tabFeed) tabFeed.classList.add('hidden-tab');
   }
   
   // Adjust track and content widths
   if (track) {
     track.style.width = (TAB_ORDER.length * 100) + '%';
-    var contents = track.querySelectorAll('.content');
+    var contents = track.querySelectorAll('.content:not(.hidden-tab)');
     var contentWidth = (100 / TAB_ORDER.length) + '%';
     contents.forEach(function(el) {
       el.style.width = contentWidth;
