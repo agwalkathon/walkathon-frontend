@@ -638,6 +638,51 @@
       font-weight: 600;
       font-size: 11px;
     }
+    .modal.modal-wide {
+      max-width: 750px;
+    }
+    .log-console {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Courier New', Courier, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-y: auto;
+      max-height: 380px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+      border: 1px solid #333;
+      white-space: pre-wrap;
+      word-break: break-all;
+      text-align: left;
+    }
+    .troubleshoot-guide {
+      background: #FFF7ED;
+      border: 1px solid #FFEDD5;
+      color: #C2410C;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 14px;
+      text-align: left;
+    }
+    .troubleshoot-guide h4 {
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .troubleshoot-guide ul {
+      margin-left: 18px;
+      margin-top: 6px;
+    }
+    .troubleshoot-guide li {
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -1381,7 +1426,18 @@ async function wakeUpBackend(e) {
   }, 5000);
 }
 
-function showServiceLogs(service) {
+function formatLogText(logLine) {
+  return logLine
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\[ERROR\]/g, '<span style="color:#F87171;font-weight:bold;">[ERROR]</span>')
+    .replace(/\[WARN\]/g, '<span style="color:#FBBF24;font-weight:bold;">[WARN]</span>')
+    .replace(/\[INFO\]/g, '<span style="color:#60A5FA;">[INFO]</span>')
+    .replace(/(\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\])/g, '<span style="color:#888;">$1</span>');
+}
+
+async function showServiceLogs(service) {
   const serviceNames = {
     backend: 'Backend (Render)',
     supabase: 'Supabase DB',
@@ -1394,36 +1450,164 @@ function showServiceLogs(service) {
   if (titleSpan) titleSpan.textContent = name;
 
   const contentEl = document.getElementById('health-modal-content');
-  if (contentEl) {
-    contentEl.innerHTML = '';
-    const logs = healthHistory[service] || [];
-    if (logs.length === 0) {
-      contentEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">No logs recorded yet. Waiting for next health check...</div>';
+  const modalEl = document.querySelector('#health-logs-modal .modal');
+  const refreshBtn = document.getElementById('modal-refresh-btn');
+
+  // Resize modal depending on whether it needs a wider view for console logs
+  if (modalEl) {
+    if (service === 'backend') {
+      modalEl.classList.add('modal-wide');
     } else {
-      [...logs].reverse().forEach(log => {
-        const statusText = log.ok ? 'ONLINE' : 'OFFLINE';
-        const statusClass = log.ok ? 'log-status-ok' : 'log-status-err';
-        const latencyText = log.latency !== null ? `${log.latency}ms` : '—';
-        
-        const item = document.createElement('div');
-        item.className = 'log-item';
-        item.innerHTML = `
-          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:500;margin-bottom:2px;">
-            <span style="color:var(--text-secondary);">${log.timestamp}</span>
-            <span class="${statusClass}">${statusText}</span>
-          </div>
-          <div style="font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;gap:8px;">
-            <span>Latency: ${latencyText}</span>
-            ${log.reason ? `<span style="color:#EF4444;text-align:right;max-width:70%;word-break:break-all;">Error: ${log.reason}</span>` : ''}
-          </div>
-        `;
-        contentEl.appendChild(item);
-      });
+      modalEl.classList.remove('modal-wide');
+    }
+  }
+
+  // Setup refresh button for backend
+  if (refreshBtn) {
+    if (service === 'backend') {
+      refreshBtn.style.display = 'inline-block';
+      refreshBtn.onclick = () => loadBackendLiveLogs();
+    } else {
+      refreshBtn.style.display = 'none';
     }
   }
 
   const modal = document.getElementById('health-logs-modal');
   if (modal) modal.classList.add('show');
+
+  // Populate content
+  if (service === 'backend') {
+    await loadBackendLiveLogs();
+  } else {
+    renderStandardHistoryLogs(service);
+  }
+}
+
+function renderStandardHistoryLogs(service) {
+  const contentEl = document.getElementById('health-modal-content');
+  if (!contentEl) return;
+
+  contentEl.innerHTML = '';
+  const logs = healthHistory[service] || [];
+  
+  if (logs.length === 0) {
+    contentEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">No ping logs recorded yet. Waiting for next health check...</div>';
+  } else {
+    const listContainer = document.createElement('div');
+    [...logs].reverse().forEach(log => {
+      const statusText = log.ok ? 'ONLINE' : 'OFFLINE';
+      const statusClass = log.ok ? 'log-status-ok' : 'log-status-err';
+      const latencyText = log.latency !== null ? `${log.latency}ms` : '—';
+      
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:500;margin-bottom:2px;">
+          <span style="color:var(--text-secondary);">${log.timestamp}</span>
+          <span class="${statusClass}">${statusText}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;gap:8px;">
+          <span>Latency: ${latencyText}</span>
+          ${log.reason ? `<span style="color:#EF4444;text-align:right;max-width:70%;word-break:break-all;">Error: ${log.reason}</span>` : ''}
+        </div>
+      `;
+      listContainer.appendChild(item);
+    });
+    contentEl.appendChild(listContainer);
+  }
+
+  // Append database troubleshooting tips for Supabase
+  if (service === 'supabase') {
+    const isCurrentlyOffline = logs.length > 0 && !logs[logs.length - 1].ok;
+    contentEl.appendChild(getTroubleshootingHTML('supabase', isCurrentlyOffline));
+  }
+}
+
+async function loadBackendLiveLogs() {
+  const contentEl = document.getElementById('health-modal-content');
+  if (!contentEl) return;
+
+  contentEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px;"><i class="ti ti-loader spin" style="font-size:24px;display:block;margin-bottom:12px;"></i>Fetching live logs from Render backend...</div>';
+  
+  const token = sessionStorage.getItem('wk_admin_token');
+  if (!token) {
+    contentEl.innerHTML = '<div style="color:#EF4444;font-size:13px;text-align:center;padding:20px;">Unauthorized: Admin token missing. Please log in again.</div>';
+    return;
+  }
+
+  let logsFetched = false;
+  let errorReason = '';
+
+  try {
+    const res = await fetch(_BACKEND_URL + '/admin/live-logs', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.logs)) {
+        logsFetched = true;
+        if (data.logs.length === 0) {
+          contentEl.innerHTML = '<div class="log-console">Console initialized. Waiting for backend activities...</div>';
+        } else {
+          const consoleDiv = document.createElement('div');
+          consoleDiv.className = 'log-console';
+          consoleDiv.innerHTML = data.logs.map(line => formatLogText(line)).join('\n');
+          contentEl.innerHTML = '';
+          contentEl.appendChild(consoleDiv);
+          // Scroll console to bottom
+          setTimeout(() => { consoleDiv.scrollTop = consoleDiv.scrollHeight; }, 50);
+        }
+      } else {
+        errorReason = data.error || 'Invalid API response format';
+      }
+    } else {
+      errorReason = `HTTP ${res.status}: ${res.statusText}`;
+    }
+  } catch (err) {
+    errorReason = err.message || 'Connection Refused (Failed to fetch)';
+  }
+
+  if (!logsFetched) {
+    contentEl.innerHTML = `
+      <div style="color:#EF4444;font-size:13px;padding:12px;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.05);border-radius:6px;margin-bottom:12px;text-align:left;">
+        <strong>Error Fetching Logs:</strong> ${errorReason}
+      </div>
+    `;
+    contentEl.appendChild(getTroubleshootingHTML('backend', true));
+  }
+}
+
+function getTroubleshootingHTML(service, isOffline) {
+  const guideDiv = document.createElement('div');
+  guideDiv.className = 'troubleshoot-guide';
+  
+  if (service === 'backend') {
+    guideDiv.innerHTML = `
+      <h4><i class="ti ti-alert-triangle"></i> Troubleshooting "Failed to fetch" (Backend Offline)</h4>
+      <p style="margin-bottom:6px;">If the backend shows offline or fails to load logs, it is usually caused by one of these reasons:</p>
+      <ul>
+        <li><strong>Cold Start (Sleep Mode)</strong>: The Render free tier spins down the server after 15 minutes of inactivity. Close this modal and click <strong>"Wake Up Backend"</strong> on the backend status card. It takes about 50 seconds to boot up.</li>
+        <li><strong>Local File CORS Blocker</strong>: If your browser URL starts with <code>file:///</code>, modern browsers block AJAX requests to external APIs due to security/CORS restrictions.
+          <br><em style="font-size:11px;color:#7c2d12;">👉 Fix: Run a local web server (e.g. VS Code Live Server or run <code>npx serve</code> in the folder) and open the page via <code>http://localhost</code>.</em>
+        </li>
+        <li><strong>Local Port CORS Mismatch</strong>: If you are using a local web server (e.g. <code>localhost:5500</code>), ensure the backend has the updated CORS configuration to allow local ports.</li>
+        <li><strong>Render Service Outage</strong>: Check if the backend is down by navigating directly to <a href="${_BACKEND_URL}/" target="_blank" style="color:var(--brand);font-weight:600;text-decoration:underline;">Backend Ping URL</a> in a new tab. If it loads "Walkathon backend running", the server is online.</li>
+      </ul>
+    `;
+  } else if (service === 'supabase') {
+    guideDiv.innerHTML = `
+      <h4><i class="ti ti-alert-triangle"></i> Troubleshooting DB Connection Errors</h4>
+      <p style="margin-bottom:6px;">If Supabase is showing "Failed to fetch", check the following items:</p>
+      <ul>
+        <li><strong>Local File CORS Restriction</strong>: Running the page directly from the file system (<code>file:///</code>) blocks headers required by the Supabase REST client in some browsers. Always serve via a local web server (<code>http://localhost</code>).</li>
+        <li><strong>Supabase Project Paused</strong>: Supabase free projects pause after 1 week of inactivity. Go to your Supabase Dashboard to resume the database.</li>
+        <li><strong>Invalid API Credentials</strong>: Verify that <code>SUPABASE_URL</code> and <code>SUPABASE_ANON</code> in your HTML file headers are set correctly.</li>
+        <li><strong>Adblocker/DNS Blocker</strong>: Some browser privacy extensions or company firewalls block database subdomains (e.g., <code>*.supabase.co</code>). Try disabling extensions or testing on a different network.</li>
+      </ul>
+    `;
+  }
+  return guideDiv;
 }
 
 function closeHealthLogsModal() {
@@ -1514,10 +1698,15 @@ document.getElementById('health-logs-modal').addEventListener('click', function(
   <div class="modal-overlay" id="health-logs-modal">
     <div class="modal">
       <button class="modal-close-btn" onclick="closeHealthLogsModal()">&times;</button>
-      <h3 id="health-modal-title">
-        <i class="ti ti-history" style="color:var(--brand);margin-right:4px;"></i> <span id="health-modal-service-name">Service</span> History Logs
-      </h3>
-      <div id="health-modal-content" style="max-height: 300px; overflow-y: auto; margin-top: 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-right:24px;flex-wrap:wrap;gap:8px;">
+        <h3 id="health-modal-title" style="margin:0;font-size:15px;font-weight:700;">
+          <i class="ti ti-history" style="color:var(--brand);margin-right:4px;"></i> <span id="health-modal-service-name">Service</span> Logs
+        </h3>
+        <button id="modal-refresh-btn" class="btn btn-sm" style="font-size:11px;padding:4px 8px;border-radius:4px;border:none;background:var(--brand);color:#fff;cursor:pointer;display:none;font-family:var(--font);font-weight:600;">
+          <i class="ti ti-refresh"></i> Refresh
+        </button>
+      </div>
+      <div id="health-modal-content" style="max-height: 440px; overflow-y: auto; margin-top: 8px;">
         <!-- Log items dynamically loaded -->
       </div>
     </div>
