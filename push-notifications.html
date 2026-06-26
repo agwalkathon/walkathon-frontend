@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Push Notifications — Arcgate Walkathon Admin</title>
+  <title>Push Notifications â€” Arcgate Walkathon Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -83,7 +83,7 @@ footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
 <a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
 <a href="athletedtl.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
 <div class="sb-section" style="margin-top:10px;">Config</div>
-<a href="ag-config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Settings</span></a>
+<a href="config.html" class="sb-item"><i class="ti ti-settings-2"></i><span class="sb-label">Configuration</span></a>
 <a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
 <a href="email-send.html" class="sb-item"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
 <a href="audit-log.html" class="sb-item"><i class="ti ti-shield-check"></i><span class="sb-label">Audit Log</span></a>
@@ -100,9 +100,9 @@ footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
 
 <!-- Stats -->
 <div class="stat-row">
-  <div class="stat-box"><div class="stat-val" id="stat-subs">—</div><div class="stat-lbl">Subscribed devices</div></div>
-  <div class="stat-box"><div class="stat-val" id="stat-enabled" style="color:#16a34a">—</div><div class="stat-lbl">Rules enabled</div></div>
-  <div class="stat-box"><div class="stat-val" id="stat-disabled" style="color:#9ca3af">—</div><div class="stat-lbl">Rules disabled</div></div>
+  <div class="stat-box"><div class="stat-val" id="stat-subs">â€”</div><div class="stat-lbl">Subscribed devices</div></div>
+  <div class="stat-box"><div class="stat-val" id="stat-enabled" style="color:#16a34a">â€”</div><div class="stat-lbl">Rules enabled</div></div>
+  <div class="stat-box"><div class="stat-val" id="stat-disabled" style="color:#9ca3af">â€”</div><div class="stat-lbl">Rules disabled</div></div>
 </div>
 
 <!-- Trigger Rules -->
@@ -130,9 +130,9 @@ footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
               <span class="toggle-thumb" id="active-trigger-thumb" style="transform: translateX(0);"></span>
             </span>
           </label>
-          <span id="active-trigger-label" style="font-size: 14px; font-weight: 600; color: var(--text);">—</span>
+          <span id="active-trigger-label" style="font-size: 14px; font-weight: 600; color: var(--text);">â€”</span>
         </div>
-        <span class="rule-key" id="active-trigger-key" style="margin: 0;">—</span>
+        <span class="rule-key" id="active-trigger-key" style="margin: 0;">â€”</span>
       </div>
 
       <div class="rule-fields">
@@ -141,7 +141,7 @@ footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
           <input type="text" id="active-trigger-title" oninput="updateActiveTrigger()">
         </div>
         <div class="fld">
-          <label>Notification Body — use {distance} {name} {rank} {medal}</label>
+          <label>Notification Body â€” use {distance} {name} {rank} {medal}</label>
           <input type="text" id="active-trigger-body" oninput="updateActiveTrigger()">
         </div>
       </div>
@@ -202,7 +202,7 @@ footer.site-footer a{color:#aaa;text-decoration:none;margin-left:16px}
 </div>
 
 </div><!-- /content -->
-<footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
+<footer class="site-footer"><span>Â© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
 </div><!-- /main -->
 
 <script>
@@ -241,7 +241,7 @@ async function loadRules() {
     renderRules();
     loadStats();
   } catch(e) {
-    document.getElementById('rules-list').innerHTML = '<p style="color:#c62828;font-size:13px;padding:8px 0">Could not load rules — backend may be starting up. Refresh in a moment.</p>';
+    document.getElementById('rules-list').innerHTML = '<p style="color:#c62828;font-size:13px;padding:8px 0">Could not load rules â€” backend may be starting up. Refresh in a moment.</p>';
   }
 }
 
@@ -256,7 +256,7 @@ function renderRules() {
   if (select) {
     var originalValue = select.value;
     select.innerHTML = rulesData.map(function(rule, idx) {
-      var status = rule.enabled ? '🟢' : '⚪';
+      var status = rule.enabled ? 'ðŸŸ¢' : 'âšª';
       return '<option value="' + idx + '">' + status + ' ' + esc(rule.title) + ' (' + esc(rule.trigger_key) + ')</option>';
     }).join('');
     
@@ -313,7 +313,7 @@ function toggleActiveTrigger(val) {
   var select = document.getElementById('trigger-select');
   if (select) {
     var option = select.options[selectedTriggerIndex];
-    var status = val ? '🟢' : '⚪';
+    var status = val ? 'ðŸŸ¢' : 'âšª';
     var rule = rulesData[selectedTriggerIndex];
     option.textContent = status + ' ' + rule.title + ' (' + rule.trigger_key + ')';
   }
@@ -336,7 +336,7 @@ function updateActiveTrigger() {
   var select = document.getElementById('trigger-select');
   if (select) {
     var option = select.options[selectedTriggerIndex];
-    var status = rulesData[selectedTriggerIndex].enabled ? '🟢' : '⚪';
+    var status = rulesData[selectedTriggerIndex].enabled ? 'ðŸŸ¢' : 'âšª';
     option.textContent = status + ' ' + titleVal + ' (' + rulesData[selectedTriggerIndex].trigger_key + ')';
   }
 }
@@ -373,7 +373,7 @@ async function loadStats() {
     var r = await fetch(BU + '/push/stats');
     var j = await r.json();
     document.getElementById('stat-subs').textContent = j.total || 0;
-  } catch(e) { document.getElementById('stat-subs').textContent = '—'; }
+  } catch(e) { document.getElementById('stat-subs').textContent = 'â€”'; }
 }
 
 async function sendBroadcast() {
@@ -393,8 +393,8 @@ async function sendBroadcast() {
       res.innerHTML = 
         '<div style="margin-top:8px; font-weight:600; color:#16a34a;">Broadcast Completed!</div>' +
         '<div style="font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5;">' +
-          '📢 <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
-          '🔔 <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
+          'ðŸ“¢ <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
+          'ðŸ”” <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
         '</div>';
       
       loadSubscribers();
@@ -415,8 +415,8 @@ async function sendTest() {
       res.innerHTML = 
         '<div style="margin-top:8px; font-weight:600; color:#16a34a;">Test Sent!</div>' +
         '<div style="font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5;">' +
-          '📢 <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
-          '🔔 <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
+          'ðŸ“¢ <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
+          'ðŸ”” <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
         '</div>';
       
       loadSubscribers();
@@ -433,7 +433,7 @@ async function loadSubscribers() {
     if (j.success && Array.isArray(j.subscribers)) {
       if (j.subscribers.length > 0) {
         tbody.innerHTML = j.subscribers.map(function(s) {
-          var dateStr = s.created_at ? new Date(s.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+          var dateStr = s.created_at ? new Date(s.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'â€”';
           return '<tr style="border-bottom: 1px solid #f5f5f5;">' +
             '<td style="padding: 12px 16px; font-weight: 600;">' + esc(s.name) + '</td>' +
             '<td style="padding: 12px 16px; color: var(--sub);">' + esc(s.email) + '</td>' +
