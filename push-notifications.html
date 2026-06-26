@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -223,7 +223,19 @@ var DEFAULT_RULES = [
   { trigger_key:'rank_top1',             title:'You are #1!',                body:'Incredible! You have reached the top of the leaderboard!',       enabled:true  },
   { trigger_key:'broadcast',             title:'Walkathon Update',           body:'A message from the Walkathon admin.',                            enabled:true  },
   { trigger_key:'registration_approved', title:'Registration Approved!',     body:'Welcome! Your Arcgate Walkathon 2026 registration is approved.', enabled:true  },
-  { trigger_key:'registration_rejected', title:'Registration Update',        body:'Your registration could not be approved. Contact the admin.',    enabled:false }
+  { trigger_key:'registration_rejected', title:'Registration Update',        body:'Your registration could not be approved. Contact the admin.',    enabled:false },
+  { trigger_key:'club_100',              title:'100 KM Club!',               body:'Congratulations! You joined the 100 KM Club!',                   enabled:true  },
+  { trigger_key:'club_200',              title:'200 KM Club!',               body:'Amazing! You joined the 200 KM Club!',                           enabled:true  },
+  { trigger_key:'club_300',              title:'300 KM Club!',               body:'Outstanding! You joined the 300 KM Club!',                         enabled:true  },
+  { trigger_key:'streak_7',              title:'7-Day Active Streak!',       body:'You are on fire with a 7-Day Active Streak!',                     enabled:true  },
+  { trigger_key:'streak_14',             title:'14-Day Active Streak!',      body:'Unstoppable! You achieved a 14-Day Active Streak!',               enabled:true  },
+  { trigger_key:'streak_21',             title:'21-Day Active Streak!',      body:'Incredible! You achieved a 21-Day Active Streak!',               enabled:true  },
+  { trigger_key:'single_10k',            title:'Double-Digit Walk (10+ KM)!',body:'You completed a single activity of {distance} KM!',               enabled:true  },
+  { trigger_key:'single_15k',            title:'Super-Distance Walk (15+ KM)!',body:'You completed a single activity of {distance} KM!',             enabled:true  },
+  { trigger_key:'single_21k',            title:'Half-Marathon Walk (21+ KM)!',body:'You completed a single activity of {distance} KM!',              enabled:true  },
+  { trigger_key:'daily_10k_3',           title:'10 KM Daily Streak (3 Days)!',body:'You walked 10+ KM daily for 3 consecutive days!',               enabled:true  },
+  { trigger_key:'daily_15k_3',           title:'15 KM Daily Streak (3 Days)!',body:'You walked 15+ KM daily for 3 consecutive days!',               enabled:true  },
+  { trigger_key:'daily_21k_3',           title:'21 KM Daily Streak (3 Days)!',body:'You walked 21+ KM daily for 3 consecutive days!',               enabled:true  }
 ];
 
 var rulesData = [];
@@ -393,6 +405,7 @@ async function sendBroadcast() {
       res.innerHTML = 
         '<div style="margin-top:8px; font-weight:600; color:#16a34a;">Broadcast Completed!</div>' +
         '<div style="font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5;">' +
+          '📢 <strong>Public Announcement</strong>: ' + (j.announcement_created ? '<span style="color:#16a34a;font-weight:600;">Sent successfully ✓</span>' : '<span style="color:#dc2626;font-weight:600;">Failed ✗</span>') + '<br>' +
           '📢 <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
           '🔔 <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
         '</div>';
@@ -415,6 +428,7 @@ async function sendTest() {
       res.innerHTML = 
         '<div style="margin-top:8px; font-weight:600; color:#16a34a;">Test Sent!</div>' +
         '<div style="font-size:12px; color:var(--sub); margin-top:4px; line-height:1.5;">' +
+          '📢 <strong>Public Announcement</strong>: ' + (j.announcement_created ? '<span style="color:#16a34a;font-weight:600;">Sent successfully ✓</span>' : '<span style="color:#dc2626;font-weight:600;">Failed ✗</span>') + '<br>' +
           '📢 <strong>In-App Feed</strong>: ' + (j.in_app_sent || 0) + ' / ' + (j.in_app_total || 0) + ' saved successfully<br>' +
           '🔔 <strong>Push Notifications</strong>: ' + j.sent + ' / ' + j.total + ' sent successfully' + (j.failed ? ' (' + j.failed + ' failed)' : '') +
         '</div>';
