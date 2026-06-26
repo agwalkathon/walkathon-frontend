@@ -547,7 +547,7 @@ async function loadActivities() {
   var baseUrl = SB_URL+'/rest/v1/activities?is_deleted=eq.false'
     +'&activity_date=gte.2026-06-01T00:00:00'
     +'&activity_date=lte.2026-06-30T23:59:59'
-    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id,is_flagged,manual_bonus,activity_name,start_time'
+    +'&select=strava_athlete_id,distance_meters,sport_type,activity_date,avg_speed,elevation_gain,strava_activity_id,is_flagged,manual_bonus,activity_name,start_time,description'
     +'&order=id.asc';
   var allActs = [];
   var pageSize = 1000;
@@ -1096,9 +1096,13 @@ function calcPoints(acts, athleteId, gender, shift) {
     if (!mb) return;
     totalChallenge += mb;
     var d = (a.activity_date || '').split('T')[0];
-    if (dayBreakdown[d]) dayBreakdown[d].challenges.push({name: 'Manual bonus', pts: mb, actId: a.strava_activity_id});
+    var mbName = a.description || 'Manual bonus';
+    if (dayBreakdown[d]) dayBreakdown[d].challenges.push({name: mbName, pts: mb, actId: a.strava_activity_id});
     if (!actBreakdown[a.strava_activity_id]) actBreakdown[a.strava_activity_id] = {challenges:[]};
-    actBreakdown[a.strava_activity_id].challenges.push({name: 'Manual bonus', pts: mb});
+    actBreakdown[a.strava_activity_id].challenges.push({name: mbName, pts: mb});
+    if (challengeNames.indexOf(mbName) === -1) {
+      challengeNames.push(mbName);
+    }
   });
 
   totalDistKm  = parseFloat(totalDistKm.toFixed(2));
@@ -1144,6 +1148,27 @@ async function loadAll() {
   var [reg, acts] = await Promise.all([loadRegistration(), loadActivities()]);
   allActivities = acts; // store globally for sport filter
   allRegistrations = reg; // store globally for activity export
+
+  // Dynamic dropdown population including custom manual bonus descriptions
+  var completedChallenges = new Set();
+  CHALLENGES.forEach(function(c) { completedChallenges.add(c.name); });
+  acts.forEach(function(a) {
+    if (parseFloat(a.manual_bonus) > 0) {
+      completedChallenges.add(a.description || 'Manual bonus');
+    }
+  });
+  var cel = document.getElementById('challenge-filter');
+  if (cel) {
+    var currentFilterVal = cel.value;
+    cel.innerHTML = '<option value="">All challenges</option>';
+    Array.from(completedChallenges).sort().forEach(function(name) {
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      cel.appendChild(opt);
+    });
+    cel.value = currentFilterVal;
+  }
 
   var boardMap = {
     'dayshift-male':'dm', 'dayshift-female':'df', 'nightshift-all':'ns',
@@ -1287,9 +1312,16 @@ function toggleExpand(athleteId, gender, trEl) {
   var byDay = ptsDetail.byDay;
   var dayBreakdown = ptsDetail.dayBreakdown;
 
+  var selectedChallenge = document.getElementById('challenge-filter') ? document.getElementById('challenge-filter').value : '';
   var days = Object.keys(byDay).sort();
+  if (selectedChallenge) {
+    days = days.filter(function(day) {
+      var db = dayBreakdown[day];
+      return db && db.challenges && db.challenges.some(function(ch) { return ch.name === selectedChallenge; });
+    });
+  }
   if (!days.length) {
-    expRow.innerHTML = '<div style="padding:16px;color:#bbb;text-align:center;font-size:13px">No daily data available</div>';
+    expRow.innerHTML = '<div style="padding:16px;color:#bbb;text-align:center;font-size:13px">No daily data matching selected challenge available</div>';
     return;
   }
 
@@ -1315,7 +1347,22 @@ function toggleExpand(athleteId, gender, trEl) {
     // Build activity sub-rows for this day — hidden by default, toggled by clicking date row
     var sportColors = {Walk:'#e8f5e9|#2e7d32',Run:'#e3f2fd|#1565c0',Hike:'#fff3e0|#e65100',Ride:'#fce4ec|#c62828',VirtualRun:'#e3f2fd|#1565c0',VirtualRide:'#fce4ec|#c62828',MountainBikeRide:'#fce4ec|#c62828'};
     var dayActsId = 'acts-' + athleteId + '-' + day.replace(/-/g,'');
-    var actSubRows = byDay[day].map(function(a){
+    
+    var dayActs = byDay[day] || [];
+    if (selectedChallenge) {
+      var hasExplicitAct = dayActs.some(function(a) {
+        var ab = ptsDetail.actBreakdown[a.strava_activity_id];
+        return ab && ab.challenges && ab.challenges.some(function(ch) { return ch.name === selectedChallenge; });
+      });
+      if (hasExplicitAct) {
+        dayActs = dayActs.filter(function(a) {
+          var ab = ptsDetail.actBreakdown[a.strava_activity_id];
+          return ab && ab.challenges && ab.challenges.some(function(ch) { return ch.name === selectedChallenge; });
+        });
+      }
+    }
+
+    var actSubRows = dayActs.map(function(a){
       var name = (a.activity_name||'').trim();
       var nameShort = name.length > 26 ? name.slice(0,25)+'…' : (name || '—');
       var sc = (sportColors[a.sport_type]||'#f5f5f5|#666').split('|');
