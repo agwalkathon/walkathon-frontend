@@ -260,7 +260,7 @@ tr:hover td{background:#FAFAFA}
 </div><div class="filter-actions"><button class="btn btn-primary" onclick="loadActivities()">Search</button><button class="btn btn-ghost" onclick="setDefaultTodayFilters();loadActivities();">Today</button><button class="btn btn-ghost" onclick="clearFilters()">Clear</button><button class="btn btn-ghost" id="export-btn" onclick="exportCSV()" style="display:none"><i class="ti ti-download"></i> Export CSV</button><span id="searching-indicator" style="display:none;align-items:center;gap:8px;font-size:13px;color:#888"><div class="spinner" style="width:18px;height:18px;border-width:2px"></div>Searching...</span></div></div>
 <div class="stats-grid" id="stats-row" style="display:none"><div class="stat-card"><div class="val" id="total-activities">—</div><div class="lbl">Activities found</div></div><div class="stat-card"><div class="val" id="total-distance">—</div><div class="lbl">Total km</div></div><div class="stat-card dark"><div class="val" id="total-participants">—</div><div class="lbl">Participants</div></div><div class="stat-card green"><div class="val" id="total-valid">—</div><div class="lbl">Valid</div></div><div class="stat-card red"><div class="val" id="total-flagged">—</div><div class="lbl">Flagged</div></div></div>
 <div id="flag-counts" style="display:none;margin-bottom:18px;gap:8px;flex-wrap:wrap"></div>
-<div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Today's activities load by default. Use filters and click <strong>Search</strong> to refine results.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th>Status</th><th>Date/Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Elevation</th><th>Device</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
+<div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Today's activities load by default. Use filters and click <strong>Search</strong> to refine results.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th>Status</th><th>Original Time (UTC)</th><th>IST Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Elevation</th><th>Device</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
 </div>
 <div class="modal-overlay" id="flag-modal"><div class="modal"><h3>Update Status</h3><p class="sub" id="modal-sub"></p><label>Flag reason</label><select id="modal-flag-reason" onchange="checkModalDist()"><option value="">— Mark as Valid (clear flag) —</option><optgroup label="── Manual Review ──"><option>Manual Review - Distance Issue</option><option>Manual Review - Pace Issue</option></optgroup><optgroup label="── Manual Flags ──"><option>Not Our Participant</option><option>Less than 1 km</option><option>Treadmill</option><option>Workout</option><option>Elapsed Time Issue</option><option>Pace Issue (Bike/Cycle)</option><option>Shared (no proof)</option><option>Indoor Run/Walk</option><option>More than 2 Activities</option><option>Suspicious Activity</option><option>Ride / Cycling</option><option>Distance Cropped - GPS Glitch</option><option>Distance Issue</option><option>GPS Glitch</option></optgroup></select><div class="dist-field" id="modal-dist-field"><label>Corrected distance (meters)</label><input type="number" id="modal-corrected-dist" placeholder="e.g. 3500"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-confirm" onclick="confirmStatus()">Save</button></div></div></div>
 <footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
@@ -271,7 +271,31 @@ var SUPABASE_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
 var SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
 var BACKEND_URL='https://walkathon-backend-hv9j.onrender.com';var HDR={apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON};
 async function fetchAllRows(baseUrl,hdrs){var all=[],pageSize=1000,from=0;while(true){var to=from+pageSize-1;var r=await fetch(baseUrl+(baseUrl.includes('?')?'&':'?')+'limit='+pageSize+'&offset='+from,{headers:Object.assign({},hdrs,{'Range-Unit':'items','Range':from+'-'+to})});if(!r.ok){console.error('fetchAllRows error',r.status,baseUrl);break}var page=await r.json();if(!Array.isArray(page)||page.length===0)break;all=all.concat(page);if(page.length<pageSize)break;from+=pageSize}return all}
-var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}function localDateValue(d){var dt=d?new Date(d):new Date();dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());return dt.toISOString().slice(0,10)}function fmtDateTime(d){var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;return new Date(naive).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})}function fmtDur(s){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?h+'h '+m+'m':m+'m'}function fmtPS(ms,t){if(!ms)return'—';if(t==='Ride'||t==='VirtualRide'||t==='MountainBikeRide')return(ms*3.6).toFixed(1)+' km/h';var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60);return min+':'+sec.toString().padStart(2,'0')+' /km'}function bc(t){if(t==='Walk')return'badge-walk';if(t==='Run'||t==='VirtualRun')return'badge-run';if(t==='Ride'||t==='VirtualRide'||t==='MountainBikeRide')return'badge-ride';return'badge-hike'}
+var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}function localDateValue(d){var dt=d?new Date(d):new Date();dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());return dt.toISOString().slice(0,10)}function fmtUTCDateTime(d, startTime){
+  if(!d) return '—';
+  if(!startTime) return '—';
+  try {
+    var dt = new Date(d);
+    if(isNaN(dt.getTime())) return '—';
+    return dt.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'UTC'}) + ' UTC';
+  } catch(e) {
+    return d;
+  }
+}
+function fmtISTDateTime(d, startTime){
+  if(!d) return '—';
+  if(!startTime){
+    var naive = d ? d.replace(/[Zz]$/, '').replace(/\+00:00$/, '') : d;
+    return new Date(naive).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  }
+  try {
+    var dt = new Date(d);
+    if(isNaN(dt.getTime())) return '—';
+    return dt.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'}) + ' IST';
+  } catch(e) {
+    return d;
+  }
+}function fmtDur(s){var h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?h+'h '+m+'m':m+'m'}function fmtPS(ms,t){if(!ms)return'—';if(t==='Ride'||t==='VirtualRide'||t==='MountainBikeRide')return(ms*3.6).toFixed(1)+' km/h';var p=1000/ms,min=Math.floor(p/60),sec=Math.round(p%60);return min+':'+sec.toString().padStart(2,'0')+' /km'}function bc(t){if(t==='Walk')return'badge-walk';if(t==='Run'||t==='VirtualRun')return'badge-run';if(t==='Ride'||t==='VirtualRide'||t==='MountainBikeRide')return'badge-ride';return'badge-hike'}
 
 var regMap = {};
 async function loadRegistrations() {
@@ -311,7 +335,7 @@ function clearFilters(){
 function exportCSV(){
   var acts=window._exportActs||[],rm=window._exportRm||{};
   if(!acts.length){alert('No data to export.');return;}
-  var headers=['Date','Athlete Name','Employee Code','Athlete URL','Activity Name','Activity URL','Sport Type','Distance (km)','Moving Time','Pace/Speed','Elevation (m)','Status','Flag Reason'];
+  var headers=['Original UTC Date/Time','IST Date/Time','Athlete Name','Employee Code','Athlete URL','Activity Name','Activity URL','Sport Type','Distance (km)','Moving Time','Pace/Speed','Elevation (m)','Status','Flag Reason'];
   var rows=acts.map(function(a){
     var r=rm[String(a.strava_athlete_id).trim()]||{};
     var distKm=a.distance_meters?(a.distance_meters/1000).toFixed(2):'';
@@ -327,10 +351,11 @@ function exportCSV(){
         ps=min+':'+String(sec).padStart(2,'0')+' /km';
       }
     }
-    var date=a.activity_date?a.activity_date.substring(0,10):'';
+    var utcDate=fmtUTCDateTime(a.activity_date, a.start_time);
+    var istDate=fmtISTDateTime(a.activity_date, a.start_time);
     var athleteUrl=a.strava_athlete_id?'https://www.strava.com/athletes/'+a.strava_athlete_id:'';
     var activityUrl=a.strava_activity_id?'https://www.strava.com/activities/'+a.strava_activity_id:'';
-    return[date,r.full_name||'Unknown',r.emp_code||'',athleteUrl,a.activity_name||'',activityUrl,a.sport_type||'',distKm,movTime,ps,a.elevation_gain!=null?a.elevation_gain.toFixed(0):'',a.is_flagged?'Flagged':'Valid',a.flag_reason||''].map(function(v){
+    return[utcDate,istDate,r.full_name||'Unknown',r.emp_code||'',athleteUrl,a.activity_name||'',activityUrl,a.sport_type||'',distKm,movTime,ps,a.elevation_gain!=null?a.elevation_gain.toFixed(0):'',a.is_flagged?'Flagged':'Valid',a.flag_reason||''].map(function(v){
       var s=String(v).replace(/"/g,'""');
       return'"'+s+'"';
     });
@@ -350,7 +375,7 @@ async function loadActivities(){
   document.getElementById('results').style.display='block';
   document.getElementById('stats-row').style.display='none';
   document.getElementById('searching-indicator').style.display='flex';
-  document.getElementById('activities-body').innerHTML='<tr><td colspan="9"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px"><div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:#888;font-size:14px">Searching activities...</span></div></td></tr>';
+  document.getElementById('activities-body').innerHTML='<tr><td colspan="11"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px"><div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:#888;font-size:14px">Searching activities...</span></div></td></tr>';
   
   var df=document.getElementById('date-from').value;
   var dt=document.getElementById('date-to').value;
@@ -433,7 +458,7 @@ async function loadActivities(){
     document.getElementById('result-count').textContent=acts.length+' activit'+(acts.length===1?'y':'ies')+' found';
     
     if(!acts.length){
-      document.getElementById('activities-body').innerHTML='<tr><td colspan="9" style="text-align:center;padding:48px;color:#bbb">No activities match your filters</td></tr>';
+      document.getElementById('activities-body').innerHTML='<tr><td colspan="11" style="text-align:center;padding:48px;color:#bbb">No activities match your filters</td></tr>';
       document.getElementById('searching-indicator').style.display='none';
       return;
     }
@@ -443,12 +468,12 @@ async function loadActivities(){
       var actUrl='https://www.strava.com/activities/'+a.strava_activity_id;
       var athleteName=r&&r.full_name?r.full_name:'Unknown';
       var statusBadge=a.is_flagged?'<span class="badge badge-invalid" style="cursor:pointer" onclick="openModal('+a.id+')">🚩 '+esc(a.flag_reason||'Flagged')+'</span>':'<span class="badge badge-valid" style="cursor:pointer" onclick="openModal('+a.id+')">✅ Valid</span>';
-      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'" data-device="'+esc(a.device_name||'—')+'" data-elapsed="'+(a.elapsed_time_seconds?fmtDur(a.elapsed_time_seconds):'—')+'" data-avg-hr="'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'" data-max-hr="'+(a.max_heart_rate?a.max_heart_rate.toFixed(0)+' bpm':'—')+'" data-calories="'+(a.calories?a.calories.toFixed(0)+' kcal':'—')+'" data-steps="'+(a.steps||'—')+'" data-flagged="'+(a.is_flagged?'Yes':'No')+'" data-flag-reason="'+esc(a.flag_reason||'—')+'" data-deleted="'+(a.is_deleted?'Yes':'No')+'" data-bonus="'+(a.manual_bonus||0)+' points"><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtDateTime(a.activity_date)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
+      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'" data-device="'+esc(a.device_name||'—')+'" data-elapsed="'+(a.elapsed_time_seconds?fmtDur(a.elapsed_time_seconds):'—')+'" data-avg-hr="'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'" data-max-hr="'+(a.max_heart_rate?a.max_heart_rate.toFixed(0)+' bpm':'—')+'" data-calories="'+(a.calories?a.calories.toFixed(0)+' kcal':'—')+'" data-steps="'+(a.steps||'—')+'" data-flagged="'+(a.is_flagged?'Yes':'No')+'" data-flag-reason="'+esc(a.flag_reason||'—')+'" data-deleted="'+(a.is_deleted?'Yes':'No')+'" data-bonus="'+(a.manual_bonus||0)+' points"><td id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td><td>'+fmtUTCDateTime(a.activity_date,a.start_time)+'</td><td>'+fmtISTDateTime(a.activity_date,a.start_time)+'</td><td><a href="https://www.strava.com/athletes/'+a.strava_athlete_id+'" target="_blank" class="ath">'+esc(athleteName)+'</a></td><td style="max-width:190px"><a href="'+actUrl+'" target="_blank" class="act-link" title="'+esc(a.activity_name||'')+'" style="display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.activity_name||'—')+'</a></td><td class="editable" data-edit="type" data-id="'+a.id+'" data-val="'+esc(a.sport_type||'')+'" title="Double-click to edit"><span class="badge '+bc(a.sport_type)+'">'+esc(a.sport_type||'—')+'</span></td><td class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td><td>'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td><td>'+fmtPS(a.avg_speed,a.sport_type)+'</td><td>'+(a.elevation_gain?a.elevation_gain.toFixed(0)+' m':'—')+'</td><td>'+esc(a.device_name||'—')+'</td></tr>';
     }).join('');
     setTimeout(initScrollSync,100);
   }catch(e){
     console.error(e);
-    document.getElementById('activities-body').innerHTML='<tr><td colspan="9" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>';
+    document.getElementById('activities-body').innerHTML='<tr><td colspan="11" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>';
   }
   document.getElementById('searching-indicator').style.display='none';
 }
@@ -524,7 +549,7 @@ async function toggleRowSplits(row) {
   
   var detailRow = document.createElement('tr');
   detailRow.className = 'detail-row';
-  detailRow.innerHTML = '<td colspan="10">' + metaHtml + '<div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
+  detailRow.innerHTML = '<td colspan="11">' + metaHtml + '<div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
   
   row.parentNode.insertBefore(detailRow, row.nextSibling);
   
