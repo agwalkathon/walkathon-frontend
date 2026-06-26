@@ -4032,6 +4032,14 @@ function renderRows(rows, prevRanks) {
     }
   });
 
+  // Group LB_ACTS by athlete ID once to avoid nested filters
+  var actsByAthlete = {};
+  LB_ACTS.forEach(function(a) {
+    var aid = String(a.strava_athlete_id);
+    if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
+    actsByAthlete[aid].push(a);
+  });
+
   function buildRowElement(r, i, isMePinned) {
     var isMe = String(r.p.strava_athlete_id) === meId;
     var topCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
@@ -4052,8 +4060,8 @@ function renderRows(rows, prevRanks) {
       else deltaHtml = '<span class="rank-delta delta-same">—</span>';
     }
 
-    // Last active
-    var myActsForRow = LB_ACTS.filter(function(a) { return String(a.strava_athlete_id) === athId; });
+    // Last active - O(1) lookup
+    var myActsForRow = actsByAthlete[athId] || [];
     var la = getLastActive(myActsForRow);
     var laInfo = lastActiveLabel(la);
 
@@ -4119,6 +4127,7 @@ function renderRows(rows, prevRanks) {
     return row;
   }
 
+  var frag = document.createDocumentFragment();
   rows.forEach(function(r, i) {
     var isMe = String(r.p.strava_athlete_id) === meId;
     if (isMe && myRank > 3) {
@@ -4126,14 +4135,15 @@ function renderRows(rows, prevRanks) {
     }
     
     var rowEl = buildRowElement(r, i, false);
-    list.appendChild(rowEl);
+    frag.appendChild(rowEl);
     
     // Inject logged-in user standing after top 3 (index 2)
     if (i === 2 && myRank > 3 && meRow) {
       var pinnedEl = buildRowElement(meRow, myRank - 1, true);
-      list.appendChild(pinnedEl);
+      frag.appendChild(pinnedEl);
     }
   });
+  list.appendChild(frag);
 
   var rnkEl = document.getElementById('lb-my-rank');
   if (rnkEl && myRank > 0) rnkEl.textContent = '#' + myRank;
@@ -4141,9 +4151,18 @@ function renderRows(rows, prevRanks) {
 
 function renderHallOfFame() {
   var list = document.getElementById('lb-list');
+  // Group valid LB_ACTS by athlete ID first
+  var actsByAthlete = {};
+  LB_ACTS.forEach(function(a) {
+    if (a.is_flagged) return;
+    var aid = String(a.strava_athlete_id);
+    if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
+    actsByAthlete[aid].push(a);
+  });
+
   // Compute across ALL participants
   var allScored = LB_REG.map(function(p) {
-    var acts = LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id)&&!a.is_flagged;});
+    var acts = actsByAthlete[p.strava_athlete_id] || [];
     var totalKm = acts.reduce(function(s,a){return s+(a.distance_meters||0)/1000;},0);
     var dayKm = {};
     acts.forEach(function(a){var d=getISTDate(a.activity_date);if(d)dayKm[d]=(dayKm[d]||0)+(a.distance_meters||0)/1000;});
@@ -4192,14 +4211,24 @@ function renderWeeklyBoard(mode) {
   var myGender=norm(LB_ME.gender),myShift=norm(LB_ME.shift),myTeam=norm(LB_ME.leaderboard_team),isNight=myShift.indexOf('night')>-1,isFemale=myGender==='female'||myGender==='f';
   var peers = LB_REG.filter(function(p){var pg=norm(p.gender),ps=norm(p.shift),pt=norm(p.leaderboard_team),pIsFemale=pg==='female'||pg==='f';if(pIsFemale!==isFemale)return false;if(mode==='team')return norm(pt)===myTeam;return ps.indexOf('night')>-1===isNight;});
 
+  // Group valid LB_ACTS by athlete ID first
+  var actsByAthlete = {};
+  LB_ACTS.forEach(function(a) {
+    if (a.is_flagged) return;
+    var aid = String(a.strava_athlete_id);
+    if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
+    actsByAthlete[aid].push(a);
+  });
+
   var scored = peers.map(function(p){
-    var acts = LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(p.strava_athlete_id)&&!a.is_flagged;});
+    var acts = actsByAthlete[p.strava_athlete_id] || [];
     var weekActs = acts.filter(function(a){var d=getISTDate(a.activity_date);return d>=mondayStr&&d<=sundayStr;});
     var km = weekActs.reduce(function(s,a){return s+(a.distance_meters||0)/1000;},0);
     return {p:p, km:km};
   }).filter(function(r){return r.km>0;}).sort(function(a,b){return b.km-a.km;});
 
   var meId = LB_ME ? String(LB_ME.strava_athlete_id) : '';
+  var frag = document.createDocumentFragment();
   scored.forEach(function(r,i){
     var isMe = String(r.p.strava_athlete_id)===meId;
     var topCls=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
@@ -4209,8 +4238,9 @@ function renderWeeklyBoard(mode) {
     row.innerHTML='<div class="rank-col '+rankColCls+'">'+rankIcon+'</div>'+
       '<div class="row-body"><div class="row-left"><span class="row-name">'+esc(r.p.full_name||'—')+(isMe?'<span class="you-chip">You</span>':'')+'</span></div>'+
       '<div class="row-right"><div class="row-pts"><span class="row-pts-num">'+r.km.toFixed(1)+'</span><span class="row-pts-unit"> km</span></div></div></div>';
-    list.appendChild(row);
+    frag.appendChild(row);
   });
+  list.appendChild(frag);
   if(scored.length===0) list.innerHTML+='<div class="empty-box"><div class="ei">🏃</div><p>No activities this week yet.</p></div>';
 }
 
