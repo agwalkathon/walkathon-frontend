@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Configuration â€” Arcgate Walkathon 2026</title>
+  <style>
+:root{--brand:#E8622A;--brand-light:#FFF0EA;--brand-mid:#f97d4e;--sidebar-bg:#0F1117;--sidebar-w:64px;--sidebar-exp:220px;--page-bg:#F4F6FA;--card-bg:#fff;--text-primary:#0F1117;--text-secondary:#6B7280;--text-muted:#9CA3AF;--border:rgba(0,0,0,.07);--shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);--shadow-lg:0 12px 40px rgba(0,0,0,.12);--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--font:'Poppins',-apple-system,BlinkMacSystemFont,sans-serif}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--page-bg);color:var(--text-primary);min-height:100vh;display:flex}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;align-items:center;padding:16px 0 12px;z-index:300;transition:width .24s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.sidebar:hover{width:var(--sidebar-exp)}
+.sb-logo{display:flex;align-items:center;width:100%;padding:4px 14px 20px;text-decoration:none;gap:10px;flex-shrink:0}
+.sb-logo-icon{width:36px;height:36px;border-radius:10px;background:var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.sb-logo-icon img{width:28px;height:28px;object-fit:contain}
+.sb-logo-text{font-size:13px;font-weight:600;color:#fff;opacity:0;white-space:nowrap;transition:opacity .18s;line-height:1.3}
+.sb-logo-text span{display:block;font-size:10px;font-weight:400;color:rgba(255,255,255,.45)}
+.sidebar:hover .sb-logo-text{opacity:1}
+.sb-section{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 14px 6px;width:100%;opacity:0;transition:opacity .15s;white-space:nowrap}
+.sidebar:hover .sb-section{opacity:1}
+.sb-item{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;text-decoration:none;gap:10px;border-left:3px solid transparent;transition:all .16s}
+.sb-item:hover{background:rgba(255,255,255,.06);border-left-color:rgba(232,98,42,.5)}
+.sb-item.active{background:rgba(232,98,42,.12);border-left-color:var(--brand)}
+.sb-item i{font-size:19px;color:rgba(255,255,255,.38);flex-shrink:0;width:28px;text-align:center;transition:color .16s}
+.sb-item:hover i{color:rgba(255,255,255,.7)}
+.sb-item.active i{color:var(--brand)}
+.sb-label{font-size:13px;font-weight:500;color:rgba(255,255,255,.5);white-space:nowrap;opacity:0;transition:opacity .15s}
+.sidebar:hover .sb-label{opacity:1}
+.sb-item:hover .sb-label{color:rgba(255,255,255,.9)}
+.sb-item.active .sb-label{color:#fff;font-weight:600}
+.sb-spacer{flex:1}
+.sb-divider{width:calc(100% - 24px);height:1px;background:rgba(255,255,255,.07);margin:6px 12px;flex-shrink:0}
+.sb-signout{display:flex;align-items:center;width:100%;padding:0 12px;min-height:42px;gap:10px;border:none;background:none;cursor:pointer;transition:all .16s;font-family:var(--font)}
+.sb-signout:hover{background:rgba(255,80,80,.08)}
+.sb-signout i{font-size:19px;color:rgba(255,255,255,.25);flex-shrink:0;width:28px;text-align:center}
+.sb-signout:hover i{color:#ff6b6b}
+.sb-signout .sb-label{color:rgba(255,255,255,.3)}
+.sb-signout:hover .sb-label{color:#ff6b6b}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--card-bg);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.topbar-left h1{font-size:17px;font-weight:600;color:var(--text-primary)}
+.topbar-left p{font-size:12px;color:var(--text-muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-secondary);text-decoration:none;padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--page-bg);transition:all .15s}
+.topbar-back:hover{background:#EAECF0;color:var(--text-primary)}
+.content{flex:1;padding:28px 32px;width:100%}
+.card{background:var(--card-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+.card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header-left{display:flex;align-items:center;gap:10px}
+.card-header-icon{width:34px;height:34px;border-radius:9px;background:var(--brand-light);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:17px}
+.card-header h2{font-size:15px;font-weight:600;color:var(--text-primary)}
+.card-header-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+.btn{padding:8px 16px;border:none;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font);transition:all .15s}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:#d4551f}
+.btn-ghost{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{background:#EAECF0;color:var(--text-primary)}
+.btn-danger{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.btn-danger:hover{background:#DC2626;color:#fff}
+.btn-success{background:#ECFDF5;color:#059669;border:1px solid #A7F3D0}
+.btn-success:hover{background:#059669;color:#fff}
+.stats-grid{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.stat-card{background:var(--card-bg);border-radius:var(--radius-md);padding:18px 20px;flex:1;min-width:130px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;flex-direction:column;gap:10px;transition:transform .18s,box-shadow .18s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.val{font-size:24px;font-weight:700;color:var(--brand);line-height:1}
+.lbl{font-size:12px;color:var(--text-secondary);margin-top:2px}
+.stat-card.green .val{color:#059669}
+.stat-card.dark .val{color:var(--text-primary)}
+.stat-card.red .val{color:#DC2626}
+.stat-card.blue .val{color:#3B82F6}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th{background:#F9FAFB;padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid #F9FAFB;vertical-align:middle;color:var(--text-primary)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.loading-row td{text-align:center;padding:48px;color:var(--text-muted);font-size:14px}
+.badge,.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-walk,.pill-walk{background:#ECFDF5;color:#059669}
+.badge-run,.pill-run{background:#EFF6FF;color:#3B82F6}
+.badge-ride,.pill-ride{background:#FFF7ED;color:#EA580C}
+.badge-hike,.pill-hike{background:#F5F3FF;color:#7C3AED}
+.badge-valid,.badge-clean,.pill-clean{background:#ECFDF5;color:#059669}
+.badge-flag,.badge-invalid,.pill-flag{background:#FEF2F2;color:#DC2626}
+.badge-conn{background:#EFF6FF;color:#3B82F6}
+.badge-active,.badge-ok{background:#ECFDF5;color:#059669}
+.ath{color:var(--brand);text-decoration:none;font-weight:500}
+.ath:hover{text-decoration:underline}
+.act-link{color:var(--text-primary);text-decoration:none;font-weight:500}
+.act-link:hover{color:var(--brand)}
+.filter-bar{background:var(--card-bg);border-radius:var(--radius-md);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.filter-bar h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary)}
+.default-note{font-size:12px;color:var(--text-muted);margin-left:6px;font-weight:400}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.filter-group label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.filter-group input,.filter-group select{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--page-bg);font-family:var(--font);color:var(--text-primary)}
+.filter-group input:focus,.filter-group select:focus{outline:none;border-color:var(--brand);background:#fff}
+.filter-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.empty{text-align:center;padding:56px 24px;color:var(--text-muted);font-size:13px}
+.empty .icon{font-size:40px;margin-bottom:12px;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);padding:32px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);margin:20px}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text-primary)}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.modal label{display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:600}
+.modal select,.modal input[type=number],.modal input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;margin-bottom:14px;background:var(--page-bg);font-family:var(--font)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-actions button{padding:10px 20px;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font)}
+.btn-confirm{background:var(--brand);color:#fff}
+.btn-cancel{background:var(--page-bg);color:var(--text-secondary);border:1px solid var(--border)}
+.site-footer{width:100%;background:var(--card-bg);border-top:1px solid var(--border);padding:16px 32px;font-size:12px;font-family:var(--font);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-sizing:border-box}
+.site-footer a{color:var(--brand);text-decoration:none;margin-left:14px}
+.site-footer a:hover{text-decoration:underline}
+.editable{cursor:pointer}
+.editable:hover{background:var(--brand-light)!important;border-radius:4px}
+.edit-input{width:80px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.edit-select{width:110px;padding:4px 6px;border:1px solid var(--brand);border-radius:4px;font-size:12px;font-family:var(--font)}
+.result-count{padding:10px 16px;font-size:13px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.scroll-top{overflow-x:auto;overflow-y:hidden;height:12px}
+.scroll-top-inner{height:1px}
+.dist-field{display:none}
+.dist-field.show{display:block}
+@media(max-width:768px){.sidebar{width:56px}.main{margin-left:56px;flex-direction:column}.topbar{padding:0 16px;height:54px;flex-shrink:0;}.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.val{font-size:18px}th,td{padding:8px 10px;font-size:12px}.filter-grid{grid-template-columns:1fr 1fr;gap:8px}.site-footer{flex-direction:column;gap:6px;text-align:center}}
+@media(max-width:480px){.filter-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+}
+
+.section{background:white;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px;overflow:hidden}.section-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;user-select:none}.section-header:hover{background:#fafafa}.section-header-left{display:flex;align-items:center;gap:12px}.section-title{font-size:16px;font-weight:700}.section-sub-inline{font-size:13px;color:#999}.section-chevron{font-size:14px;color:#bbb;transition:transform .2s}.section-chevron.open{transform:rotate(180deg)}.section-body{display:none}.section-body.open{display:block}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:18px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600}.field input,.field select,.field textarea{padding:9px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:14px;background:#fafafa}.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#E8622A;background:white}.save-btn{padding:10px 24px;background:#E8622A;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}.save-btn:hover{background:#d4561f}.saved-msg{display:none;color:#2e7d32;font-size:13px;margin-left:12px}.bonus-table{width:100%;border-collapse:collapse;margin-bottom:18px}.bonus-table th{background:#fafafa;padding:9px 14px;text-align:left;font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #f0f0f0}.bonus-table td{padding:9px 14px;border-bottom:1px solid #f8f8f8}.bonus-table input{width:80px;padding:6px 10px;border:1px solid #e8e8e8;border-radius:6px;font-size:13px;text-align:center}.btn-del{padding:6px 12px;background:#ffebee;color:#c62828;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer}.btn-save-ch{padding:6px 14px;background:#E8622A;color:white;border:none;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer}.btn-add{padding:10px 20px;background:#1A1A1A;color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}.toggle-active{padding:5px 12px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer}.toggle-on{background:#e8f5e9;color:#2e7d32}.toggle-off{background:#f5f5f5;color:#999}.ch-compact{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:10px;overflow:hidden}.ch-compact:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}.rule-box{background:#fff7f2;border-left:4px solid #E8622A;border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13px;line-height:1.65;color:#555}.date-pill{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fafafa;border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px}.date-pill strong{font-size:14px}.date-pill span{font-size:12px;color:#888}.msg{display:none;margin-top:12px;padding:10px 12px;border-radius:8px;font-size:13px}.ok{background:#e8f5e9;color:#2e7d32}.err{background:#ffebee;color:#c62828}@media(max-width:768px){.form-grid{grid-template-columns:1fr}}
+
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+<div class="sb-section">Main</div>
+<a href="admin.html" class="sb-item"><i class="ti ti-layout-dashboard"></i><span class="sb-label">Dashboard</span></a>
+<a href="activities.html" class="sb-item"><i class="ti ti-run"></i><span class="sb-label">Activities</span></a>
+<a href="ag-leaderboard.html" class="sb-item"><i class="ti ti-trophy"></i><span class="sb-label">Leaderboard</span></a>
+<a href="athletedtl.html" class="sb-item"><i class="ti ti-users"></i><span class="sb-label">Participants</span></a>
+<div class="sb-section" style="margin-top:10px;">Config</div>
+<a href="config.html" class="sb-item active"><i class="ti ti-settings-2"></i><span class="sb-label">Configuration</span></a>
+<a href="data-upload.html" class="sb-item"><i class="ti ti-upload"></i><span class="sb-label">Data Upload</span></a>
+<a href="email-send.html" class="sb-item"><i class="ti ti-mail"></i><span class="sb-label">Email Send</span></a>
+<a href="audit-log.html" class="sb-item"><i class="ti ti-shield-check"></i><span class="sb-label">Audit Log</span></a>
+<a href="push-notifications.html" class="sb-item"><i class="ti ti-bell"></i><span class="sb-label">Notifications</span></a>
+<div class="sb-spacer"></div><div class="sb-divider"></div><button class="sb-signout" onclick="logout()"><i class="ti ti-logout"></i><span class="sb-label">Sign out</span></button></aside>
+<div class="main">
+<header class="topbar"><div class="topbar-left"><h1>Configuration</h1><p>Medal thresholds, bonus rules, flag settings</p></div><div class="topbar-right"><a href="admin.html" class="topbar-back"><i class="ti ti-arrow-left"></i> Dashboard</a></div></header>
+  <div class="content">
+<div class="section"><div class="section-header" onclick="toggleSection('medals')"><div class="section-header-left"><span>ðŸ…</span><div><div class="section-title">Medal Milestones</div><div class="section-sub-inline">Points required for Bronze, Silver, Gold â€” by gender</div></div></div><span class="section-chevron" id="chev-medals">â–¼</span></div><div class="section-body" id="body-medals"><div class="form-grid"><div class="field"><label>ðŸ¥‡ Gold â€” Male</label><input type="number" id="gold-male" value="300"></div><div class="field"><label>ðŸ¥‡ Gold â€” Female</label><input type="number" id="gold-female" value="250"></div><div class="field"><label>ðŸ¥ˆ Silver â€” Male</label><input type="number" id="silver-male" value="200"></div><div class="field"><label>ðŸ¥ˆ Silver â€” Female</label><input type="number" id="silver-female" value="150"></div><div class="field"><label>ðŸ¥‰ Bronze â€” Male</label><input type="number" id="bronze-male" value="125"></div><div class="field"><label>ðŸ¥‰ Bronze â€” Female</label><input type="number" id="bronze-female" value="100"></div></div><button class="save-btn" onclick="saveMedals()">Save medals</button><span class="saved-msg" id="medals-saved">âœ… Saved!</span></div></div>
+
+<div class="section"><div class="section-header" onclick="toggleSection('bonus')"><div class="section-header-left"><span>ðŸ“Š</span><div><div class="section-title">Points Configuration</div><div class="section-sub-inline">Base points per km + daily bonus milestones</div></div></div><span class="section-chevron" id="chev-bonus">â–¼</span></div><div class="section-body" id="body-bonus"><div class="form-grid" style="max-width:300px;margin-bottom:20px"><div class="field"><label>Base points per km</label><input type="number" id="base-per-km" value="1" step="0.1"></div></div><table class="bonus-table"><thead><tr><th>Daily distance milestone</th><th>Bonus points</th></tr></thead><tbody id="bonus-rows"></tbody></table><button class="save-btn" onclick="saveBonus()">Save points config</button><span class="saved-msg" id="bonus-saved">âœ… Saved!</span></div></div>
+
+<div class="section"><div class="section-header" onclick="toggleSection('dailycap')"><div class="section-header-left"><span>ðŸ“…</span><div><div class="section-title">Daily Cap & Special Days</div><div class="section-sub-inline">21 km cap on normal days; selected dates count full distance</div></div></div><span class="section-chevron" id="chev-dailycap">â–¼</span></div><div class="section-body" id="body-dailycap"><div class="rule-box"><strong>Normal Days Rule:</strong><br>Daily walk/run cap is <strong>21 km</strong>. If a participant walks/runs more than 21 km on a normal day, recorded scoring distance will be capped at 21 km, worth 21 base points, and they will receive a flat <strong>+7 bonus points</strong>. Total = 28 points.</div><div class="rule-box"><strong>Special Days Rule Exception:</strong><br>On selected special dates, the 21 km limit is removed. Participants receive <strong>1 point per full kilometer</strong>, while bonus remains capped at <strong>+7 points</strong>. Example: 25 km = 25 base points + 7 bonus = 32 points.</div><div class="form-grid" style="align-items:end"><div class="field"><label>Special date</label><input type="date" id="special-date"></div><div class="field" style="grid-column:span 2"><label>Reason / Label</label><input type="text" id="special-label" placeholder="e.g. World Environment Day"></div></div><button class="save-btn" onclick="addSpecialDate()">Add Special Date</button><button class="btn-add" style="margin-left:8px;background:#f0f0f0;color:#555" onclick="loadSpecialDates()">Refresh</button><span class="saved-msg" id="special-saved">âœ… Saved!</span><div id="special-msg-ok" class="msg ok"></div><div id="special-msg-err" class="msg err"></div><div style="font-size:14px;font-weight:600;margin:20px 0 12px">Configured Special Dates</div><div id="special-dates-list">Loading...</div></div></div>
+
+<div class="section"><div class="section-header" onclick="toggleSection('challenges')"><div class="section-header-left"><span>ðŸŽ¯</span><div><div class="section-title">Challenges</div><div class="section-sub-inline">Configure challenge bonus criteria and points</div></div></div><span class="section-chevron" id="chev-challenges">â–¼</span></div><div class="section-body" id="body-challenges"><div id="challenges-list">Loading...</div><button class="btn-add" onclick="addChallenge()">+ Add challenge</button><span class="saved-msg" id="ch-saved">âœ… Saved!</span></div></div>
+
+<div class="section"><div class="section-header" onclick="toggleSection('manual')"><div class="section-header-left"><span>ðŸŽ</span><div><div class="section-title">Manual Bonus by Activity ID</div><div class="section-sub-inline">Apply bonus points to specific activities manually</div></div></div><span class="section-chevron" id="chev-manual">â–¼</span></div><div class="section-body" id="body-manual"><div class="form-grid" style="max-width:700px"><div class="field" style="grid-column:1/-1"><label>Activity IDs (one per line, or comma separated)</label><textarea id="manual-ids" rows="5" style="width:100%;padding:10px 12px;border:1px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:monospace;resize:vertical" placeholder="18757426157&#10;18755858909"></textarea></div><div class="field"><label>Apply bonus to</label><select id="manual-apply-to"><option value="each">Each activity individually</option><option value="day">All activities on same day</option></select></div><div class="field"><label>Challenge Selection</label><select id="manual-challenge-select" onchange="onManualChallengeSelectChange()"><option value="new">[Create New Manual Challenge]</option></select></div><div class="field" id="manual-reason-wrap"><label>New Challenge name</label><input type="text" id="manual-reason" placeholder="e.g. World Environment Day"></div><div class="field"><label>Bonus points</label><input type="number" id="manual-pts" value="3" min="1" max="50"></div><div class="field"><label>Date</label><input type="date" id="manual-date"></div></div><button class="save-btn" onclick="saveManualBonus()">Apply manual bonus</button><span class="saved-msg" id="manual-saved">âœ… Applied!</span><div id="manual-result" style="margin-top:14px;font-size:13px;color:#666"></div><div style="margin-top:20px"><div onclick="toggleManualList()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:#fafafa;border:1px solid #eee;border-radius:8px;user-select:none"><div style="font-size:14px;font-weight:600">Existing manual bonuses</div><span id="chev-manuallist" style="font-size:13px;color:#bbb;transition:transform .2s">â–¼</span></div><div id="body-manuallist" style="display:none;margin-top:8px"><div id="manual-list"></div></div></div></div></div>
+
+<div class="section"><div class="section-header" onclick="toggleSection('loginmethod')"><div class="section-header-left"><span>ðŸ”‘</span><div><div class="section-title">Participant Login Method</div><div class="section-sub-inline">Choose the active login option for participants</div></div></div><span class="section-chevron" id="chev-loginmethod">â–¼</span></div><div class="section-body" id="body-loginmethod"><div class="form-grid" style="max-width:350px;margin-bottom:14px"><div class="field"><label>Login Page Mode</label><select id="login-method-select"><option value="emp_code">Login with Employee Code</option><option value="email_otp">Login with Email OTP</option></select></div></div><button class="save-btn" onclick="saveLoginMethod()">Save login config</button><span class="saved-msg" id="loginmethod-saved">âœ… Saved!</span></div></div>
+
+</div>
+
+<footer class="site-footer"><span>Â© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
+</div><!-- /main -->
+<script>
+
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+var SB_URL='https://jhdgkncpkrttvemvwukc.supabase.co';
+var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpoZGdrbmNwa3J0dHZlbXZ3dWtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NzgyNjMsImV4cCI6MjA5NzI1NDI2M30.d7mvXOYDq5G4aqs1Mbc6HFNgTBlQk4B6ah0eahE_yZE';
+var HDR={apikey:SB_ANON,Authorization:'Bearer '+SB_ANON,'Content-Type':'application/json'};
+var _BU='https://walkathon-backend-hv9j.onrender.com';function authGuard(){var t=sessionStorage.getItem('wk_admin_token');if(!t){window.location.href='admin-login.html';return;}try{var p=JSON.parse(atob(t.split('.')[1]));if(p.exp&&p.exp*1000<Date.now()){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}catch(e){sessionStorage.removeItem('wk_admin_token');window.location.href='admin-login.html';}}function logout(){sessionStorage.removeItem('wk_admin_token');sessionStorage.removeItem('wk_admin');window.location.href='admin-login.html';}
+authGuard();
+var BONUS_DEFAULT=[{km:5,pts:1},{km:8,pts:2},{km:10,pts:3},{km:15,pts:4},{km:21,pts:7}],bonusData=BONUS_DEFAULT.slice(),flagPreviewData=[],challengesList=[];
+var atypeOptions = ['one-time', 'per-act', 'range-split', 'two-challenges-same-day'];
+var atypeLabels = {
+  'one-time': 'One-time / Daily',
+  'per-act': 'Per Activity',
+  'range-split': 'Range Split',
+  'two-challenges-same-day': 'Two Challenges Same Day'
+};
+function toggleManualList(){var b=document.getElementById("body-manuallist"),c=document.getElementById("chev-manuallist");if(!b)return;var o=b.style.display==="block";b.style.display=o?"none":"block";if(c)c.style.transform=o?"":"rotate(180deg)"}
+function toggleSection(id){var b=document.getElementById('body-'+id),c=document.getElementById('chev-'+id);if(!b)return;var o=b.classList.contains('open');b.classList.toggle('open',!o);if(c)c.classList.toggle('open',!o)}
+function showSaved(id){var el=document.getElementById(id);if(el){el.style.display='inline';setTimeout(function(){el.style.display='none'},2500)}}
+function renderBonusRows(){document.getElementById('bonus-rows').innerHTML=bonusData.map(function(b,i){return '<tr><td>'+b.km+' km</td><td><input type="number" value="'+b.pts+'" id="bp-'+i+'" min="0"></td></tr>'}).join('')}
+async function loadConfig(){var r=await fetch(SB_URL+'/rest/v1/leaderboard_config?select=config_key,config_value',{headers:HDR});var rows=await r.json();if(!Array.isArray(rows))rows=[];rows.forEach(function(row){if(row.config_key==='medals'){var m=row.config_value;document.getElementById('gold-male').value=m.gold.male;document.getElementById('gold-female').value=m.gold.female;document.getElementById('silver-male').value=m.silver.male;document.getElementById('silver-female').value=m.silver.female;document.getElementById('bronze-male').value=m.bronze.male;document.getElementById('bronze-female').value=m.bronze.female}if(row.config_key==='bonus_points'){bonusData=row.config_value.map(function(b){return{km:b.km,pts:b.points||b.pts}});renderBonusRows()}if(row.config_key==='base_points')document.getElementById('base-per-km').value=row.config_value.per_km||1;if(row.config_key==='login_method'){var sel=document.getElementById('login-method-select');if(sel)sel.value=row.config_value;}});if(!rows.find(function(r){return r.config_key==='bonus_points'}))renderBonusRows()}
+async function saveLoginMethod(){var val=document.getElementById('login-method-select').value;await fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.login_method',{method:'PATCH',headers:HDR,body:JSON.stringify({config_value:val,updated_at:new Date().toISOString()})});showSaved('loginmethod-saved');}
+async function saveMedals(){var val={gold:{male:+document.getElementById('gold-male').value,female:+document.getElementById('gold-female').value},silver:{male:+document.getElementById('silver-male').value,female:+document.getElementById('silver-female').value},bronze:{male:+document.getElementById('bronze-male').value,female:+document.getElementById('bronze-female').value}};await fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.medals',{method:'PATCH',headers:HDR,body:JSON.stringify({config_value:val,updated_at:new Date().toISOString()})});showSaved('medals-saved')}
+async function saveBonus(){var bonusArr=bonusData.map(function(b,i){return{km:b.km,points:+(document.getElementById('bp-'+i).value)||0}}),base=parseFloat(document.getElementById('base-per-km').value)||1;await Promise.all([fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.bonus_points',{method:'PATCH',headers:HDR,body:JSON.stringify({config_value:bonusArr,updated_at:new Date().toISOString()})}),fetch(SB_URL+'/rest/v1/leaderboard_config?config_key=eq.base_points',{method:'PATCH',headers:HDR,body:JSON.stringify({config_value:{per_km:base},updated_at:new Date().toISOString()})})]);showSaved('bonus-saved')}
+function specialMsg(id,msg){['special-msg-ok','special-msg-err'].forEach(function(x){var e=document.getElementById(x);if(e)e.style.display='none'});var el=document.getElementById(id);el.textContent=msg;el.style.display='block'}
+async function loadSpecialDates(){var box=document.getElementById('special-dates-list');box.innerHTML='Loading...';try{var r=await fetch(SB_URL+'/rest/v1/special_scoring_days?select=*&order=special_date.asc',{headers:HDR});var rows=await r.json();if(!Array.isArray(rows))rows=[];box.innerHTML=rows.length?rows.map(function(x){return '<div class="date-pill"><div><strong>'+esc(x.special_date)+'</strong><br><span>'+esc(x.label||'Special Day')+'</span></div><button class="btn-del" onclick="deleteSpecialDate(\''+x.special_date+'\')">Remove</button></div>'}).join(''):'No special dates configured yet.'}catch(e){box.innerHTML='Error loading dates. Please run SQL permissions query.'}}
+async function addSpecialDate(){var d=document.getElementById('special-date').value,label=document.getElementById('special-label').value.trim();if(!d)return specialMsg('special-msg-err','Please select a date.');try{var r=await fetch(SB_URL+'/rest/v1/special_scoring_days',{method:'POST',headers:Object.assign({},HDR,{Prefer:'resolution=merge-duplicates'}),body:JSON.stringify({special_date:d,label:label||'Special Day'})});if(!r.ok)throw new Error('Save failed '+r.status);document.getElementById('special-date').value='';document.getElementById('special-label').value='';specialMsg('special-msg-ok','Special date saved.');showSaved('special-saved');loadSpecialDates()}catch(e){specialMsg('special-msg-err','Unable to save. '+e.message)}}
+async function deleteSpecialDate(d){if(!confirm('Remove '+d+' from special scoring days?'))return;try{var r=await fetch(SB_URL+'/rest/v1/special_scoring_days?special_date=eq.'+d,{method:'DELETE',headers:HDR});if(!r.ok)throw new Error('Delete failed '+r.status);specialMsg('special-msg-ok','Special date removed.');loadSpecialDates()}catch(e){specialMsg('special-msg-err','Unable to remove. '+e.message)}}
+function getPaceRules(){var minVal=document.getElementById('fr-pace1-min').value.trim(),maxVal=document.getElementById('fr-pace1-max').value.trim(),minPace=minVal!==''?parseFloat(minVal):null,maxPace=maxVal!==''?parseFloat(maxVal):null;return(minPace!==null||maxPace!==null)?[{minPace:minPace,maxPace:maxPace}]:[]}
+function paceFromSpeed(avgSpeed){return(!avgSpeed||avgSpeed<=0)?null:(1000/avgSpeed)/60}function fmtPace(avgSpeed){var p=paceFromSpeed(avgSpeed);if(!p)return'â€”';var min=Math.floor(p),sec=Math.round((p-min)*60);return min+':'+String(sec).padStart(2,'0')+' /km'}
+async function fetchFlagCandidates(){var dateFrom=document.getElementById('fr-date-from').value,dateTo=document.getElementById('fr-date-to').value,sport=document.getElementById('fr-sport').value,distMinVal=document.getElementById('fr-dist-min').value.trim(),distMaxVal=document.getElementById('fr-dist-max').value.trim(),distMin=distMinVal!==''?parseFloat(distMinVal):null,distMax=distMaxVal!==''?parseFloat(distMaxVal):null,paceRules=getPaceRules(),hasDistFilter=distMin!==null||distMax!==null,hasPaceFilter=paceRules.length>0;if(!dateFrom&&!dateTo&&!hasDistFilter&&!hasPaceFilter)throw new Error('Please set at least a date range, distance range, or pace rule before previewing.');var url=SB_URL+'/rest/v1/activities?is_deleted=eq.false&order=activity_date.desc&select=id,strava_activity_id,strava_athlete_id,activity_name,sport_type,activity_date,distance_meters,avg_speed,is_flagged,flag_reason';if(dateFrom)url+='&activity_date=gte.'+dateFrom+'T00:00:00';if(dateTo)url+='&activity_date=lte.'+dateTo+'T23:59:59';if(sport)url+='&sport_type=eq.'+sport;var all=[],from=0;while(true){var r=await fetch(url,{headers:Object.assign({},HDR,{'Range-Unit':'items','Range':from+'-'+(from+999)})}),page=await r.json();if(!Array.isArray(page)||page.length===0)break;all=all.concat(page);if(page.length<1000)break;from+=1000}var regR=await fetch(SB_URL+'/rest/v1/registration?select=strava_athlete_id,full_name',{headers:HDR}),regs=await regR.json(),regMap={};if(Array.isArray(regs))regs.forEach(function(r){regMap[r.strava_athlete_id]=r.full_name});var matches=[];all.forEach(function(a){var km=(parseFloat(a.distance_meters)||0)/1000,flagReasons=[];if(hasDistFilter){var aboveMin=distMin===null||km>=distMin,belowMax=distMax===null||km<=distMax;if(aboveMin&&belowMax)flagReasons.push('Manual Review - Distance Issue ('+(distMin!==null?distMin:'')+'-'+(distMax!==null?distMax:'')+')')}if(hasPaceFilter&&a.avg_speed&&a.avg_speed>0){var paceMinkm=paceFromSpeed(a.avg_speed);for(var ri=0;ri<paceRules.length;ri++){var rule=paceRules[ri],am=rule.minPace===null||paceMinkm>=rule.minPace,bm=rule.maxPace===null||paceMinkm<=rule.maxPace;if(am&&bm){flagReasons.push('Manual Review - Pace Issue ('+(rule.minPace!==null?rule.minPace:'')+'-'+(rule.maxPace!==null?rule.maxPace:'')+')');break}}}if(flagReasons.length>0)matches.push({act:a,name:regMap[a.strava_athlete_id]||'Unknown',reasons:flagReasons})});return matches}
+async function previewFlagRules(){var countEl=document.getElementById('flag-preview-count'),bodyEl=document.getElementById('flag-preview-body'),listEl=document.getElementById('flag-preview-list'),btn=document.getElementById('btn-apply-flags');countEl.textContent='â³ Scanning activities...';bodyEl.innerHTML='';listEl.style.display='none';btn.disabled=true;try{flagPreviewData=await fetchFlagCandidates();countEl.textContent=flagPreviewData.length+' activit'+(flagPreviewData.length===1?'y':'ies')+' match the rules';btn.disabled=flagPreviewData.length===0;if(flagPreviewData.length===0)return;bodyEl.innerHTML=flagPreviewData.slice(0,200).map(function(m){var a=m.act,km=((parseFloat(a.distance_meters)||0)/1000).toFixed(2),dt=(a.activity_date||'').split('T')[0],already=a.is_flagged?' style="opacity:0.5"':'',athleteUrl='https://www.strava.com/athletes/'+a.strava_athlete_id,actUrl='https://www.strava.com/activities/'+(a.strava_activity_id||a.id),actName=esc(a.activity_name||'â€”');var chkDisabled=a.is_flagged?' disabled title="Already flagged"':'',chkChecked=a.is_flagged?'':' checked';return '<tr'+already+' data-idx="'+flagPreviewData.indexOf(m)+'"'+(a.is_flagged?' class="row-already-flagged"':'')+'>'+' <td style="padding:8px 12px;text-align:center"><input type="checkbox" class="row-chk" data-idx="'+flagPreviewData.indexOf(m)+'"'+chkChecked+chkDisabled+' onchange="updateSelectedCount()" style="cursor:pointer;width:15px;height:15px"></td>'+'<td style="padding:8px 12px">'+(a.is_flagged?'<span style="color:#bbb;font-size:11px">âœ“ already</span> ':'')+'<a href="'+athleteUrl+'" target="_blank" style="color:#E8622A;font-weight:600;text-decoration:none">'+esc(m.name)+'</a></td><td style="padding:8px 12px"><a href="'+actUrl+'" target="_blank" style="color:#1A1A1A;text-decoration:none">'+actName+'</a></td><td style="padding:8px 12px">'+esc(a.sport_type||'â€”')+'</td><td style="padding:8px 12px">'+dt+'</td><td style="padding:8px 12px">'+km+' km</td><td style="padding:8px 12px">'+fmtPace(a.avg_speed)+'</td><td style="padding:8px 12px;color:#c62828;font-size:12px">'+m.reasons.join('<br>')+'</td></tr>'}).join('');if(flagPreviewData.length>200)bodyEl.innerHTML+='<tr><td colspan="8" style="padding:12px;text-align:center;color:#888;font-size:13px">...and '+(flagPreviewData.length-200)+' more</td></tr>';listEl.style.display='block';updateSelectedCount()}catch(e){countEl.textContent='âŒ Error: '+e.message}}
+async function applyFlagRules(){var chks=document.querySelectorAll('.row-chk:checked:not(:disabled)'),selectedIdxs=Array.from(chks).map(function(c){return parseInt(c.getAttribute('data-idx'))});var toFlag=selectedIdxs.map(function(i){return flagPreviewData[i]}).filter(Boolean);if(!toFlag.length){alert('Please select at least one activity to flag.');return}var btn=document.getElementById('btn-apply-flags'),countEl=document.getElementById('flag-preview-count');if(!confirm('Flag '+toFlag.length+' selected activit'+(toFlag.length===1?'y':'ies')+'?'))return;btn.disabled=true;btn.textContent='Flagging...';var success=0,failed=0;for(var i=0;i<toFlag.length;i++){var m=toFlag[i];try{var newReason=(m.act.flag_reason?m.act.flag_reason+', ':'')+m.reasons.join(', '),r=await fetch(SB_URL+'/rest/v1/activities?id=eq.'+m.act.id,{method:'PATCH',headers:HDR,body:JSON.stringify({is_flagged:true,flag_reason:newReason})});if(r.ok){success++;m.act.is_flagged=true;var chkEl=document.querySelector('.row-chk[data-idx="'+flagPreviewData.indexOf(m)+'"]');if(chkEl){chkEl.checked=false;chkEl.disabled=true;var row=chkEl.closest('tr');if(row)row.style.opacity='0.5'}}}catch(e){failed++}if(i%10===0)countEl.textContent='Flagging... '+(i+1)+' / '+toFlag.length}btn.textContent='ðŸš© Flag selected';btn.disabled=false;countEl.textContent='âœ… Done â€” '+success+' flagged'+(failed?' | âŒ '+failed+' failed':'');updateSelectedCount()}
+async function loadChallenges(){var r=await fetch(SB_URL+'/rest/v1/challenges?order=start_date.asc&select=*',{headers:HDR}),chs=await r.json();challengesList=Array.isArray(chs)?chs:[];renderChallenges(challengesList);populateManualChallengeSelect();}
+function renderChallenges(chs){document.getElementById('challenges-list').innerHTML=chs.length?chs.map(function(c){return challengeHtml(c)}).join(''):'<p style="color:#bbb;font-size:14px;margin-bottom:16px">No challenges yet. Click Add challenge below.</p>';if(chs.length)setTimeout(function(){chs.forEach(function(c){var selAtype=document.getElementById('ch-atype-'+c.id);if(selAtype)updateChFields(selAtype);var selDtype=document.getElementById('ch-dtype-'+c.id);if(selDtype)updateChDtypeFields(selDtype);});},0);}
+function challengeHtml(c){var statusDot=c.is_active?'<span style="display:inline-block;width:8px;height:8px;background:#2e7d32;border-radius:50%;margin-right:6px"></span>':'<span style="display:inline-block;width:8px;height:8px;background:#bbb;border-radius:50%;margin-right:6px"></span>';return '<div class="ch-compact" id="ch-'+c.id+'"><div class="ch-summary" onclick="toggleCh('+c.id+')" style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;user-select:none"><div style="flex:1;display:flex;align-items:center;gap:8px">'+statusDot+'<strong style="font-size:14px">'+esc(c.name)+'</strong><span style="font-size:12px;color:#888;background:#f5f5f5;padding:2px 8px;border-radius:10px">'+c.start_date+(c.end_date!==c.start_date?' â†’ '+c.end_date:'')+'</span><span style="font-size:12px;color:#888">ðŸ“ '+c.distance_min+'â€“'+c.distance_max+' km</span><span style="font-size:12px;font-weight:700;color:#1565c0">+'+c.bonus_points+' pts</span></div><div style="display:flex;gap:6px;align-items:center"><button class="toggle-active '+(c.is_active?'toggle-on':'toggle-off')+'" onclick="event.stopPropagation();toggleChallenge('+c.id+','+c.is_active+')">'+(c.is_active?'âœ… Active':'â¸ Inactive')+'</button><span style="font-size:12px;color:#bbb">â–¼</span></div></div><div class="ch-detail" id="chd-'+c.id+'" style="display:none;padding:16px 18px;border-top:1px solid #f0f0f0;background:#fafafa"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px">'+field('Challenge name','ch-name-'+c.id,'text',c.name)+field('Start date','ch-start-'+c.id,'date',c.start_date)+field('End date','ch-end-'+c.id,'date',c.end_date)+field('Bonus points','ch-pts-'+c.id,'number',c.bonus_points)+field('Eligible','ch-elig-'+c.id,'select-elig',c.eligible)+'<div id="ch-scope-wrap-'+c.id+'">'+field('Activity scope','ch-scope-'+c.id,'select-scope',c.activity_scope)+'</div>'+field('Distance type','ch-dtype-'+c.id,'select-dtype',c.distance_type)+field('Min distance (km)','ch-dmin-'+c.id,'number',c.distance_min)+field('Max distance (km)','ch-dmax-'+c.id,'number',c.distance_max)+field('Start time (HH:MM)','ch-time-'+c.id,'text',c.start_time_criteria||'')+field('Elevation (m)','ch-elev-'+c.id,'number',c.elevation_criteria||0)+field('Award type','ch-atype-'+c.id,'select-atype-dep',c.award_type||(c.range_split?'range-split':c.per_activity_points>0?'per-act':'one-time'))+'<div id="ch-nbt-wrap-'+c.id+'">'+field_select('Normal Bonus','ch-nbt-'+c.id,[['no-change','No Change'],['exclude-all','No Normal Bonus on Day'],['exclude-sum','Exclude Normal Bonus from Sum of Activities'],['per-activity','Each Activity']],c.normal_bonus_type||'no-change')+'</div>'+'</div><div style="display:flex;gap:8px"><button class="btn-save-ch" onclick="saveChallenge('+c.id+')">ðŸ’¾ Save</button><button class="btn-del" onclick="deleteChallenge('+c.id+')">ðŸ—‘ï¸ Delete</button></div></div></div>'}
+function updateChFields(sel){
+  var atype=sel.value;
+  var cid=sel.id.replace('ch-atype-','');
+  var scopeWrap=document.getElementById('ch-scope-wrap-'+cid);
+  var nbtWrap=document.getElementById('ch-nbt-wrap-'+cid);
+  var descEl=document.getElementById('adesc-'+sel.id);
+  // Activity scope: only visible for one-time
+  if(scopeWrap) scopeWrap.style.display=(atype==='one-time')?'':'none';
+  // Normal Bonus: hidden for range-split and two-challenges-same-day
+  if(nbtWrap)   nbtWrap.style.display=(atype==='range-split'||atype==='two-challenges-same-day')?'none':'';
+  var descs={
+    'one-time':                'Award bonus_points ONCE if any qualifying activity (or daily total) meets criteria. Standard distance bonus still applies.',
+    'per-act':                 'Award bonus_points for EACH qualifying activity that meets the distance/elevation/time criteria. Standard distance bonus still applies.',
+    'range-split':             'In-range activities each earn a flat challenge bonus individually. Out-of-range activities are summed for normal dist + bracket bonus. 21 km cap applies to full day total.',
+    'two-challenges-same-day': 'First qualifying activity on a day earns: base pts + its own bracket bonus + challenge pts. Remaining activities pool for normal base + bracket. 21 km cap trims only the remaining pool.'
+  };
+  if(descEl){
+    descEl.textContent=descs[atype]||'';
+    descEl.style.display=descs[atype]?'block':'none';
+  }
+}
+function showAtypeDesc(sel){var descs={'one-time':       'Award bonus_points ONCE if any qualifying activity (or daily total) meets the criteria. Standard distance bonus still applies.','per-act':        'Award bonus_points for EACH activity that individually falls within the distance range. Standard distance bonus still applies.','range-split':'Activities within the distance range each earn a flat challenge bonus individually. Activities outside the range are summed for standard distance + bracket bonus. Combined daily total (in-range + out-of-range) is capped at 21 km for base points.','two-challenges-same-day':'First qualifying activity earns base pts + its own bracket bonus + challenge bonus. Conflicting activities (qualifying for another challenge that day) are excluded. Remaining activities pooled for base pts + bracket bonus. 21km cap applies to full day.'};var d=sel.closest('.field').querySelector('.atype-desc');if(d)d.textContent=descs[sel.value]||'';}
+function toggleCh(id){var det=document.getElementById('chd-'+id);if(det)det.style.display=det.style.display==='none'?'block':'none'}
+function field_select(label,id,opts,val){return '<div class="field"><label style="font-size:11px;font-weight:600;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px">'+label+'</label><select id="'+id+'" style="width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px">'+opts.map(function(o){return '<option value="'+o[0]+'"'+(val===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div>';}
+function field(label,id,type,val,helpText){
+  var eligLabels={'all':'All Participants','dayshift':'Day Shift Only','nightshift':'Night Shift Only','male':'Male Only','female':'Female Only'};
+  var input='';
+  if(type==='select-elig'){
+    input='<select id="'+id+'">';
+    ['all','dayshift','nightshift','male','female'].forEach(function(v){
+      input+='<option value="'+v+'"'+(v===val?' selected':'')+'>'+eligLabels[v]+'</option>';
+    });
+    input+='</select>';
+  } else if(type==='select-scope'){
+    input='<select id="'+id+'"><option value="single"'+(val==='single'?' selected':'')+'>Single activity</option><option value="daily"'+(val==='daily'?' selected':'')+'>Entire day total</option></select>';
+  } else if(type==='select-dtype'){
+    input='<select id="'+id+'" onchange="updateChDtypeFields(this)"><option value="fixed"'+(val==='fixed'?' selected':'')+'>Fixed (Â±0.1 km)</option><option value="range"'+(val==='range'?' selected':'')+'>Range (strict)</option><option value="extended"'+(val==='extended'?' selected':'')+'>Extended (min km+)</option><option value="manual"'+(val==='manual'?' selected':'')+'>Manual (No GPS Check)</option></select>';
+  } else if(type==='select-bool'){
+    input='<select id="'+id+'"><option value="false"'+(val==='false'||val===false?' selected':'')+'>No</option><option value="true"'+(val==='true'||val===true?' selected':'')+'>Yes</option></select>';
+  } else if(type==='select-atype-dep'){
+    var atypeDescs={
+      'one-time':                'Award bonus_points ONCE if any qualifying activity (or daily total) meets criteria. Standard distance bonus still applies.',
+      'per-act':                 'Award bonus_points for EACH qualifying activity that meets the distance/elevation/time criteria. Standard distance bonus still applies.',
+      'range-split':             'In-range activities each earn a flat challenge bonus individually. Out-of-range activities are summed for normal dist + bracket bonus. 21 km cap applies to full day total.',
+      'two-challenges-same-day': 'First qualifying activity on a day earns: base pts + its own bracket bonus + challenge pts. Remaining activities pool for normal base + bracket. 21 km cap trims only the remaining pool.'
+    };
+    input='<select id="'+id+'" onchange="updateChFields(this)" style="width:100%;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px">';
+    atypeOptions.forEach(function(v){
+      input+='<option value="'+v+'"'+(v===val?' selected':'')+'>'+atypeLabels[v]+'</option>';
+    });
+    input+='</select>';
+    var currentDesc=atypeDescs[val||'one-time']||'';
+    input+='<div class="atype-desc" id="adesc-'+id+'" style="margin-top:6px;padding:7px 10px;background:#f0f4ff;border-left:3px solid #1565c0;border-radius:4px;font-size:11.5px;color:#444;line-height:1.5;display:'+(currentDesc?'block':'none')+'">'+(currentDesc)+'</div>';
+  } else {
+    input='<input type="'+type+'" id="'+id+'" value="'+esc(val||'')+'">';
+  }
+  var helpHtml=helpText?'<div style="font-size:10.5px;color:#888;margin-top:4px;line-height:1.3">'+helpText+'</div>':'';
+  return '<div class="field"><label>'+label+'</label>'+input+helpHtml+'</div>';
+}
+function getVal(id){var el=document.getElementById(id);return el?el.value:null}
+async function saveChallenge(id){
+  var atype=getVal('ch-atype-'+id)||'one-time';
+  var data={
+    name:getVal('ch-name-'+id),
+    start_date:getVal('ch-start-'+id),
+    end_date:getVal('ch-end-'+id),
+    bonus_points:+getVal('ch-pts-'+id)||0,
+    eligible:getVal('ch-elig-'+id),
+    activity_scope:getVal('ch-scope-'+id),
+    distance_type:getVal('ch-dtype-'+id),
+    distance_min:+getVal('ch-dmin-'+id)||0,
+    distance_max:+getVal('ch-dmax-'+id)||0,
+    start_time_criteria:getVal('ch-time-'+id)||null,
+    elevation_criteria:+getVal('ch-elev-'+id)||0,
+    award_type:atype,
+    per_activity_points:(atype==='per-act'?+getVal('ch-pts-'+id)||1:0),
+    normal_bonus_type:(document.getElementById('ch-nbt-'+id)||{}).value||'no-change',
+    exclude_normal_bonus:((document.getElementById('ch-nbt-'+id)||{}).value==='exclude-all'),
+    range_split:atype==='range-split'
+  };
+  await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id,{method:'PATCH',headers:HDR,body:JSON.stringify(data)});
+  showSaved('ch-saved');
+  loadChallenges();
+}
+async function toggleChallenge(id,current){await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id,{method:'PATCH',headers:HDR,body:JSON.stringify({is_active:!current})});loadChallenges()}
+async function deleteChallenge(id){if(!confirm('Delete this challenge?'))return;await fetch(SB_URL+'/rest/v1/challenges?id=eq.'+id,{method:'DELETE',headers:HDR});loadChallenges()}
+async function addChallenge(){await fetch(SB_URL+'/rest/v1/challenges',{method:'POST',headers:Object.assign({},HDR,{Prefer:'return=representation'}),body:JSON.stringify({name:'New Challenge',start_date:'2026-06-01',end_date:'2026-06-30',bonus_points:1,eligible:'all',activity_scope:'single',distance_type:'fixed',distance_min:5,distance_max:5,elevation_criteria:0,is_active:false,range_split:false})});loadChallenges()}
+async function saveManualBonus(){
+  var sel = document.getElementById('manual-challenge-select');
+  var challengeId = sel ? sel.value : 'new';
+  var pts = parseInt(document.getElementById('manual-pts').value)||0;
+  var date = document.getElementById('manual-date').value;
+  var reason = '';
+  
+  if (challengeId === 'new') {
+    reason = document.getElementById('manual-reason').value.trim()||'Manual bonus';
+  } else {
+    var ch = challengesList.find(function(c){ return String(c.id) === String(challengeId); });
+    if (ch) {
+      reason = ch.name;
+      pts = ch.bonus_points;
+      date = ch.start_date;
+    }
+  }
+
+  var idsRaw=document.getElementById('manual-ids').value.trim();
+  if(!idsRaw||!pts){alert('Please enter activity IDs and bonus points');return}
+  if(!date){alert('Please enter a date for the manual bonus/challenge');return}
+  
+  var ids=idsRaw.split(/[\n,\s]+/).map(function(s){return s.trim()}).filter(Boolean),
+      resultEl=document.getElementById('manual-result');
+  resultEl.textContent='Processing '+ids.length+' activities...';
+  var success=0,failed=0;
+  
+  for(var i=0;i<ids.length;i++){
+    try{
+      var r=await fetch(SB_URL+'/rest/v1/activities?strava_activity_id=eq.'+ids[i]+'&select=id,manual_bonus,flag_reason',{headers:HDR}),
+          rows=await r.json();
+      if(!rows||rows.length===0){failed++;continue}
+      var row=rows[0];
+      await fetch(SB_URL+'/rest/v1/activities?id=eq.'+row.id,{method:'PATCH',headers:HDR,body:JSON.stringify({manual_bonus:pts,description:reason})});
+      success++
+    } catch(e) { failed++ }
+  }
+  
+  if(success>0){
+    if (challengeId === 'new') {
+      try{
+        await fetch(SB_URL+'/rest/v1/challenges',{method:'POST',headers:Object.assign({},HDR,{Prefer:'return=representation'}),body:JSON.stringify({
+          name:reason,
+          start_date:date,
+          end_date:date,
+          bonus_points:pts,
+          eligible:'all',
+          activity_scope:'single',
+          distance_type:'manual',
+          distance_min:0,
+          distance_max:999,
+          elevation_criteria:0,
+          is_active:true,
+          range_split:false
+        })});
+        loadChallenges();
+      } catch(e) { console.error('Auto challenge creation failed:',e) }
+    } else {
+      loadChallenges();
+    }
+  }
+  resultEl.innerHTML='âœ… Applied to '+success+' activities'+(challengeId==='new'?' and created challenge':'')+(failed?' | âŒ '+failed+' not found':'');
+  showSaved('manual-saved');
+  loadManualBonuses();
+}
+function updateChDtypeFields(sel){
+  var dtype = sel.value;
+  var cid = sel.id.replace('ch-dtype-','');
+  var fieldsToHide = ['ch-dmin-'+cid, 'ch-dmax-'+cid, 'ch-time-'+cid, 'ch-elev-'+cid];
+  fieldsToHide.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){
+      var fieldDiv = el.closest('.field');
+      if(fieldDiv) fieldDiv.style.display = (dtype === 'manual') ? 'none' : '';
+    }
+  });
+}
+function onManualChallengeSelectChange(){
+  var sel = document.getElementById('manual-challenge-select');
+  if(!sel) return;
+  var val = sel.value;
+  var ptsEl = document.getElementById('manual-pts');
+  var dateEl = document.getElementById('manual-date');
+  var reasonWrap = document.getElementById('manual-reason-wrap');
+  
+  if (val === 'new') {
+    if(ptsEl) ptsEl.disabled = false;
+    if(dateEl) dateEl.disabled = false;
+    if(reasonWrap) reasonWrap.style.display = '';
+    var rInput = document.getElementById('manual-reason');
+    if(rInput) rInput.value = '';
+    if(ptsEl) ptsEl.value = 3;
+    if(dateEl) dateEl.value = '';
+  } else {
+    var ch = challengesList.find(function(c){ return String(c.id) === String(val); });
+    if (ch) {
+      if(ptsEl) { ptsEl.value = ch.bonus_points; ptsEl.disabled = true; }
+      if(dateEl) { dateEl.value = ch.start_date; dateEl.disabled = true; }
+      if(reasonWrap) reasonWrap.style.display = 'none';
+    }
+  }
+}
+function populateManualChallengeSelect(){
+  var sel = document.getElementById('manual-challenge-select');
+  if(!sel) return;
+  var currentVal = sel.value;
+  sel.innerHTML = '<option value="new">[Create New Manual Challenge]</option>';
+  challengesList.forEach(function(c){
+    if (c.distance_type === 'manual') {
+      var opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name + ' (' + c.start_date + ' | +' + c.bonus_points + ' pts)';
+      sel.appendChild(opt);
+    }
+  });
+  if (currentVal && sel.querySelector('option[value="'+currentVal+'"]')) {
+    sel.value = currentVal;
+  } else {
+    sel.value = 'new';
+  }
+  onManualChallengeSelectChange();
+}
+async function loadManualBonuses(){try{var r=await fetch(SB_URL+'/rest/v1/activities?manual_bonus=gt.0&select=strava_activity_id,activity_name,strava_athlete_id,manual_bonus&order=manual_bonus.desc&limit=50',{headers:HDR}),rows=await r.json();if(!Array.isArray(rows)||rows.length===0){document.getElementById('manual-list').innerHTML='<p style="color:#bbb;font-size:13px">No manual bonuses applied yet.</p>';return}document.getElementById('manual-list').innerHTML='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#fafafa"><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px">Activity ID</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px">Name</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px">Bonus Pts</th><th style="padding:8px 12px;text-align:left;color:#888;font-size:11px">Action</th></tr></thead><tbody>'+rows.map(function(r){return '<tr style="border-bottom:1px solid #f5f5f5"><td style="padding:8px 12px"><a href="https://www.strava.com/activities/'+r.strava_activity_id+'" target="_blank" style="color:#E8622A;text-decoration:none">'+r.strava_activity_id+'</a></td><td style="padding:8px 12px">'+esc(r.activity_name||'â€”')+'</td><td style="padding:8px 12px;font-weight:700;color:#1565c0">+'+r.manual_bonus+'</td><td style="padding:8px 12px"><button style="padding:4px 10px;background:#ffebee;color:#c62828;border:none;border-radius:6px;font-size:12px;cursor:pointer" onclick="clearManualBonus('+r.strava_activity_id+')">Clear</button></td></tr>'}).join('')+'</tbody></table>'}catch(e){document.getElementById('manual-list').innerHTML='<p style="color:#bbb;font-size:13px">Could not load â€” add manual_bonus column to activities table first.</p>'}}
+async function clearManualBonus(activityId){if(!confirm('Clear manual bonus for activity '+activityId+'?'))return;var r=await fetch(SB_URL+'/rest/v1/activities?strava_activity_id=eq.'+activityId+'&select=id',{headers:HDR}),rows=await r.json();if(rows&&rows[0]){await fetch(SB_URL+'/rest/v1/activities?id=eq.'+rows[0].id,{method:'PATCH',headers:HDR,body:JSON.stringify({manual_bonus:0,description:null})});loadManualBonuses()}}
+loadConfig();loadSpecialDates();loadChallenges();loadManualBonuses();
+
+</script>
+</body>
+</html>
+
+
+
