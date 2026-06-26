@@ -2594,6 +2594,10 @@ async function load(isBackgroundRefresh) {
       var avgKmDay=fullPts.km/daysElapsed;
       var goldActsMap={};
       allActs.forEach(function(a){if(!goldActsMap[a.strava_athlete_id])goldActsMap[a.strava_athlete_id]=[];goldActsMap[a.strava_athlete_id].push(a);});
+      var myShiftN = (reg.shift || '').toLowerCase();
+      var isNight = myShiftN.indexOf('night') > -1;
+      var myGenderN = (reg.gender || '').toLowerCase();
+      var isFemale = myGenderN === 'female' || myGenderN === 'f';
       var shiftPeersG=allRegRes.filter(function(p){var pg=(p.gender||'').toLowerCase(),ps=(p.shift||'').toLowerCase();return(ps.indexOf('night')>-1)===isNight&&(pg==='female')===isFemale;});
       var shiftScoredG=shiftPeersG.map(function(p){var km=0;(goldActsMap[p.strava_athlete_id]||[]).forEach(function(a){km+=(a.distance_meters||0)/1000;});return{id:p.strava_athlete_id,name:p.full_name,km:km};}).sort(function(a,b){return b.km-a.km;});
       var myRankG=shiftScoredG.findIndex(function(x){return String(x.id)===String(athleteId);})+1;
