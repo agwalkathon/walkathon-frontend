@@ -1552,18 +1552,6 @@ document.addEventListener('click', function(e) {
       </div>
   </div>
 
-  <!-- Push Notifications Subscription Card -->
-  <div class="card" id="push-notifications-card" style="margin-top:10px;margin-bottom:10px;padding:14px 16px;background:var(--surface);border:none;border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;">
-    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
-      <span style="font-size:18px;flex-shrink:0;">🔔</span>
-      <div style="display:flex;flex-direction:column;min-width:0;">
-        <span style="font-size:12.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;">Mobile Push Alerts</span>
-        <span style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="push-status-desc">Tap Enable to get real-time updates</span>
-      </div>
-    </div>
-    <button class="btn btn-sm" id="btn-enable-push" onclick="enablePushNotifications()" style="font-size:11px;font-weight:700;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:var(--brand);color:#fff;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;">Enable</button>
-  </div>
-
   <!-- ── In-App Notification Banner (after rings) ── -->
   <div id="inapp-notification-banner">
     <!-- dynamically filled by updateInAppNotificationBanner() -->
@@ -1881,7 +1869,17 @@ document.addEventListener('click', function(e) {
         </div>
       </div>
   </div>
-
+  <!-- Push Notifications Subscription Card -->
+  <div class="card" id="push-notifications-card" style="margin-top:10px;padding:14px 16px;background:var(--surface);border:none;border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+      <span style="font-size:18px;flex-shrink:0;">🔔</span>
+      <div style="display:flex;flex-direction:column;min-width:0;">
+        <span style="font-size:12.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;">Mobile Push Alerts</span>
+        <span style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="push-status-desc">Tap Enable to get real-time updates</span>
+      </div>
+    </div>
+    <button class="btn btn-sm" id="btn-enable-push" onclick="enablePushNotifications()" style="font-size:11px;font-weight:700;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:var(--brand);color:#fff;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;">Enable</button>
+  </div>
 
   <!-- Social Links -->
   <div class="you-social-row" style="margin-top:20px; display:flex; gap:10px; justify-content:center; padding:0 4px;">
@@ -5772,7 +5770,12 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
         var sub = await reg.pushManager.getSubscription();
 
         if (sub) {
-          card.style.display = 'none';
+          card.style.display = 'flex';
+          desc.textContent = 'Push alerts are active 🟢';
+          btn.textContent = 'Active';
+          btn.disabled = true;
+          btn.style.background = '#059669';
+          btn.style.cursor = 'default';
           sendSubscriptionToBackend(sub);
         } else {
           card.style.display = 'flex';
