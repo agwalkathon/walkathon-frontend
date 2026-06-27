@@ -4224,7 +4224,7 @@ function refreshData(isPull){
     // Only active if scrolled to top and touch starts below the header (Rings area)
     var activeContent = document.getElementById('tab-' + _currentTab);
     var isAtTop = activeContent ? activeContent.scrollTop === 0 : true;
-    if (isAtTop && e.touches.length === 1 && e.touches[0].clientY > headerHeight && e.touches[0].clientY < headerHeight + 150) {
+    if (isAtTop && e.touches.length === 1 && e.touches[0].clientY > headerHeight && e.touches[0].clientY < headerHeight + 350) {
       ptrStartY = e.touches[0].clientY;
       ptrActive = true;
       var vp = document.querySelector('.swipe-container-viewport');
