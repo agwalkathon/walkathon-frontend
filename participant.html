@@ -5724,8 +5724,9 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
     var VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9e9oFJAbHMQRXKCh_hXmEF7fPbQpxQZMSaFRbMzDqSmjLR2E8ypc';
 
     function urlBase64ToUint8Array(base64String) {
-      var padding = '='.repeat((4 - base64String.length % 4) % 4);
-      var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+      var cleanStr = base64String.trim();
+      var padding = '='.repeat((4 - cleanStr.length % 4) % 4);
+      var base64 = (cleanStr + padding).replace(/\-/g, '+').replace(/_/g, '/');
       var rawData = window.atob(base64);
       var outputArray = new Uint8Array(rawData.length);
       for (var i = 0; i < rawData.length; ++i) {
@@ -5798,10 +5799,15 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
           return;
         }
 
+        // Fetch public key directly from backend to avoid hardcoding issues
+        var keyRes = await fetch(BACKEND + '/push/vapid-key');
+        var keyJson = await keyRes.json();
+        var publicKey = keyJson.publicKey;
+
         var reg = await navigator.serviceWorker.ready;
         var sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          applicationServerKey: urlBase64ToUint8Array(publicKey)
         });
 
         if (sub) {
