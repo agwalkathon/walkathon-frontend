@@ -5709,6 +5709,7 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
 // lbBoot called by showTab
 
 </script>
+<script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/agwalk/sw.js')
@@ -5719,9 +5720,7 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
           .catch(function(err) { console.log('[SW] Registration failed:', err); });
       });
     }
-  </script>
-  
-  <script>
+
     var VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9e9oFJAbHMQRXKCh_hXmEF7fPbQpxQZMSaFRbMzDqSmjLR2E8ypc';
 
     function urlBase64ToUint8Array(base64String) {
@@ -5741,11 +5740,10 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
       var btn = document.getElementById('btn-enable-push');
       if (!card || !desc || !btn) return;
 
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.warn('[Push] Push notifications not supported in this browser');
-        return;
-      }
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
+      // Always show card to give user status
       card.style.display = 'flex';
 
       try {
