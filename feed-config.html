@@ -263,6 +263,35 @@
         </div>
       </div>
 
+      <div class="card" style="margin-top:24px;">
+        <div class="card-head">
+          <div class="card-head-left"><span>🔔</span><h2>PWA & Push Restrictions</h2></div>
+        </div>
+        <div class="card-body">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Force Push Notifications</div>
+              <div class="toggle-desc">Require mobile participants to enable push notifications before releasing the app dashboard.</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="rule-force-push">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Force Add to Home Screen (PWA)</div>
+              <div class="toggle-desc">Require mobile participants to install the app on their Home Screen as a PWA to access the app.</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="rule-force-pwa">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;margin-top:20px;">
         <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
         <span id="status-msg" class="status-msg"></span>
@@ -330,7 +359,9 @@
         allow_medals: true,
         allow_distance_clubs: true,
         allow_rank_top1: true,
-        allow_flagged_activities: false
+        allow_flagged_activities: false,
+        force_push_notifications: false,
+        force_pwa_install: false
       },
       filters: {
         minimum_activity_distance_km: 1.0,
@@ -359,6 +390,8 @@
         document.getElementById('rule-clubs').checked = !!config.rules.allow_distance_clubs;
         document.getElementById('rule-rank').checked = !!config.rules.allow_rank_top1;
         document.getElementById('rule-flagged').checked = !!config.rules.allow_flagged_activities;
+        document.getElementById('rule-force-push').checked = !!config.rules.force_push_notifications;
+        document.getElementById('rule-force-pwa').checked = !!config.rules.force_pwa_install;
         document.getElementById('filter-min-dist').value = config.filters.minimum_activity_distance_km !== undefined ? config.filters.minimum_activity_distance_km : 1.0;
         
         var allowedSports = config.filters.allowed_sports || ["Walk", "Run", "Hike", "Ride"];
@@ -385,7 +418,9 @@
           allow_medals: document.getElementById('rule-medals').checked,
           allow_distance_clubs: document.getElementById('rule-clubs').checked,
           allow_rank_top1: document.getElementById('rule-rank').checked,
-          allow_flagged_activities: document.getElementById('rule-flagged').checked
+          allow_flagged_activities: document.getElementById('rule-flagged').checked,
+          force_push_notifications: document.getElementById('rule-force-push').checked,
+          force_pwa_install: document.getElementById('rule-force-pwa').checked
         },
         filters: {
           minimum_activity_distance_km: parseFloat(document.getElementById('filter-min-dist').value || 0),
