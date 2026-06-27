@@ -3850,31 +3850,26 @@ function renderFeed() {
         paceStr = paceMin + ':' + paceRemainderSec + ' /km';
       }
       
-      var stepsHtml = '';
-      if (act.steps) {
-        stepsHtml = `
-          <div class="stat-item">
-            <span class="stat-label">Steps</span>
-            <span class="stat-val">${Number(act.steps).toLocaleString('en-IN')}</span>
-          </div>
-        `;
-      } else {
-        stepsHtml = `
-          <div class="stat-item">
-            <span class="stat-label">Steps</span>
-            <span class="stat-val">--</span>
-          </div>
-        `;
-      }
-      
-      var elevationHtml = '';
-      if (act.elevation_gain !== undefined && act.elevation_gain !== null) {
-        elevationHtml = `
-          <div class="stat-item">
-            <span class="stat-label">Elev Gain</span>
-            <span class="stat-val">${Math.round(act.elevation_gain)} <span class="unit">m</span></span>
-          </div>
-        `;
+      var isRunOrCycle = sportLower.indexOf('run') > -1 || sportLower.indexOf('cycling') > -1 || sportLower.indexOf('ride') > -1 || sportLower.indexOf('bike') > -1;
+      var isHike = sportLower.indexOf('hike') > -1;
+      var hasSteps = act.steps && parseInt(act.steps) > 0;
+      var hasElev = act.elevation_gain !== undefined && act.elevation_gain !== null && Math.round(act.elevation_gain) > 0;
+
+      var col3Label = 'Pace';
+      var col3Val = paceStr;
+
+      if (isRunOrCycle) {
+        col3Label = 'Pace';
+        col3Val = paceStr;
+      } else if (isHike && hasElev) {
+        col3Label = 'Elev Gain';
+        col3Val = Math.round(act.elevation_gain) + ' <span class="unit">m</span>';
+      } else if (hasSteps) {
+        col3Label = 'Steps';
+        col3Val = Number(act.steps).toLocaleString('en-IN');
+      } else if (hasElev) {
+        col3Label = 'Elev Gain';
+        col3Val = Math.round(act.elevation_gain) + ' <span class="unit">m</span>';
       }
       
       var descriptionHtml = '';
@@ -3907,11 +3902,9 @@ function renderFeed() {
                 <span class="stat-val">${durationStr}</span>
               </div>
               <div class="stat-item">
-                <span class="stat-label">Pace</span>
-                <span class="stat-val">${paceStr}</span>
+                <span class="stat-label">${col3Label}</span>
+                <span class="stat-val">${col3Val}</span>
               </div>
-              ${stepsHtml}
-              ${elevationHtml}
             </div>
           </div>
           <div class="feed-card-actions">
