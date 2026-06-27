@@ -3604,17 +3604,16 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
       '</div>' +
       '<div style="flex:1; display:flex; flex-direction:column; margin-left:12px; min-width:0; align-items:stretch;">' +
         '<div class="whoop-stats-box" style="margin-left:0; width:100%; justify-content:flex-end;">' +
-          (chPts > 0 ? '<div class="whoop-stat-item"><span class="whoop-stat-val" style="color:#ff9800;">🎯 +' + Math.round(chPts) + '</span><span class="whoop-stat-lbl">challenge Pt</span></div>' : '') +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + actCountStr.replace('x', '') + '</span><span class="whoop-stat-lbl">ACTS</span></div>' +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + (daySteps >= 1000 ? (daySteps/1000).toFixed(1).replace('.0','') + 'k' : daySteps) + '</span><span class="whoop-stat-lbl">STEPS</span></div>' +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + rawKm.toFixed(1) + '</span><span class="whoop-stat-lbl">KM</span></div>' +
         '</div>' +
-        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px; color:var(--muted); margin-top:6px; justify-content:flex-start; align-self:flex-start; font-weight:500; font-family:var(--font);">' +
-          '<span>Base: <strong style="color:#fff;">' + db.distPts + '</strong></span>' +
+        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px; color:var(--muted); margin-top:6px; justify-content:flex-end; align-self:flex-end; font-weight:500; font-family:var(--font);">' +
+          '<span>Base: <strong style="color:#60A5FA;">' + db.distPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
-          '<span>Bonus: <strong style="color:#fff;">' + db.bonusPts + '</strong></span>' +
+          '<span>Bonus: <strong style="color:#FFD000;">' + db.bonusPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
-          '<span>Challenge: <strong style="color:#fff;">' + chPts + '</strong></span>' +
+          '<span>Challenge: <strong style="color:#A78BFA;">' + chPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
           '<span>Total: <strong style="color:var(--brand);">' + dayTotal + '</strong></span>' +
         '</div>' +
