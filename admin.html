@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -775,6 +775,75 @@
       </div>
     </div>
 
+    <!-- Strava API Rate Limit Status Dashboard -->
+    <div class="card" id="rate-limit-dashboard" style="margin-bottom:20px;padding:20px;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);flex:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h3 style="margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--text-primary);">
+            <i class="ti ti-brand-strava" style="color:#fc5200;font-size:20px;"></i> Strava API Rate Limits & Status
+          </h3>
+          <span id="queue-status" class="badge" style="font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(0,0,0,0.05);color:var(--text-secondary);">Queue Idle</span>
+        </div>
+        <button class="btn btn-sm" id="kill-switch-btn" onclick="toggleKillSwitch()" style="font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;border:none;cursor:pointer;transition:all 0.15s;"></button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:16px;">
+        <!-- Read Quota 15m -->
+        <div style="background:rgba(0,0,0,0.015);border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Read Rate Limit (15-Min)</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-secondary);" id="limit-read-15m-desc">Last 15 Minutes: -- Remaining (Limit 300 Requests)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span id="pct-val-read-15m" style="font-size:12px;font-weight:700;color:var(--text-primary);min-width:38px;text-align:right;">0%</span>
+            <div style="flex:1;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;">
+              <div id="bar-read-15m" style="height:100%;width:0%;background:#3b82f6;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Read Quota 24h -->
+        <div style="background:rgba(0,0,0,0.015);border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Read Rate Limit (Daily)</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-secondary);" id="limit-read-24h-desc">Per Day: -- Remaining (Limit 3,000 requests)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span id="pct-val-read-24h" style="font-size:12px;font-weight:700;color:var(--text-primary);min-width:38px;text-align:right;">0%</span>
+            <div style="flex:1;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;">
+              <div id="bar-read-24h" style="height:100%;width:0%;background:#3b82f6;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Quota 15m -->
+        <div style="background:rgba(0,0,0,0.015);border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Overall Rate Limit (15-Min)</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-secondary);" id="limit-overall-15m-desc">Last 15 Minutes: -- Remaining (Limit 600 Requests)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span id="pct-val-overall-15m" style="font-size:12px;font-weight:700;color:var(--text-primary);min-width:38px;text-align:right;">0%</span>
+            <div style="flex:1;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;">
+              <div id="bar-overall-15m" style="height:100%;width:0%;background:#fc5200;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Quota 24h -->
+        <div style="background:rgba(0,0,0,0.015);border:1px solid var(--border);border-radius:8px;padding:12px;">
+          <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Overall Rate Limit (Daily)</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-secondary);" id="limit-overall-24h-desc">Per Day: -- Remaining (Limit 6,000 requests)</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <span id="pct-val-overall-24h" style="font-size:12px;font-weight:700;color:var(--text-primary);min-width:38px;text-align:right;">0%</span>
+            <div style="flex:1;height:6px;background:rgba(0,0,0,0.06);border-radius:3px;overflow:hidden;">
+              <div id="bar-overall-24h" style="height:100%;width:0%;background:#fc5200;transition:width 0.3s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diagnostic Status Indicator Panel -->
+      <div id="api-status-banner" style="border-radius:8px;padding:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all 0.15s;background:rgba(0,0,0,0.015);border:1px solid var(--border);color:var(--text-muted);">
+        <span id="api-status-icon" style="font-size:16px;"></span>
+        <span id="api-status-text">Checking status...</span>
+      </div>
+    </div>
+
     <!-- ── System Health & Monitoring ── -->
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -915,22 +984,7 @@
       </div>
     </div>
 
-    <!-- ── Recent Activity Feed ── -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-left">
-          <div class="card-header-icon"><i class="ti ti-activity"></i></div>
-          <div>
-            <h2>Recent Activities</h2>
-            <div class="card-header-sub">Latest 10 across all participants</div>
-          </div>
-        </div>
-        <a href="activities.html" class="btn-ghost"><i class="ti ti-arrow-right"></i> View all</a>
-      </div>
-      <div class="activity-feed" id="activity-feed">
-        <div class="feed-state"><i class="ti ti-loader"></i>Loading activities…</div>
-      </div>
-    </div>
+
 
   </div><!-- /content -->
 
@@ -1052,7 +1106,7 @@ authGuard();
 async function load() {
   const today = new Date().toISOString().split('T')[0];
 
-  const [countR, distR, flagR, todayR, regR, connR, recentR] = await Promise.all([
+  const [countR, distR, flagR, todayR, regR, connR] = await Promise.all([
     fetch(SUPABASE_URL + '/rest/v1/activities?select=id&is_deleted=eq.false',
       { headers: { ...HDR, 'Prefer': 'count=exact', 'Range': '0-0' } }),
     fetch(SUPABASE_URL + '/rest/v1/rpc/sum_distance',
@@ -1062,12 +1116,10 @@ async function load() {
     fetch(SUPABASE_URL + '/rest/v1/activities?select=id&is_deleted=eq.false&activity_date=gte.' + today + 'T00:00:00&activity_date=lte.' + today + 'T23:59:59',
       { headers: { ...HDR, 'Prefer': 'count=exact', 'Range': '0-0' } }),
     fetch(SUPABASE_URL + '/rest/v1/registration?select=strava_athlete_id,full_name', { headers: HDR }),
-    fetch(SUPABASE_URL + '/rest/v1/participants?select=strava_athlete_id', { headers: HDR }),
-    fetch(SUPABASE_URL + '/rest/v1/activities?select=id,strava_activity_id,strava_athlete_id,activity_name,sport_type,activity_date,distance_meters,avg_speed,is_flagged&is_deleted=eq.false&order=activity_date.desc&limit=10',
-      { headers: HDR })
+    fetch(SUPABASE_URL + '/rest/v1/participants?select=strava_athlete_id', { headers: HDR })
   ]);
 
-  const regs = await regR.json(), conn = await connR.json(), acts = await recentR.json();
+  const regs = await regR.json(), conn = await connR.json();
 
   const totalCount = parseInt((countR.headers.get('content-range') || '').split('/')[1]) || 0;
   const flagCount  = parseInt((flagR.headers.get('content-range') || '').split('/')[1]) || 0;
@@ -1131,38 +1183,150 @@ async function load() {
     pb.textContent = (Array.isArray(conn) ? conn.length : 0) + ' connected';
   }
 
-  // ── Render activity feed ──
-  const feed = document.getElementById('activity-feed');
-  const recent = Array.isArray(acts) ? acts.slice(0, 10) : [];
 
-  if (!recent.length) {
-    feed.innerHTML = '<div class="feed-state"><i class="ti ti-mood-empty"></i>No activities yet</div>';
-    return;
-  }
-
-  feed.innerHTML = recent.map(a => {
-    const name  = nm[a.strava_athlete_id] || 'Unknown';
-    const pace  = fmtPS(a.avg_speed, a.sport_type);
-    return `
-      <div class="act-row">
-        <div class="act-avatar" style="background:${avatarGrad(name)}">${initials(name)}</div>
-        <div class="act-info">
-          <a href="https://www.strava.com/athletes/${a.strava_athlete_id}" target="_blank" class="act-name">${name}</a>
-          <div class="act-title">${a.activity_name || '—'}${pace ? ' · ' + pace : ''}</div>
-        </div>
-        <div class="act-meta">
-          <span class="pill ${pillClass(a.sport_type)}">${a.sport_type || '—'}</span>
-          <span class="pill ${a.is_flagged ? 'pill-flag' : 'pill-clean'}">${a.is_flagged ? '🚩 Flagged' : '✅ Clean'}</span>
-        </div>
-        <div class="act-dist">${fmtDist(a.distance_meters)}</div>
-        <div class="act-time">${fmtDate(a.activity_date)}<br><span style="font-size:10px">${fmtTime(a.activity_date, a.start_time)}</span></div>
-      </div>`;
-  }).join('');
 }
 
 load();
 checkAllSystemsHealth();
 setInterval(checkAllSystemsHealth, 60000);
+
+let currentKillSwitchState = false;
+
+async function updateRateLimitDashboard() {
+  const token = sessionStorage.getItem('wk_admin_token');
+  if (!token) return;
+  try {
+    const res = await fetch(_BACKEND_URL + '/admin/strava-status', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+    if (d.success && d.limits) {
+      const lim = d.limits;
+      const status = d.status;
+      
+      // Update kill switch state
+      currentKillSwitchState = d.killSwitchActive;
+      const ksBtn = document.getElementById('kill-switch-btn');
+      if (ksBtn) {
+        if (currentKillSwitchState) {
+          ksBtn.textContent = '▶️ Resume Strava API Calls';
+          ksBtn.style.background = 'rgba(16, 185, 129, 0.1)';
+          ksBtn.style.color = '#10B981';
+          ksBtn.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+        } else {
+          ksBtn.textContent = '🛑 Stop Strava API Calls';
+          ksBtn.style.background = 'rgba(239, 68, 68, 0.1)';
+          ksBtn.style.color = '#EF4444';
+          ksBtn.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+        }
+      }
+
+      // Calculate Remaining
+      const remOverall15 = Math.max(0, lim.overallLimit15m - lim.overallUsage15m);
+      const remOverall24 = Math.max(0, lim.overallLimit24h - lim.overallUsage24h);
+      const remRead15 = Math.max(0, lim.readLimit15m - lim.readUsage15m);
+      const remRead24 = Math.max(0, lim.readLimit24h - lim.readUsage24h);
+
+      // Set Text
+      document.getElementById('limit-overall-15m-desc').textContent = `Last 15 Minutes: ${remOverall15} Remaining (Limit ${lim.overallLimit15m} Requests)`;
+      document.getElementById('limit-overall-24h-desc').textContent = `Per Day: ${remOverall24.toLocaleString()} Remaining (Limit ${lim.overallLimit24h.toLocaleString()} requests)`;
+      document.getElementById('limit-read-15m-desc').textContent = `Last 15 Minutes: ${remRead15} Remaining (Limit ${lim.readLimit15m} Requests)`;
+      document.getElementById('limit-read-24h-desc').textContent = `Per Day: ${remRead24.toLocaleString()} Remaining (Limit ${lim.readLimit24h || 3000} requests)`;
+
+      // Set Bars
+      const pctOverall15 = Math.min(100, (lim.overallUsage15m / lim.overallLimit15m) * 100);
+      const pctOverall24 = Math.min(100, (lim.overallUsage24h / lim.overallLimit24h) * 100);
+      const pctRead15 = Math.min(100, (lim.readUsage15m / lim.readLimit15m) * 100);
+      const pctRead24 = Math.min(100, (lim.readUsage24h / lim.readLimit24h) * 100);
+
+      document.getElementById('bar-overall-15m').style.width = `${pctOverall15}%`;
+      document.getElementById('bar-overall-24h').style.width = `${pctOverall24}%`;
+      document.getElementById('bar-read-15m').style.width = `${pctRead15}%`;
+      document.getElementById('bar-read-24h').style.width = `${pctRead24}%`;
+
+      document.getElementById('pct-val-overall-15m').textContent = `${Math.round(pctOverall15)}%`;
+      document.getElementById('pct-val-overall-24h').textContent = `${Math.round(pctOverall24)}%`;
+      document.getElementById('pct-val-read-15m').textContent = `${Math.round(pctRead15)}%`;
+      document.getElementById('pct-val-read-24h').textContent = `${Math.round(pctRead24)}%`;
+
+      // Queue Status
+      const qStatus = document.getElementById('queue-status');
+      if (qStatus) {
+        if (d.queueProcessing) {
+          qStatus.textContent = `Queue Active (Pending: ${d.queueSize})`;
+          qStatus.style.background = 'rgba(232, 98, 42, 0.15)';
+          qStatus.style.color = 'var(--brand)';
+        } else {
+          qStatus.textContent = 'Queue Idle';
+          qStatus.style.background = 'rgba(0,0,0,0.05)';
+          qStatus.style.color = 'var(--text-secondary)';
+        }
+      }
+
+      // API Diagnostic Status Indicator
+      const banner = document.getElementById('api-status-banner');
+      const icon = document.getElementById('api-status-icon');
+      const text = document.getElementById('api-status-text');
+
+      if (banner && icon && text) {
+        if (status.state === 'suspended') {
+          banner.style.background = 'rgba(245, 158, 11, 0.08)';
+          banner.style.border = '1px solid rgba(245, 158, 11, 0.15)';
+          banner.style.color = '#F59E0B';
+          icon.textContent = '⚠';
+          text.textContent = 'Strava API calls are suspended by Administrator';
+        } else if (status.state === 'error') {
+          banner.style.background = 'rgba(239, 68, 68, 0.08)';
+          banner.style.border = '1px solid rgba(239, 68, 68, 0.15)';
+          banner.style.color = '#EF4444';
+          icon.textContent = '❌';
+          
+          const dateStr = status.lastErrorTime ? new Date(status.lastErrorTime).toLocaleTimeString() : '';
+          text.textContent = `API Call Failed: ${status.lastError || 'Unknown error'} ${dateStr ? 'at ' + dateStr : ''}`;
+        } else {
+          banner.style.background = 'rgba(16, 185, 129, 0.08)';
+          banner.style.border = '1px solid rgba(16, 185, 129, 0.15)';
+          banner.style.color = '#10B981';
+          icon.textContent = '✓';
+          text.textContent = 'Strava API calls are working fine';
+        }
+      }
+    }
+  } catch(e) {
+    console.warn('Failed to update rate limit dashboard:', e);
+  }
+}
+
+async function toggleKillSwitch() {
+  const token = sessionStorage.getItem('wk_admin_token');
+  if (!token) { alert('Unauthorized. Please log in again.'); window.location.href = 'admin-login.html'; return; }
+  
+  const newState = !currentKillSwitchState;
+  const actionText = newState ? 'stop all outbound Strava API calls?' : 'resume normal Strava API calls?';
+  if (!confirm(`Are you sure you want to ${actionText}`)) return;
+
+  try {
+    const res = await fetch(_BACKEND_URL + '/admin/toggle-kill-switch', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ active: newState })
+    });
+    const d = await res.json();
+    if (d.success) {
+      alert(newState ? 'Strava API access has been STOPPED.' : 'Strava API access has been RESUMED.');
+      await updateRateLimitDashboard();
+    }
+  } catch(e) {
+    alert('Failed to toggle kill switch: ' + e.message);
+  }
+}
+
+updateRateLimitDashboard();
+setInterval(updateRateLimitDashboard, 15000);
 
 const healthHistory = {
   backend: [],
