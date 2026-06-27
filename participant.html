@@ -1310,6 +1310,24 @@
     border: 1px dashed rgba(239,68,68,0.15);
     word-break: break-word;
   }
+  /* Toggle Switch */
+  .toggle-switch input:checked + .toggle-slider {
+    background-color: var(--brand) !important;
+  }
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+  }
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+  }
 </style>
 </head>
 <body>
@@ -1879,6 +1897,13 @@ document.addEventListener('click', function(e) {
         <div class="tab-you-detail-row">
           <span class="tab-you-detail-lbl">Strava Profile</span>
           <a id="you-strava-link" href="#" target="_blank" style="font-size:14px;font-weight:700;color:var(--brand);text-decoration:none;">View ↗</a>
+        </div>
+        <div class="tab-you-detail-row" style="align-items:center;">
+          <span class="tab-you-detail-lbl">Private Profile 🔒</span>
+          <label class="toggle-switch" style="position:relative;display:inline-block;width:40px;height:22px;">
+            <input type="checkbox" id="you-private-toggle" onchange="togglePrivateProfile(this.checked)" style="opacity:0;width:0;height:0;">
+            <span class="toggle-slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#4B5563;transition:.3s;border-radius:22px;"></span>
+          </label>
         </div>
       </div>
   </div>
@@ -2782,6 +2807,10 @@ async function load(isBackgroundRefresh) {
     if(document.getElementById('you-team'))document.getElementById('you-team').textContent=reg.leaderboard_team||'—';
     if(document.getElementById('you-tshirt'))document.getElementById('you-tshirt').textContent=reg.tshirt_size||'—';
     if(document.getElementById('you-project-lead'))document.getElementById('you-project-lead').textContent=reg.project_lead||'—';
+    var privateToggle = document.getElementById('you-private-toggle');
+    if (privateToggle) {
+      privateToggle.checked = reg.is_private === true || reg.is_private === 'true';
+    }
     var stravaLink=document.getElementById('you-strava-link');
     if(stravaLink){var surl=reg.strava_profile_url||('https://www.strava.com/athletes/'+s.athleteId);stravaLink.href=surl;}
 
@@ -3814,9 +3843,35 @@ function renderFeed() {
     filteredFeed.push(milestoneGroups[key].item);
   });
 
-  // Re-sort the merged feed by created_at descending
+  // Re-sort the merged feed by created_at descending, with type-priority tie-breakers for close/identical sync times
+  function getFeedItemPriority(item) {
+    if (item.type === 'achievement') {
+      return 4; // Rank #1
+    }
+    if (item.type === 'milestone') {
+      var t = item.title || '';
+      if (t.indexOf('Medal') > -1) return 3; // Medals
+      if (t.indexOf('Club') > -1) return 2; // Distance Clubs
+      return 1.5;
+    }
+    if (item.type === 'activity') {
+      return 1; // Standard activities
+    }
+    return 0;
+  }
+
   filteredFeed.sort(function(a, b) {
-    return new Date(b.created_at) - new Date(a.created_at);
+    var dateA = new Date(a.created_at);
+    var dateB = new Date(b.created_at);
+    var diffMs = Math.abs(dateA - dateB);
+    if (diffMs <= 2000) {
+      var priA = getFeedItemPriority(a);
+      var priB = getFeedItemPriority(b);
+      if (priA !== priB) {
+        return priB - priA; // Higher priority goes first
+      }
+    }
+    return dateB - dateA;
   });
 
   var visibleActs = filteredFeed.slice(0, _feedVisibleCount);
@@ -3832,12 +3887,32 @@ function renderFeed() {
       dateTimeStr = datePart + ' at ' + timePart;
     } catch(e) {}
 
-    var emojis = [
-      { type: 'like', char: '👍' },
-      { type: 'fire', char: '🔥' },
-      { type: 'clap', char: '👏' },
-      { type: 'power', char: '💪' }
-    ];
+    var emojis = [];
+    if (item.type === 'activity') {
+      emojis = [
+        { type: 'like', char: '👍' },
+        { type: 'clap', char: '👏' }
+      ];
+    } else if (item.type === 'milestone') {
+      emojis = [
+        { type: 'fire', char: '🔥' },
+        { type: 'celebrate', char: '🎉' },
+        { type: 'awesome', char: '🙌' }
+      ];
+    } else if (item.type === 'achievement') {
+      emojis = [
+        { type: 'crown', char: '👑' },
+        { type: 'power', char: '⚡' },
+        { type: 'fire', char: '🔥' }
+      ];
+    } else {
+      emojis = [
+        { type: 'like', char: '👍' },
+        { type: 'fire', char: '🔥' },
+        { type: 'clap', char: '👏' },
+        { type: 'power', char: '💪' }
+      ];
+    }
     
     var reactionButtonsHtml = emojis.map(function(emo) {
       var count = item.reaction_counts[emo.type] || 0;
@@ -3915,24 +3990,52 @@ function renderFeed() {
               <span class="activity-title">${esc(act.activity_name || 'Activity')}</span>
             </div>
             ${descriptionHtml}
-            <div class="feed-card-stats-grid">
-              <div class="stat-item">
-                <span class="stat-label">Distance</span>
-                <span class="stat-val">${distKm} <span class="unit">km</span></span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Duration</span>
-                <span class="stat-val">${durationStr}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Pace</span>
-                <span class="stat-val">${paceStr}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Steps</span>
-                <span class="stat-val">${stepsStr}</span>
-              </div>
-            </div>
+            ${(function() {
+              var statsCols = [];
+              statsCols.push(`
+                <div class="stat-item">
+                  <span class="stat-label">Distance</span>
+                  <span class="stat-val">${distKm} <span class="unit">km</span></span>
+                </div>
+              `);
+              statsCols.push(`
+                <div class="stat-item">
+                  <span class="stat-label">Duration</span>
+                  <span class="stat-val">${durationStr}</span>
+                </div>
+              `);
+              var isRunOrCycle = sportLower.indexOf('run') > -1 || 
+                                 sportLower.indexOf('ride') > -1 || 
+                                 sportLower.indexOf('cycling') > -1 || 
+                                 sportLower.indexOf('bike') > -1;
+              if (isRunOrCycle) {
+                statsCols.push(`
+                  <div class="stat-item">
+                    <span class="stat-label">Pace</span>
+                    <span class="stat-val">${paceStr}</span>
+                  </div>
+                `);
+              }
+              if (calcSteps > 0) {
+                statsCols.push(`
+                  <div class="stat-item">
+                    <span class="stat-label">Steps</span>
+                    <span class="stat-val">${stepsStr}</span>
+                  </div>
+                `);
+              }
+              var elevGain = parseFloat(act.elevation_gain || 0);
+              if (elevGain > 0) {
+                statsCols.push(`
+                  <div class="stat-item">
+                    <span class="stat-label">Elev Gain</span>
+                    <span class="stat-val">${Math.round(elevGain)} <span class="unit">m</span></span>
+                  </div>
+                `);
+              }
+              var gridStyle = 'grid-template-columns: repeat(' + statsCols.length + ', 1fr);';
+              return '<div class="feed-card-stats-grid" style="' + gridStyle + '">' + statsCols.join('') + '</div>';
+            })()}
           </div>
           <div class="feed-card-actions">
             ${reactionButtonsHtml}
@@ -5878,7 +5981,36 @@ function lbRefresh(){showSkeletons();if(_lbReady){lbRender();}else{lbBoot();}}
         });
         console.log('[Push] Subscription registered on backend');
       } catch(err) {
-        console.warn('[Push] Failed to register subscription on backend:', err);
+      }
+    }
+
+    async function togglePrivateProfile(isChecked) {
+      var athleteId = currentSession ? currentSession.athleteId : '';
+      if (!athleteId) return;
+
+      try {
+        var res = await fetch(SUPABASE_URL + '/rest/v1/registration?strava_athlete_id=eq.' + athleteId, {
+          method: 'PATCH',
+          headers: Object.assign({}, HDR, {
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          }),
+          body: JSON.stringify({ is_private: isChecked })
+        });
+        if (!res.ok) throw new Error('Failed to update privacy settings');
+        
+        // Update local cache
+        var cached = cacheGet('reg_' + athleteId);
+        if (cached && cached.length > 0) {
+          cached[0].is_private = isChecked;
+          cacheSet('reg_' + athleteId, cached);
+        }
+        console.log('[Privacy] Private profile set to:', isChecked);
+      } catch(err) {
+        console.error('[Privacy] Toggle failed:', err);
+        alert('Failed to update privacy settings: ' + err.message);
+        var toggle = document.getElementById('you-private-toggle');
+        if (toggle) toggle.checked = !isChecked; // revert
       }
     }
   </script>
