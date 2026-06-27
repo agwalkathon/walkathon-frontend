@@ -885,27 +885,27 @@
   /* ── Updates / Feed Tab ── */
   .feed-card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
     padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: transform 0.2s, border-color 0.2s;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
   .feed-card:active {
     transform: scale(0.985);
   }
   .feed-card.type-milestone {
     border-left: 3px solid var(--gold);
-    background: linear-gradient(135deg, rgba(255,208,0,0.03) 0%, var(--surface) 100%);
   }
   .feed-card.type-achievement {
     border-left: 3px solid var(--brand);
-    background: linear-gradient(135deg, rgba(232,98,42,0.03) 0%, var(--surface) 100%);
   }
   .feed-card.type-broadcast {
     border-left: 3px solid var(--purple);
-    background: linear-gradient(135deg, rgba(167,139,250,0.03) 0%, var(--surface) 100%);
+  }
+  .feed-card.type-activity {
+    border-left: 3px solid #10b981;
   }
   .feed-card-header {
     display: flex;
@@ -914,41 +914,53 @@
     margin-bottom: 12px;
   }
   .feed-card-icon {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 208, 0, 0.1);
+    border: 1px solid rgba(255, 208, 0, 0.15);
+    color: var(--gold);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     flex-shrink: 0;
+  }
+  .feed-card.type-achievement .feed-card-icon {
+    background: rgba(232, 98, 42, 0.1);
+    border-color: rgba(232, 98, 42, 0.15);
+    color: var(--brand);
+  }
+  .feed-card.type-broadcast .feed-card-icon {
+    background: rgba(167, 139, 250, 0.1);
+    border-color: rgba(167, 139, 250, 0.15);
+    color: var(--purple);
   }
   .feed-card-meta {
     flex: 1;
     min-width: 0;
   }
   .feed-card-title {
-    font-size: 14.5px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 700;
     color: #fff;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.1px;
   }
   .feed-card-time {
-    font-size: 10.5px;
+    font-size: 11px;
     color: var(--muted);
-    margin-top: 2px;
+    margin-top: 1px;
   }
   .feed-card-body {
     font-size: 13.5px;
-    line-height: 1.55;
-    color: rgba(255,255,255,0.85);
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
     margin-bottom: 14px;
     word-wrap: break-word;
   }
   .feed-card-body strong {
     color: #fff;
-    font-weight: 700;
+    font-weight: 600;
   }
   .feed-card-actions {
     display: flex;
@@ -958,54 +970,54 @@
     padding-top: 12px;
   }
   .feed-react-btn {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 20px;
-    padding: 6px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 100px;
+    padding: 5px 12px;
     display: flex;
     align-items: center;
     gap: 6px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.2s ease;
     user-select: none;
   }
+  .feed-react-btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+  }
   .feed-react-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   .feed-react-btn.active {
-    background: var(--brand-dim);
-    border-color: rgba(232,98,42,0.3);
+    background: rgba(232,98,42,0.08);
+    border-color: rgba(232,98,42,0.25);
     color: var(--brand);
   }
   .feed-react-btn .emoji {
-    font-size: 14px;
+    font-size: 12px;
   }
   .feed-react-btn .count {
     font-variant-numeric: tabular-nums;
   }
 
   /* Activity Feed Styles */
-  .feed-card.type-activity {
-    border-left: 3px solid var(--green, #10b981);
-    background: linear-gradient(135deg, rgba(16,185,129,0.03) 0%, var(--surface) 100%);
-  }
   .feed-card-avatar {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: var(--brand-dim, rgba(232,98,42,0.15));
-    color: var(--brand, #e8622a);
+    background: rgba(232,98,42,0.1);
+    color: var(--brand);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     flex-shrink: 0;
-    border: 1px solid rgba(232,98,42,0.25);
+    border: 1px solid rgba(232,98,42,0.15);
   }
   .feed-card-athlete-name {
     font-size: 14.5px;
@@ -1014,19 +1026,19 @@
   }
   .feed-card-activity-info {
     margin-bottom: 12px;
-    padding: 4px 0;
+    padding: 2px 0;
   }
   .feed-card-activity-title-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .feed-card-activity-title-row .sport-icon {
-    font-size: 18px;
+    font-size: 16px;
   }
   .feed-card-activity-title-row .activity-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #fff;
   }
@@ -1040,23 +1052,26 @@
   .feed-card-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius, 8px);
-    padding: 12px;
-    margin-top: 10px;
+    margin-top: 12px;
+    padding: 4px 0;
+    position: relative;
   }
   .feed-card-stats-grid .stat-item {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+  }
+  .feed-card-stats-grid .stat-item:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
   }
   .feed-card-stats-grid .stat-label {
-    font-size: 10px;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     color: var(--muted);
+    font-weight: 600;
   }
   .feed-card-stats-grid .stat-val {
     font-size: 15px;
@@ -1064,7 +1079,7 @@
     color: #fff;
   }
   .feed-card-stats-grid .stat-val .unit {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     color: var(--muted);
   }
