@@ -363,10 +363,35 @@
 
     /* ── WHOOP-style activity tile rows ── */
     #act-list{display:grid;gap:8px;}
-    .date-group{background:#161926;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-    .date-group.multi-activity{background:#201A22;border-color:rgba(232,98,42,0.35);}
-    .date-row{display:flex;align-items:center;padding:16px 14px;cursor:pointer;gap:10px;user-select:none;}
-    .date-row:active{background:var(--surface2);}
+    .date-group {
+      background: rgba(26, 29, 32, 0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+    .date-group:active {
+      transform: scale(0.99);
+    }
+    .date-group.multi-activity {
+      background: rgba(32, 26, 34, 0.45);
+      border-color: rgba(232, 98, 42, 0.2);
+    }
+    .date-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 14px;
+      cursor: pointer;
+      gap: 10px;
+      user-select: none;
+    }
+    .date-row:active {
+      background: rgba(255, 255, 255, 0.03);
+    }
     .date-col{flex:1;}
     .date-label{font-size:18px;font-weight:700;color:#fff;}
     .date-sub{font-size:14px;color:var(--label);margin-top:3px;}
@@ -387,25 +412,28 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-      width: 44px;
-      height: 44px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      width: 46px;
+      height: 46px;
       flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
     }
     .whoop-date-num {
-      font-size: 19px;
-      font-weight: 900;
+      font-size: 20px;
+      font-weight: 800;
       color: #fff;
       line-height: 1;
+      letter-spacing: -0.5px;
     }
     .whoop-date-month {
-      font-size: 9px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 800;
       color: var(--brand);
       margin-top: 2px;
-      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
     .whoop-stats-box {
       display: flex;
@@ -421,7 +449,7 @@
       align-items: flex-end;
     }
     .whoop-stat-val {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 800;
       color: #fff;
       line-height: 1.2;
@@ -432,7 +460,7 @@
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
     /* ── WHOOP-style act tile ── */
@@ -3605,17 +3633,18 @@ function renderActivities(acts,dayBreakdown,actBreakdown,gender) {
       '<div style="flex:1; display:flex; flex-direction:column; margin-left:12px; min-width:0; align-items:stretch;">' +
         '<div class="whoop-stats-box" style="margin-left:0; width:100%; justify-content:flex-end;">' +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + actCountStr.replace('x', '') + '</span><span class="whoop-stat-lbl">ACTS</span></div>' +
-          '<div class="whoop-stat-item"><span class="whoop-stat-val">' + (daySteps >= 1000 ? (daySteps/1000).toFixed(1).replace('.0','') + 'k' : daySteps) + '</span><span class="whoop-stat-lbl">STEPS</span></div>' +
+          '<div class="whoop-stat-item"><span class="whoop-stat-val">' + daySteps.toLocaleString('en-IN') + '</span><span class="whoop-stat-lbl">STEPS</span></div>' +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + rawKm.toFixed(1) + '</span><span class="whoop-stat-lbl">KM</span></div>' +
         '</div>' +
-        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:8px; font-size:10px; color:var(--muted); margin-top:6px; justify-content:flex-end; align-self:flex-end; font-weight:500; font-family:var(--font);">' +
+        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--muted); margin-top:6px; justify-content:flex-end; align-self:flex-end; font-weight:600; font-family:var(--font);">' +
           '<span>Base: <strong style="color:#60A5FA;">' + db.distPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
           '<span>Bonus: <strong style="color:#FFD000;">' + db.bonusPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
           '<span>Challenge: <strong style="color:#A78BFA;">' + chPts + '</strong></span>' +
-          '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
-          '<span>Total: <strong style="color:var(--brand);">' + dayTotal + '</strong></span>' +
+        '</div>' +
+        '<div class="whoop-total-box" style="font-size:13px; font-weight:700; color:var(--muted); margin-top:4px; align-self:flex-end; font-family:var(--font);">' +
+          'Total: <strong style="color:var(--brand); font-size:14px; font-weight:800;">' + dayTotal + ' pts</strong>' +
         '</div>' +
       '</div>' +
       '<div class="date-chevron">❯</div>';
