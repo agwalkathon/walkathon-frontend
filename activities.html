@@ -516,7 +516,7 @@ td button.btn:last-child { margin-right: 0; }
       </div><div class="filter-actions"><button class="btn btn-primary" onclick="loadActivities()">Search</button><button class="btn btn-ghost" onclick="setDefaultTodayFilters();loadActivities();">Today</button><button class="btn btn-ghost" onclick="clearFilters()">Clear</button><button class="btn btn-ghost" id="export-btn" onclick="exportCSV()" style="display:none"><i class="ti ti-download"></i> Export CSV</button><span id="searching-indicator" style="display:none;align-items:center;gap:8px;font-size:13px;color:#888"><div class="spinner" style="width:18px;height:18px;border-width:2px"></div>Searching...</span></div></div>
       <div class="stats-grid" id="stats-row" style="display:none"><div class="stat-card"><div class="val" id="total-activities">—</div><div class="lbl">Activities found</div></div><div class="stat-card"><div class="val" id="total-distance">—</div><div class="lbl">Total km</div></div><div class="stat-card dark"><div class="val" id="total-participants">—</div><div class="lbl">Participants</div></div><div class="stat-card green"><div class="val" id="total-valid">—</div><div class="lbl">Valid</div></div><div class="stat-card red"><div class="val" id="total-flagged">—</div><div class="lbl">Flagged</div></div></div>
       <div id="flag-counts" style="display:none;margin-bottom:18px;gap:8px;flex-wrap:wrap"></div>
-      <div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>All activities load by default. Use filters and click <strong>Search</strong> to refine results.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th>Status</th><th>Original Time (UTC)</th><th>IST Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Elevation</th><th>Device</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
+      <div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Use filters above and click <strong>Search</strong> to load activities.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th>Status</th><th>Original Time (UTC)</th><th>IST Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Elevation</th><th>Device</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
     </div>
 
     <!-- Tab 2 & 4: Under Review / Deleted Workouts -->
@@ -1103,7 +1103,9 @@ function clearFilters(){
   ['sport-filter','team-filter','status-filter','flag-reason-filter'].forEach(function(id){
     document.getElementById(id).value='';
   });
-  loadActivities();
+  document.getElementById('placeholder').style.display='block';
+  document.getElementById('results').style.display='none';
+  document.getElementById('stats-row').style.display='none';
 }
 
 function exportCSV(){
@@ -2434,7 +2436,7 @@ function showToast(message, isError) {
 // ── Startup ──
 loadRegistrations().then(function(){
   loadAutoFlagConfig().then(function(){
-    loadActivities();
+    // No automatic heavy load of all activities on startup
   });
 });
 
