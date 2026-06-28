@@ -1976,6 +1976,27 @@
     margin-bottom: 10px;
     line-height: 1.4;
   }
+  .activity-appreciation-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 6px;
+    margin-bottom: 8px;
+  }
+  .activity-appreciation-badge .appreciation-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .activity-appreciation-badge .appreciation-text {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.35;
+  }
   .feed-card-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -5340,6 +5361,63 @@ function renderFeed() {
       }
       var stepsStr = calcSteps > 0 ? calcSteps.toLocaleString('en-IN') : '—';
       
+      var durationMins = movingSec / 60;
+      var paceMinFloat = distanceKmVal > 0 ? (durationMins / distanceKmVal) : 999;
+      
+      var appreciationHtml = (function() {
+        var actId = String(act.strava_activity_id || act.activity_date_time_ist || 'act');
+        var pool = [];
+        var icon = '💡';
+        
+        if (distanceKmVal >= 15 || durationMins >= 120) {
+          icon = '🏆';
+          pool = [
+            "Outstanding stamina! Phenomenal mileage on the road today.",
+            "Absolute dedication! That long-duration effort is highly inspiring.",
+            "Incredible journey! Phenomenal stride and rhythm over this distance.",
+            "Stellar endurance! A masterclass in pacing and mental focus."
+          ];
+        } else if (distanceKmVal >= 8 || durationMins >= 60) {
+          icon = '🌟';
+          pool = [
+            "Superb distance! A highly valuable contribution to the community.",
+            "Fantastic steady stride! Excellent dedication to your health.",
+            "Wonderful steady walk! Great rhythm and pacing today.",
+            "Excellent mileage! Thank you for walking the green mile today."
+          ];
+        } else if (paceMinFloat < 8.5 && distanceKmVal >= 3) {
+          icon = '⚡';
+          pool = [
+            "Incredible cadence! That was a really brisk, high-energy walk.",
+            "Fabulous speed! Your brisk tempo is absolutely remarkable.",
+            "Strong rhythm! Powering through the kilometers with ease.",
+            "Outstanding tempo! You maintained a fantastic brisk stride."
+          ];
+        } else {
+          icon = '🌱';
+          pool = [
+            "Wonderful active minutes! Keep this beautiful rhythm going.",
+            "Every single step counts! Great job staying active today.",
+            "Superb consistency! Consistency is the secret to healthy living.",
+            "Delightful movement! Active strides contribute to overall wellbeing."
+          ];
+        }
+        
+        var hash = 0;
+        for (var i = 0; i < actId.length; i++) {
+          hash = actId.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        var index = Math.abs(hash) % pool.length;
+        var msg = pool[index];
+        
+        return `
+          <div class="activity-appreciation-badge">
+            <span class="appreciation-icon">${icon}</span>
+            <span class="appreciation-text">"${msg}"</span>
+          </div>
+        `;
+      })();
+
       var descriptionHtml = '';
       if (act.description) {
         descriptionHtml = `<div class="feed-card-activity-desc">${esc(act.description)}</div>`;
@@ -5360,6 +5438,7 @@ function renderFeed() {
               <span class="activity-title">${esc(act.activity_name || 'Activity')}</span>
             </div>
             ${descriptionHtml}
+            ${appreciationHtml}
             ${(function() {
               var statsCols = [];
               statsCols.push(`
