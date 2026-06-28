@@ -1257,28 +1257,46 @@
 
   /* ── Updates / Feed Tab ── */
   .feed-card {
-    background: var(--surface);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(26, 29, 32, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     padding: 16px;
     margin-bottom: 14px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .feed-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
   }
   .feed-card:active {
     transform: scale(0.985);
   }
   .feed-card.type-milestone {
-    border-left: 3px solid var(--gold);
+    border-left: 4px solid var(--gold);
+  }
+  .feed-card.type-milestone:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 15px rgba(255, 208, 0, 0.08);
   }
   .feed-card.type-achievement {
-    border-left: 3px solid var(--brand);
+    border-left: 4px solid var(--brand);
+  }
+  .feed-card.type-achievement:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 15px rgba(232, 98, 42, 0.08);
   }
   .feed-card.type-broadcast {
-    border-left: 3px solid var(--purple);
+    border-left: 4px solid var(--purple);
+  }
+  .feed-card.type-broadcast:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 15px rgba(167, 139, 250, 0.08);
   }
   .feed-card.type-activity {
-    border-left: 3px solid #10b981;
+    border-left: 4px solid #10b981;
+  }
+  .feed-card.type-activity:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 15px rgba(16, 185, 129, 0.08);
   }
   .feed-card-header {
     display: flex;
@@ -1291,23 +1309,26 @@
     height: 36px;
     border-radius: 50%;
     background: rgba(255, 208, 0, 0.1);
-    border: 1px solid rgba(255, 208, 0, 0.15);
+    border: 1px solid rgba(255, 208, 0, 0.25);
     color: var(--gold);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     flex-shrink: 0;
+    filter: drop-shadow(0 0 4px rgba(255, 208, 0, 0.25));
   }
   .feed-card.type-achievement .feed-card-icon {
     background: rgba(232, 98, 42, 0.1);
-    border-color: rgba(232, 98, 42, 0.15);
+    border-color: rgba(232, 98, 42, 0.25);
     color: var(--brand);
+    filter: drop-shadow(0 0 4px rgba(232, 98, 42, 0.25));
   }
   .feed-card.type-broadcast .feed-card-icon {
     background: rgba(167, 139, 250, 0.1);
-    border-color: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.25);
     color: var(--purple);
+    filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.25));
   }
   .feed-card-meta {
     flex: 1;
@@ -1343,8 +1364,8 @@
     padding-top: 12px;
   }
   .feed-react-btn {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 100px;
     padding: 5px 12px;
     display: flex;
@@ -1355,23 +1376,30 @@
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font);
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     user-select: none;
   }
   .feed-react-btn:hover {
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
   }
-  .feed-react-btn:active {
-    transform: scale(0.95);
-  }
-  .feed-react-btn.active {
-    background: rgba(232,98,42,0.08);
-    border-color: rgba(232,98,42,0.25);
-    color: var(--brand);
+  .feed-react-btn:hover .emoji {
+    transform: scale(1.2) rotate(8deg);
   }
   .feed-react-btn .emoji {
     font-size: 12px;
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .feed-react-btn:active {
+    transform: scale(0.92);
+  }
+  .feed-react-btn.active {
+    background: rgba(232, 98, 42, 0.1);
+    border-color: rgba(232, 98, 42, 0.35);
+    color: var(--brand);
+    box-shadow: 0 0 10px rgba(232, 98, 42, 0.12);
   }
   .feed-react-btn .count {
     font-variant-numeric: tabular-nums;
@@ -1390,7 +1418,12 @@
     font-size: 13px;
     font-weight: 700;
     flex-shrink: 0;
-    border: 1px solid rgba(232,98,42,0.15);
+    border: 1px solid rgba(232,98,42,0.25);
+    box-shadow: 0 0 8px rgba(232, 98, 42, 0.12);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .feed-card-avatar:hover {
+    transform: scale(1.08);
   }
   .feed-card-athlete-name {
     font-size: 14.5px;
@@ -5504,13 +5537,17 @@ function _buildBannerHtml(type, pillLabel, emoji, title, body, chips, key, timeS
       }).join('') + '</div>';
   }
   var timeHtml = timeStr ? '<div class="banner-time">' + timeStr + '</div>' : '';
-  var pillHtml = pillLabel ? '<span class="banner-type-pill ' + type + '">' + pillLabel + '</span>' : '';
+  
+  var metaHtml = '';
+  if (emoji || pillLabel) {
+    var emojiHtml = emoji ? '<span style="font-size:18px;">' + emoji + '</span>' : '';
+    var pillHtml = pillLabel ? '<span class="banner-type-pill ' + type + '">' + pillLabel + '</span>' : '';
+    metaHtml = '<div class="banner-meta">' + emojiHtml + pillHtml + '</div>';
+  }
+
   return '<div class="banner-card type-' + type + '">' +
     '<button class="banner-dismiss-btn" onclick="dismissInAppBanner(event)" title="Dismiss">✕</button>' +
-    '<div class="banner-meta">' +
-      '<span style="font-size:18px;">' + emoji + '</span>' +
-      pillHtml +
-    '</div>' +
+    metaHtml +
     '<div class="banner-title">' + title + '</div>' +
     '<div class="banner-body">' + body + '</div>' +
     chipsHtml +
@@ -5653,7 +5690,7 @@ function getNotifEmoji(title, body) {
   if (t.indexOf('approved') !== -1 || t.indexOf('welcome') !== -1) return '🎉';
   if (t.indexOf('sync') !== -1 || t.indexOf('recorded') !== -1) return '👟';
   if (t.indexOf('broadcast') !== -1 || t.indexOf('update') !== -1) return '📢';
-  return '🔔';
+  return '';
 }
 
 function renderNotifications() {
@@ -6007,7 +6044,10 @@ function renderRows(rows, prevRanks) {
         '<div class="detail-cell"><div class="detail-cell-lbl">⭐ Dist Pts</div><div class="detail-cell-val brand">' + r.pts.distPts.toFixed(1) + '</div></div>' +
         '<div class="detail-cell"><div class="detail-cell-lbl">⚡ Bonus</div><div class="detail-cell-val gold">' + r.pts.bonusPts + '</div></div>' +
         (chalHtml || '<div class="detail-cell"><div class="detail-cell-lbl">🎯 Challenge</div><div class="detail-cell-val" style="color:var(--label)">—</div></div>') +
-        '<div class="detail-cell" style="grid-column:span ' + (r.pts.challengePts > 0 ? '2' : '3') + '"><div class="detail-cell-lbl">🏆 Total</div><div class="detail-cell-val brand" style="font-size:18px;">' + r.pts.total.toFixed(2) + '</div></div>' +
+        '<div class="detail-cell total-score-cell" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(232, 98, 42, 0.12) 0%, rgba(232, 98, 42, 0.03) 100%); border: 1px solid rgba(232, 98, 42, 0.25); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 4px;">' +
+          '<div class="detail-cell-lbl" style="font-weight: 700; color: var(--brand); letter-spacing: 0.5px; margin-bottom: 2px;">🏆 TOTAL SCORE</div>' +
+          '<div class="detail-cell-val brand" style="font-size: 22px; font-weight: 800; color: var(--brand); text-shadow: 0 0 10px rgba(232, 98, 42, 0.15); line-height: 1.2;">' + r.pts.total.toFixed(2) + ' <span style="font-size: 13px; font-weight: 500; opacity: 0.85;">pts</span></div>' +
+        '</div>' +
       '</div>' +
       '<div class="detail-meta">' +
         '<span class="last-active-chip' + (laInfo.recent ? ' recent' : '') + '">' + laInfo.text + '</span>' +
