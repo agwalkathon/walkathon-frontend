@@ -2083,18 +2083,18 @@
   /* Activity Detail Modal Slide-up Overlay */
   .detail-modal {
     position: fixed;
-    bottom: -100dvh;
+    top: 100%;
     left: 0;
     width: 100vw;
-    height: 100dvh;
+    height: 100%;
     background: #0E1012;
     z-index: 10000;
-    transition: bottom 0.35s cubic-bezier(0.1, 0.76, 0.55, 0.94);
+    transition: top 0.35s cubic-bezier(0.1, 0.76, 0.55, 0.94);
     overflow-y: auto;
     padding-bottom: 40px;
   }
   .detail-modal.open {
-    bottom: 0;
+    top: 0;
   }
   .detail-map-wrap {
     width: 100%;
@@ -6401,6 +6401,7 @@ function renderFeed() {
 }
 
 var _activeDetailMap = null;
+var _detailMapTimeout = null;
 
 function openActivityDetail(id, event, isStravaId) {
   console.log('openActivityDetail called with id:', id, 'isStravaId:', isStravaId);
@@ -6431,7 +6432,6 @@ function openActivityDetail(id, event, isStravaId) {
 
     var modal = document.getElementById('activity-detail-modal');
     modal.style.display = 'block';
-    modal.style.bottom = '0px';
     setTimeout(function() {
       modal.classList.add('open');
     }, 10);
@@ -6561,7 +6561,10 @@ function openActivityDetail(id, event, isStravaId) {
           try { _activeDetailMap.remove(); } catch(e) {}
           _activeDetailMap = null;
         }
-        setTimeout(function() {
+        if (_detailMapTimeout) {
+          try { clearTimeout(_detailMapTimeout); } catch(e) {}
+        }
+        _detailMapTimeout = setTimeout(function() {
           try {
             var coordinates = decodePolyline(act.summary_polyline);
             if (coordinates && coordinates.length > 0) {
@@ -6783,7 +6786,6 @@ function openProfileDetail(athleteId, event) {
 
     var modal = document.getElementById('profile-detail-modal');
     modal.style.display = 'block';
-    modal.style.bottom = '0px';
     setTimeout(function() {
       modal.classList.add('open');
     }, 10);
@@ -7000,7 +7002,6 @@ function openProfileDetail(athleteId, event) {
 function closeProfileDetail() {
   var modal = document.getElementById('profile-detail-modal');
   modal.classList.remove('open');
-  modal.style.bottom = '-100dvh';
   setTimeout(function() {
     modal.style.display = 'none';
   }, 350);
