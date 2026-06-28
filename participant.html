@@ -1459,15 +1459,19 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     margin-top: 12px;
-    padding: 4px 0;
-    position: relative;
+    padding: 8px 4px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.01);
   }
   .feed-card-stats-grid .stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 2px;
+    gap: 3px;
+    padding: 2px 0;
   }
   .feed-card-stats-grid .stat-item:not(:last-child) {
     border-right: 1px solid rgba(255, 255, 255, 0.05);
@@ -1477,11 +1481,11 @@
     text-transform: uppercase;
     letter-spacing: 0.8px;
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 700;
   }
   .feed-card-stats-grid .stat-val {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14.5px;
+    font-weight: 800;
     color: #fff;
   }
   .feed-card-stats-grid .stat-val .unit {
