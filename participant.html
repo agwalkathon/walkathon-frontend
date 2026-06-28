@@ -129,38 +129,197 @@
     .hdr-btn:hover{background:rgba(255,255,255,0.08);color:#fff;border-color:rgba(255,255,255,0.15);}
     .hdr-btn:active{transform:scale(0.95);background:rgba(255,255,255,0.12);}
     .hdr-btn svg{width:18px;height:18px;}
-    .tab-you-profile{background:var(--surface);border-radius:var(--radius);padding:20px 16px;margin-bottom:12px;}
-    .tab-you-avatar{width:72px;height:72px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;letter-spacing:0.5px;border:3px solid rgba(232,98,42,0.5);margin:0 auto 14px;}
-    .tab-you-name{font-size:20px;font-weight:800;color:#fff;text-align:center;letter-spacing:-0.3px;}
-    .tab-you-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
-    .tab-you-detail-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
-    .tab-you-detail-row:last-child{border-bottom:none;}
-    .tab-you-detail-lbl{font-size:13px;color:var(--muted);font-weight:500;}
-    .tab-you-detail-val{font-size:14px;font-weight:700;color:var(--text);}
+    .tab-you-profile {
+      background: rgba(26, 29, 32, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .tab-you-avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand) 0%, #FF8C00 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(232, 98, 42, 0.35);
+      margin: 0 auto 14px;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .tab-you-avatar:hover {
+      transform: scale(1.06) rotate(3deg);
+    }
+    .tab-you-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      text-align: center;
+      letter-spacing: -0.3px;
+    }
+    .tab-you-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .tab-you-detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-you-detail-row:last-child {
+      border-bottom: none;
+    }
+    .tab-you-detail-lbl {
+      font-size: var(--fs-sm);
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .tab-you-detail-val {
+      font-size: var(--fs-base);
+      font-weight: 700;
+      color: var(--text);
+    }
     /* You tab insight cards */
-    .you-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;}
-    .you-card{background:var(--surface);border-radius:var(--radius-sm);padding:11px 12px;}
-    .you-card-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
-    .you-card-val{font-size:17px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.3px;}
-    .you-card-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:4px;}
-    .you-card-sub{font-size:10px;color:var(--label);margin-top:2px;}
+    .you-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+    .you-card {
+      background: rgba(26, 29, 32, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .you-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+    .you-card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .you-card-val {
+      font-size: var(--fs-xl);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.3px;
+    }
+    .you-card-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 6px;
+    }
+    .you-card-sub {
+      font-size: 11px;
+      color: var(--label);
+      margin-top: 3px;
+    }
     /* Consistency bar */
-    .you-consist-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:10px;overflow:hidden;}
-    .you-consist-fill{height:100%;border-radius:3px;background:var(--green);transition:width 0.8s ease;}
+    .you-consist-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 3px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .you-consist-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+      transition: width 0.8s ease;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
     /* Streak comparison */
-    .you-streak-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
-    .you-streak-row:last-child{border-bottom:none;}
-    .you-streak-lbl{font-size:13px;color:var(--muted);font-weight:500;}
-    .you-streak-val{font-size:20px;font-weight:800;color:var(--brand);}
+    .you-streak-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .you-streak-row:last-child {
+      border-bottom: none;
+    }
+    .you-streak-lbl {
+      font-size: var(--fs-base);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .you-streak-val {
+      font-size: var(--fs-xl);
+      font-weight: 800;
+      color: var(--brand);
+    }
     /* Medal prediction card */
-    .medal-pred{background:var(--surface);border-radius:var(--radius-sm);padding:16px 14px;display:flex;align-items:center;gap:14px;}
+    .medal-pred {
+      background: rgba(26, 29, 32, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .medal-pred:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
     .recovery-card{background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--brand);padding:14px 14px;margin-bottom:4px;}
     .recovery-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
     .recovery-title{font-size:13px;font-weight:800;color:#fff;}
     .recovery-sub{font-size:11px;color:var(--muted);margin-top:1px;}
     .recovery-chips{display:flex;flex-wrap:wrap;gap:7px;}
     .recovery-chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border-radius:20px;padding:6px 11px;font-size:12px;font-weight:600;color:#fff;}
-    .heatmap-wrap{background:var(--surface);border-radius:var(--radius-sm);padding:14px 12px;}
+    .heatmap-wrap {
+      background: rgba(26, 29, 32, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 16px 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .heatmap-wrap:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
     .heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px;}
     .hm-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,0.35);}
     .hm-day.today{outline:2px solid var(--brand);outline-offset:1px;}
@@ -2392,7 +2551,7 @@ document.addEventListener('click', function(e) {
   </div>
 
   <!-- Push Notifications Subscription Card -->
-  <div class="card" id="push-notifications-card" style="margin-top:10px;padding:14px 16px;background:var(--surface);border:none;border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;">
+  <div class="card" id="push-notifications-card" style="margin-top:10px;padding:16px 20px;background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:transform 0.2s ease,border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';this.style.borderColor='rgba(255,255,255,0.15)';" onmouseout="this.style.transform='';this.style.borderColor='';">
     <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
       <span style="font-size:18px;flex-shrink:0;">🔔</span>
       <div style="display:flex;flex-direction:column;min-width:0;">
@@ -2438,7 +2597,7 @@ document.addEventListener('click', function(e) {
 
   <!-- Card 2: Streak comparison -->
   <div class="sec">Streaks</div>
-  <div class="card">
+  <div class="card" style="background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 15px rgba(0,0,0,0.15);border-radius:var(--radius-sm);transition:transform 0.2s ease,border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';this.style.borderColor='rgba(255,255,255,0.15)';" onmouseout="this.style.transform='';this.style.borderColor='';">
     <div class="you-streak-row">
       <span class="you-streak-lbl">🔥 Current Streak</span>
       <span class="you-streak-val" id="you-cur-streak">—</span>
@@ -2507,12 +2666,12 @@ document.addEventListener('click', function(e) {
   <!-- Profile Details — collapsed by default -->
   <div style="margin-top:8px;">
     <button onclick="(function(){var el=document.getElementById('you-profile-details');var ico=document.getElementById('you-profile-chevron');var open=el.style.display!=='none';el.style.display=open?'none':'block';ico.style.transform=open?'':'rotate(180deg)';})();"
-      style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface);border:none;border-radius:var(--radius-sm);color:var(--muted);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;text-transform:uppercase;letter-spacing:0.8px;">
+      style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);color:var(--muted);font-size:13px;font-weight:700;font-family:var(--font);cursor:pointer;text-transform:uppercase;letter-spacing:0.8px;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:border-color 0.2s ease;" onmouseover="this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.borderColor=''">
       <span>Profile Details</span>
       <svg id="you-profile-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div id="you-profile-details" style="display:none;">
-      <div class="card" style="margin-top:4px;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+      <div class="card" style="margin-top:4px;border-radius:0 0 var(--radius-sm) var(--radius-sm);background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 24px rgba(0,0,0,0.2);">
         <div class="tab-you-detail-row">
           <span class="tab-you-detail-lbl">Email</span>
           <span class="tab-you-detail-val" id="you-email">—</span>
