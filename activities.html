@@ -1289,14 +1289,19 @@ if(nameInput) {
     }
   });
 }
-document.getElementById('activities-body').addEventListener('click', function(e) {
-  var target = e.target;
-  if (target.closest('a') || target.closest('button') || target.closest('.badge') || target.closest('select') || target.closest('input') || target.closest('.editable') || target.tagName === 'INPUT') {
-    return;
+['activities-body', 'flagged-body'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('click', function(e) {
+      var target = e.target;
+      if (target.closest('a') || target.closest('button') || target.closest('.badge') || target.closest('select') || target.closest('input') || target.closest('.editable') || target.tagName === 'INPUT') {
+        return;
+      }
+      var row = target.closest('tr.activity-row');
+      if (!row) return;
+      toggleRowSplits(row);
+    });
   }
-  var row = target.closest('tr.activity-row');
-  if (!row) return;
-  toggleRowSplits(row);
 });
 
 async function toggleRowSplits(row) {
@@ -1346,7 +1351,7 @@ async function toggleRowSplits(row) {
   
   var detailRow = document.createElement('tr');
   detailRow.className = 'detail-row';
-  detailRow.innerHTML = '<td colspan="9">' + metaHtml + '<div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
+  detailRow.innerHTML = '<td colspan="' + row.cells.length + '">' + metaHtml + '<div class="splits-loading"><div class="spinner" style="width:14px;height:14px;border-width:2px;animation:spin .8s linear infinite"></div><span>Loading activity splits...</span></div></td>';
   
   row.parentNode.insertBefore(detailRow, row.nextSibling);
   
@@ -1599,7 +1604,17 @@ function applyFlaggedFilters() {
           : '<span class="badge" style="background:#FFF1F2; color:#E11D48; border:1px solid #FDA4AF; font-weight:600;">⚑ Pending</span>') + '</td>'
       : '<td><span class="badge" style="background:#FEF3C7; color:#D97706; border:1px solid #FCD34D; font-weight:600;">🗑️ Deleted</span></td>';
 
-    return '<tr id="row-' + a.id + '">'
+    return '<tr id="row-' + a.id + '" class="activity-row" data-strava-id="' + a.strava_activity_id + '"'
+      + ' data-device="' + esc(a.device_name || '—') + '"'
+      + ' data-elapsed="' + (a.elapsed_time_seconds ? fmtDur(a.elapsed_time_seconds) : '—') + '"'
+      + ' data-avg-hr="' + (a.avg_heart_rate ? a.avg_heart_rate.toFixed(0) + ' bpm' : '—') + '"'
+      + ' data-max-hr="' + (a.max_heart_rate ? a.max_heart_rate.toFixed(0) + ' bpm' : '—') + '"'
+      + ' data-calories="' + (a.calories ? a.calories.toFixed(0) + ' kcal' : '—') + '"'
+      + ' data-steps="' + (a.steps || '—') + '"'
+      + ' data-flagged="' + (a.is_flagged ? 'Yes' : 'No') + '"'
+      + ' data-flag-reason="' + esc(a.flag_reason || '—') + '"'
+      + ' data-deleted="' + (a.is_deleted ? 'Yes' : 'No') + '"'
+      + ' data-bonus="' + (a.manual_bonus || 0) + ' points">'
       + '<td style="text-align:center"><input type="checkbox" class="row-chk" data-id="' + a.id + '"' + isChecked + ' onchange="toggleRowSelect(' + a.id + ', this.checked)" style="cursor:pointer; width:15px; height:15px"></td>'
       + '<td><a href="https://www.strava.com/athletes/' + a.strava_athlete_id + '" target="_blank" class="ath">' + name + '</a></td>'
       + '<td><a href="https://www.strava.com/activities/' + a.strava_activity_id + '" target="_blank" class="act-link">' + (a.activity_name || '—') + '</a></td>'
@@ -1607,7 +1622,7 @@ function applyFlaggedFilters() {
       + '<td>' + fmtDate(a.activity_date) + ' ' + fmtTime(a.activity_date, a.start_time) + '</td>'
       + '<td>' + (a.distance_meters ? (a.distance_meters / 1000).toFixed(2) + ' km' : '—') + '</td>'
       + '<td>' + fmtPS(a.avg_speed, a.sport_type) + '</td>'
-      + '<td><span class="flag-reason">' + (a.flag_reason || '—') + '</span></td>'
+      + '<td><span class="flag-reason" title="' + esc(a.flag_reason || '—') + '">' + esc(a.flag_reason || '—') + '</span></td>'
       + statusCellHtml
       + '<td>' + actions + '</td>'
       + '</tr>';
