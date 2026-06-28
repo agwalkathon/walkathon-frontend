@@ -2040,6 +2040,12 @@
     font-size: 16.5px;
     font-weight: 700;
     color: #fff;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .feed-card-activity-title-row .activity-title:hover {
+    color: var(--brand);
+    text-decoration: underline;
   }
   .feed-card-activity-desc {
     font-size: var(--fs-base);
@@ -6015,7 +6021,7 @@ function renderFeed() {
       }
 
       return `
-        <div class="feed-card type-activity ${timeClass}" onclick="openActivityDetail('${item.id}', event)" style="cursor: pointer;">
+        <div class="feed-card type-activity ${timeClass}">
           <div class="feed-card-header">
             <div class="feed-card-avatar" style="${getAvatarStyle(athleteName)}">${initials}</div>
             <div class="feed-card-meta">
@@ -6026,7 +6032,7 @@ function renderFeed() {
           <div class="feed-card-activity-info">
             <div class="feed-card-activity-title-row">
               <span class="sport-icon">${sportIcon}</span>
-              <span class="activity-title">${esc(act.activity_name || 'Activity')}</span>
+              <span class="activity-title" onclick="openActivityDetail('${item.id}', event)">${esc(act.activity_name || 'Activity')}</span>
             </div>
             ${descriptionHtml}
             ${appreciationHtml}
