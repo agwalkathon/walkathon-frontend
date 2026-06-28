@@ -942,6 +942,97 @@ td button.btn:last-child { margin-right: 0; }
 
     <!-- Tab 5: Bulk Flag Scanner -->
     <div id="scanner-container" style="display:none">
+
+      <!-- ── Shared Activity Detection Card ── -->
+      <div class="card" style="margin-bottom:20px; border-left:4px solid #E8622A;">
+        <div class="card-header" onclick="toggleCollapse('card-shared')" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between; padding:16px; user-select:none; background:linear-gradient(135deg,#fff9f7 0%,#fff 100%);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🔗</span>
+            <div>
+              <h3 style="font-size:14px; font-weight:700; color:#0F1117; margin:0;">Shared Activity Detection</h3>
+              <p style="font-size:11px; color:#6B7280; margin:4px 0 0; line-height:1.4;">Cross-participant scan: finds activities from different participants with identical field values (Strava sharing detection)</p>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <label class="toggle-switch" onclick="event.stopPropagation();" style="position:relative; display:inline-block; width:40px; height:22px;">
+              <input type="checkbox" id="shared-rule-enabled" onchange="onSharedRuleToggle(this.checked)" style="opacity:0; width:0; height:0;">
+              <span class="toggle-slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.2s; border-radius:22px;"></span>
+            </label>
+            <span id="shared-rule-status" style="font-size:11px; font-weight:600; color:#6B7280; min-width:60px;">Disabled</span>
+            <i class="ti ti-chevron-down toggle-icon" id="icon-shared" style="font-size:16px; transition:transform 0.2s; color:#9CA3AF;"></i>
+          </div>
+        </div>
+        <div class="card-body" id="card-shared" style="display:none; border-top:1px solid #f0f0f0;">
+          <div id="shared-config" style="padding:20px; display:flex; flex-direction:column; gap:20px;">
+
+            <!-- Match Fields -->
+            <div>
+              <label style="display:block; font-size:11px; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px;">Match Fields (exact match on ALL checked fields)</label>
+              <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; cursor:pointer; padding:8px 14px; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; user-select:none;">
+                  <input type="checkbox" id="shared-chk-date" checked style="cursor:pointer; width:14px; height:14px; accent-color:#E8622A;"> 📅 Activity Date
+                </label>
+                <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; cursor:pointer; padding:8px 14px; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; user-select:none;">
+                  <input type="checkbox" id="shared-chk-starttime" checked style="cursor:pointer; width:14px; height:14px; accent-color:#E8622A;"> ⏰ Start Time (HH:MM)
+                </label>
+                <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; cursor:pointer; padding:8px 14px; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; user-select:none;">
+                  <input type="checkbox" id="shared-chk-distance" checked style="cursor:pointer; width:14px; height:14px; accent-color:#E8622A;"> 📏 Distance (m)
+                </label>
+                <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; cursor:pointer; padding:8px 14px; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; user-select:none;">
+                  <input type="checkbox" id="shared-chk-movingtime" checked style="cursor:pointer; width:14px; height:14px; accent-color:#E8622A;"> ⏱️ Moving Time (s)
+                </label>
+                <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:500; cursor:pointer; padding:8px 14px; border:1px solid #e0e0e0; border-radius:8px; background:#fafafa; user-select:none;">
+                  <input type="checkbox" id="shared-chk-pace" style="cursor:pointer; width:14px; height:14px; accent-color:#E8622A;"> ⚡ Avg Pace (min/km)
+                </label>
+              </div>
+            </div>
+
+            <!-- Auto-flag on sync -->
+            <div style="background:#fff8f0; border:1px solid #ffd3b0; border-radius:10px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px;">
+              <span style="font-size:18px; flex-shrink:0;">🤖</span>
+              <div style="flex:1;">
+                <div style="font-size:13px; font-weight:700; color:#92400e; margin-bottom:4px;">Auto-Flag on Incoming Activity</div>
+                <div style="font-size:12px; color:#78350f; line-height:1.5; margin-bottom:10px;">When enabled, any new activity that exactly matches an existing participant's activity on all selected fields will be <strong>automatically flagged</strong> with reason: <em>"Shared Activity (auto-detected) — identical [fields] as [Participant Name]"</em></div>
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; cursor:pointer;">
+                  <input type="checkbox" id="shared-auto-flag" style="cursor:pointer; width:15px; height:15px; accent-color:#E8622A;">
+                  Enable auto-flag on activity sync
+                </label>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="saveSharedActivityRule()" style="gap:6px; display:flex; align-items:center;">
+                <i class="ti ti-device-floppy" style="font-size:14px;"></i> Save Rule to DB
+              </button>
+              <button class="btn btn-orange" onclick="previewSharedActivities()" style="gap:6px; display:flex; align-items:center;">
+                <i class="ti ti-search" style="font-size:14px;"></i> Preview Shared Activities
+              </button>
+              <span id="shared-rule-save-status" style="font-size:12px; color:#059669; display:none; font-weight:600;">✅ Saved!</span>
+            </div>
+
+            <!-- Preview results -->
+            <div id="shared-preview-section" style="display:none;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <div style="font-size:13px; font-weight:600; color:#0F1117;" id="shared-preview-count"></div>
+                <div style="display:flex; gap:8px;">
+                  <a href="#" style="font-size:12px; color:#E8622A; text-decoration:none; font-weight:500;" onclick="toggleAllSharedChecks(true);return false;">Select all</a>
+                  <span style="color:#ccc;">·</span>
+                  <a href="#" style="font-size:12px; color:#6B7280; text-decoration:none;" onclick="toggleAllSharedChecks(false);return false;">None</a>
+                </div>
+              </div>
+              <div id="shared-groups-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+              <div style="margin-top:16px; display:flex; align-items:center; gap:12px;">
+                <button class="btn btn-danger" id="btn-flag-shared" onclick="flagSharedSelected()" disabled style="gap:6px; display:flex; align-items:center;">
+                  <i class="ti ti-flag" style="font-size:14px;"></i> Flag Selected Shared Activities
+                </button>
+                <span id="shared-selected-count" style="font-size:12px; color:#6B7280;"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ── END Shared Activity Detection Card ── -->
       <div class="filter-bar">
         <h3>Filter Candidate Activities to Flag</h3>
         <div class="filter-grid">
@@ -1006,6 +1097,31 @@ td button.btn:last-child { margin-right: 0; }
       </div>
     </div>
   </div>
+<!-- Shared Activity Confirmation Modal -->
+<div class="modal-overlay" id="shared-confirm-modal" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal" style="max-width:500px; width:100%; padding:28px;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:36px; margin-bottom:8px;">🚩</div>
+      <h3 style="font-size:17px; font-weight:700; color:#0F1117; margin:0 0 6px;">Confirm Shared Activity Flags</h3>
+      <p style="font-size:13px; color:#6B7280; margin:0;" id="shared-modal-summary"></p>
+    </div>
+    <div id="shared-modal-detail" style="background:#fff8f0; border:1px solid #ffd3b0; border-radius:10px; padding:14px; font-size:12px; color:#78350f; margin-bottom:20px; max-height:200px; overflow-y:auto; line-height:1.6;"></div>
+    <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px 14px; font-size:12px; color:#991b1b; margin-bottom:20px;">
+      ⚠️ This action will flag the selected activities. They will be excluded from scoring until an admin reviews and clears the flag.
+    </div>
+    <div id="shared-modal-step1" style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn" style="background:#f5f5f5; color:#555;" onclick="closeSharedModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="sharedModalStep2()">I Understand — Proceed</button>
+    </div>
+    <div id="shared-modal-step2" style="display:none; flex-direction:column; gap:10px;">
+      <div style="font-size:13px; font-weight:600; color:#991b1b; text-align:center;">Are you absolutely sure? This cannot be undone automatically.</div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="btn" style="background:#f5f5f5; color:#555;" onclick="closeSharedModal()">No, Go Back</button>
+        <button class="btn btn-danger" id="btn-shared-final-confirm" onclick="executeSharedFlag()">Yes, Flag Them All</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="flag-modal"><div class="modal"><h3>Update Status</h3><p class="sub" id="modal-sub"></p><label>Flag reason</label><select id="modal-flag-reason" onchange="checkModalDist()"><option value="">— Mark as Valid (clear flag) —</option><optgroup label="── Manual Review ──"><option>Manual Review - Distance Issue</option><option>Manual Review - Pace Issue</option></optgroup><optgroup label="── Manual Flags ──"><option>Not Our Participant</option><option>Less than 1 km</option><option>Treadmill</option><option>Workout</option><option>Elapsed Time Issue</option><option>Pace Issue (Bike/Cycle)</option><option>Shared (no proof)</option><option>Indoor Run/Walk</option><option>More than 2 Activities</option><option>Suspicious Activity</option><option>Ride / Cycling</option><option>Distance Cropped - GPS Glitch</option><option>Distance Issue</option><option>GPS Glitch</option></optgroup></select><div class="dist-field" id="modal-dist-field"><label>Corrected distance (meters)</label><input type="number" id="modal-corrected-dist" placeholder="e.g. 3500"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-confirm" onclick="confirmStatus()">Save</button></div></div></div>
 <footer class="site-footer"><span>© 2026 Arcgate Walkathon</span><div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></div></footer>
 </div><!-- /main -->
@@ -1441,6 +1557,7 @@ function switchTab(t){
     document.getElementById('rules-container').style.display = 'none';
     document.getElementById('scanner-container').style.display = 'block';
     document.getElementById('btn-recheck-outer').style.display = 'none';
+    loadSharedActivityRule();
   } else if (t === 'all') {
     document.getElementById('page-title').textContent = 'Activities';
     document.getElementById('page-subtitle').textContent = 'Search and manage all logged workouts';
@@ -1766,6 +1883,329 @@ var flagPreviewData = [];
 
 function fmtPace(avgSpeed) {
   return fmtPS(avgSpeed, 'Walk');
+}
+
+// ── Shared Activity Detection (exact match cross-participant scan) ──
+var _sharedGroups = [];
+
+function getSharedRuleConfig() {
+  return {
+    enabled: document.getElementById('shared-rule-enabled') ? document.getElementById('shared-rule-enabled').checked : false,
+    autoFlag: document.getElementById('shared-auto-flag') ? document.getElementById('shared-auto-flag').checked : false,
+    checkDate: document.getElementById('shared-chk-date') ? document.getElementById('shared-chk-date').checked : true,
+    checkStartTime: document.getElementById('shared-chk-starttime') ? document.getElementById('shared-chk-starttime').checked : true,
+    checkDistance: document.getElementById('shared-chk-distance') ? document.getElementById('shared-chk-distance').checked : true,
+    checkMovingTime: document.getElementById('shared-chk-movingtime') ? document.getElementById('shared-chk-movingtime').checked : true,
+    checkPace: document.getElementById('shared-chk-pace') ? document.getElementById('shared-chk-pace').checked : false
+  };
+}
+
+async function saveSharedActivityRule() {
+  var cfg = getSharedRuleConfig();
+  var payload = { config_key: 'shared_activity_rule', config_value: cfg };
+  try {
+    var r = await fetch(SUPABASE_URL + '/rest/v1/leaderboard_config', {
+      method: 'POST',
+      headers: Object.assign({}, HDR, { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' }),
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) {
+      await fetch(SUPABASE_URL + '/rest/v1/leaderboard_config?config_key=eq.shared_activity_rule', {
+        method: 'PATCH',
+        headers: Object.assign({}, HDR, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ config_value: cfg })
+      });
+    }
+    var statusEl = document.getElementById('shared-rule-save-status');
+    if (statusEl) { statusEl.style.display = 'inline'; setTimeout(function() { statusEl.style.display = 'none'; }, 2500); }
+    showToast('Shared Activity Rule saved!', false);
+  } catch(e) { showToast('Save failed: ' + e.message, true); }
+}
+
+async function loadSharedActivityRule() {
+  try {
+    var r = await fetch(SUPABASE_URL + '/rest/v1/leaderboard_config?config_key=eq.shared_activity_rule', { headers: HDR });
+    var rows = await r.json();
+    if (!Array.isArray(rows) || rows.length === 0) return;
+    var cfg = rows[0].config_value;
+    if (!cfg) return;
+    var set = function(id, val) { var el = document.getElementById(id); if (el) el.checked = !!val; };
+    set('shared-rule-enabled', cfg.enabled);
+    set('shared-auto-flag', cfg.autoFlag);
+    set('shared-chk-date', cfg.checkDate !== false);
+    set('shared-chk-starttime', cfg.checkStartTime !== false);
+    set('shared-chk-distance', cfg.checkDistance !== false);
+    set('shared-chk-movingtime', cfg.checkMovingTime !== false);
+    set('shared-chk-pace', cfg.checkPace);
+    onSharedRuleToggle(!!cfg.enabled);
+  } catch(e) { console.warn('Could not load shared activity rule:', e); }
+}
+
+function onSharedRuleToggle(enabled) {
+  var statusEl = document.getElementById('shared-rule-status');
+  if (statusEl) {
+    statusEl.textContent = enabled ? 'Enabled' : 'Disabled';
+    statusEl.style.color = enabled ? '#059669' : '#6B7280';
+  }
+}
+
+function getActStartTimeKey(a) {
+  // Returns 'HH:MM' from activity_date_time_ist or null
+  if (!a.activity_date_time_ist) return null;
+  try {
+    var s = String(a.activity_date_time_ist).replace('T', ' ');
+    var timePart = s.split(' ')[1];
+    if (!timePart) return null;
+    return timePart.substring(0, 5); // HH:MM
+  } catch(e) { return null; }
+}
+
+function getActPaceKey(a) {
+  if (!a.avg_speed || a.avg_speed <= 0) return null;
+  var p = (1000 / a.avg_speed) / 60;
+  return Math.round(p * 10).toString(); // rounds to 0.1 min/km precision
+}
+
+function findSharedActivityGroups(acts) {
+  var cfg = getSharedRuleConfig();
+  var checkedFields = [];
+  if (cfg.checkDate) checkedFields.push('date');
+  if (cfg.checkStartTime) checkedFields.push('starttime');
+  if (cfg.checkDistance) checkedFields.push('distance');
+  if (cfg.checkMovingTime) checkedFields.push('movingtime');
+  if (cfg.checkPace) checkedFields.push('pace');
+  if (checkedFields.length === 0) return [];
+
+  // Build key for each activity
+  function makeKey(a) {
+    var parts = [];
+    if (cfg.checkDate) parts.push('D:' + getActDate(a));
+    if (cfg.checkStartTime) parts.push('T:' + (getActStartTimeKey(a) || ''));
+    if (cfg.checkDistance) parts.push('DM:' + Math.round(parseFloat(a.distance_meters) || 0));
+    if (cfg.checkMovingTime) parts.push('MT:' + Math.round(parseFloat(a.moving_time_seconds) || 0));
+    if (cfg.checkPace) parts.push('P:' + (getActPaceKey(a) || ''));
+    return parts.join('|');
+  }
+
+  // Group by key
+  var keyMap = {};
+  acts.forEach(function(a) {
+    var k = makeKey(a);
+    // Skip if key is too sparse (all zeros/empty)
+    if (k.replace(/[D:T:DM:MT:P:|0]/g, '').length === 0 && !cfg.checkDate) return;
+    if (!keyMap[k]) keyMap[k] = [];
+    keyMap[k].push(a);
+  });
+
+  // Filter: must have 2+ activities from DIFFERENT athletes
+  var groups = [];
+  Object.keys(keyMap).forEach(function(k) {
+    var group = keyMap[k];
+    if (group.length < 2) return;
+    var athletes = {};
+    group.forEach(function(a) { athletes[a.strava_athlete_id] = true; });
+    if (Object.keys(athletes).length < 2) return; // same athlete, skip
+    groups.push({ key: k, checkedFields: checkedFields, activities: group });
+  });
+
+  return groups;
+}
+
+async function previewSharedActivities() {
+  var countEl = document.getElementById('shared-preview-count');
+  var groupsEl = document.getElementById('shared-groups-list');
+  var sectionEl = document.getElementById('shared-preview-section');
+  var flagBtn = document.getElementById('btn-flag-shared');
+  
+  countEl.textContent = '⏳ Scanning all activities...';
+  groupsEl.innerHTML = '';
+  sectionEl.style.display = 'block';
+  flagBtn.disabled = true;
+  _sharedGroups = [];
+
+  try {
+    // Fetch all non-deleted activities with needed fields
+    var acts = await fetchAllRows(
+      SUPABASE_URL + '/rest/v1/activities?is_deleted=eq.false&select=id,strava_activity_id,strava_athlete_id,activity_name,sport_type,activity_date,activity_date_time_ist,distance_meters,moving_time_seconds,avg_speed,is_flagged,flag_reason',
+      HDR
+    );
+
+    _sharedGroups = findSharedActivityGroups(acts);
+
+    if (_sharedGroups.length === 0) {
+      countEl.textContent = '✅ No shared activities detected with current rule settings';
+      return;
+    }
+
+    var totalActs = _sharedGroups.reduce(function(s, g) { return s + g.activities.length; }, 0);
+    var fieldLabels = { date: 'Date', starttime: 'Start Time', distance: 'Distance', movingtime: 'Moving Time', pace: 'Pace' };
+    var matchedOn = _sharedGroups[0].checkedFields.map(function(f) { return fieldLabels[f] || f; }).join(', ');
+    countEl.textContent = '🔗 Found ' + _sharedGroups.length + ' shared group' + (_sharedGroups.length === 1 ? '' : 's') + ' (' + totalActs + ' activities) — matched on: ' + matchedOn;
+
+    groupsEl.innerHTML = _sharedGroups.map(function(g, gi) {
+      var sample = g.activities[0];
+      var date = getActDate(sample);
+      var startTime = getActStartTimeKey(sample) || '—';
+      var km = ((parseFloat(sample.distance_meters) || 0) / 1000).toFixed(2);
+      var moving = fmtDur(parseFloat(sample.moving_time_seconds) || 0);
+      var pace = fmtPace(sample.avg_speed);
+      var allFlagged = g.activities.every(function(a) { return a.is_flagged; });
+
+      return '<div style="border:1px solid ' + (allFlagged ? '#e0e0e0' : '#ffd3b0') + '; border-radius:10px; overflow:hidden; ' + (allFlagged ? 'opacity:0.6;' : '') + '">' +
+        '<div style="background:' + (allFlagged ? '#f9f9f9' : '#fff8f0') + '; padding:12px 16px; display:flex; align-items:center; gap:12px; border-bottom:1px solid #f0f0f0;">' +
+        '<input type="checkbox" class="shared-grp-chk" data-gi="' + gi + '" ' + (allFlagged ? 'disabled title="All already flagged"' : 'checked') + ' onchange="updateSharedSelectedCount()" style="cursor:pointer; width:15px; height:15px; accent-color:#E8622A;">' +
+        '<div style="flex:1;">' +
+        '<span style="font-size:12px; font-weight:700; color:#E8622A;">Group ' + (gi + 1) + '</span>' +
+        '<span style="margin:0 8px; color:#e0e0e0;">|</span>' +
+        '<span style="font-size:12px; color:#444;">📅 ' + date + '</span>' +
+        '<span style="margin:0 8px; color:#e0e0e0;">·</span>' +
+        '<span style="font-size:12px; color:#444;">⏰ ' + startTime + '</span>' +
+        '<span style="margin:0 8px; color:#e0e0e0;">·</span>' +
+        '<span style="font-size:12px; color:#444;">📏 ' + km + ' km</span>' +
+        '<span style="margin:0 8px; color:#e0e0e0;">·</span>' +
+        '<span style="font-size:12px; color:#444;">⏱️ ' + moving + '</span>' +
+        '<span style="margin:0 8px; color:#e0e0e0;">·</span>' +
+        '<span style="font-size:12px; color:#444;">⚡ ' + pace + '</span>' +
+        (allFlagged ? '<span style="margin-left:10px; font-size:11px; color:#059669; font-weight:600;">✓ All already flagged</span>' : '') +
+        '</div>' +
+        '<span style="font-size:11px; background:#fee2e2; color:#991b1b; padding:3px 8px; border-radius:12px; font-weight:600;">' + g.activities.length + ' participants</span>' +
+        '</div>' +
+        '<table style="width:100%; border-collapse:collapse; font-size:12px;">' +
+        '<thead><tr style="background:#fafafa;">' +
+        '<th style="padding:8px 16px; text-align:left; color:#6B7280; font-size:10px; text-transform:uppercase; font-weight:600;">Participant</th>' +
+        '<th style="padding:8px 16px; text-align:left; color:#6B7280; font-size:10px; text-transform:uppercase; font-weight:600;">Activity</th>' +
+        '<th style="padding:8px 16px; text-align:left; color:#6B7280; font-size:10px; text-transform:uppercase; font-weight:600;">Sport</th>' +
+        '<th style="padding:8px 16px; text-align:left; color:#6B7280; font-size:10px; text-transform:uppercase; font-weight:600;">Status</th>' +
+        '</tr></thead><tbody>' +
+        g.activities.map(function(a) {
+          var reg = regMap[String(a.strava_athlete_id).trim()];
+          var name = reg ? reg.full_name : 'Unknown (#' + a.strava_athlete_id + ')';
+          var actUrl = 'https://www.strava.com/activities/' + (a.strava_activity_id || a.id);
+          var statusBadge = a.is_flagged
+            ? '<span style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:10px; font-weight:600;">Already Flagged</span>'
+            : '<span style="font-size:10px; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:10px; font-weight:600;">Active</span>';
+          return '<tr style="border-bottom:1px solid #f5f5f5;">' +
+            '<td style="padding:9px 16px; font-weight:600; color:#0F1117;">' + esc(name) + '</td>' +
+            '<td style="padding:9px 16px;"><a href="' + actUrl + '" target="_blank" style="color:#E8622A; text-decoration:none;">' + esc(a.activity_name || '—') + '</a></td>' +
+            '<td style="padding:9px 16px; color:#6B7280;">' + esc(a.sport_type || '—') + '</td>' +
+            '<td style="padding:9px 16px;">' + statusBadge + '</td>' +
+            '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    }).join('');
+
+    updateSharedSelectedCount();
+    flagBtn.disabled = false;
+
+  } catch(e) {
+    countEl.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+function updateSharedSelectedCount() {
+  var checked = document.querySelectorAll('.shared-grp-chk:checked:not(:disabled)').length;
+  var total = document.querySelectorAll('.shared-grp-chk').length;
+  var countEl = document.getElementById('shared-selected-count');
+  if (countEl) countEl.textContent = checked + ' of ' + total + ' groups selected';
+  var flagBtn = document.getElementById('btn-flag-shared');
+  if (flagBtn) flagBtn.disabled = checked === 0;
+}
+
+function toggleAllSharedChecks(checked) {
+  document.querySelectorAll('.shared-grp-chk:not(:disabled)').forEach(function(c) { c.checked = checked; });
+  updateSharedSelectedCount();
+}
+
+var _pendingSharedToFlag = [];
+
+function flagSharedSelected() {
+  var checked = document.querySelectorAll('.shared-grp-chk:checked:not(:disabled)');
+  var selectedGis = Array.from(checked).map(function(c) { return parseInt(c.getAttribute('data-gi')); });
+  _pendingSharedToFlag = [];
+  var fieldLabels = { date: 'Date', starttime: 'Start Time', distance: 'Distance', movingtime: 'Moving Time', pace: 'Pace' };
+  var matchedOn = (_sharedGroups[0] ? _sharedGroups[0].checkedFields : []).map(function(f) { return fieldLabels[f] || f; }).join(', ');
+  var actCount = 0;
+
+  selectedGis.forEach(function(gi) {
+    var grp = _sharedGroups[gi];
+    if (!grp) return;
+    grp.activities.forEach(function(a) {
+      if (!a.is_flagged) {
+        _pendingSharedToFlag.push({ act: a, group: grp });
+        actCount++;
+      }
+    });
+  });
+
+  if (_pendingSharedToFlag.length === 0) {
+    alert('All selected activities are already flagged.');
+    return;
+  }
+
+  // Build participant list for modal
+  var participantLines = [];
+  selectedGis.forEach(function(gi) {
+    var grp = _sharedGroups[gi];
+    if (!grp) return;
+    var names = grp.activities.filter(function(a) { return !a.is_flagged; }).map(function(a) {
+      var reg = regMap[String(a.strava_athlete_id).trim()];
+      return (reg ? reg.full_name : 'Unknown') + ' — ' + esc(a.activity_name || a.strava_activity_id);
+    });
+    participantLines.push('Group ' + (gi + 1) + ': ' + names.join(', '));
+  });
+
+  document.getElementById('shared-modal-summary').textContent = selectedGis.length + ' group' + (selectedGis.length === 1 ? '' : 's') + ' — ' + actCount + ' activities will be flagged';
+  document.getElementById('shared-modal-detail').innerHTML = '<strong>Matched on: ' + matchedOn + '</strong><br><br>' + participantLines.map(function(l) { return '• ' + l; }).join('<br>');
+  document.getElementById('shared-modal-step1').style.display = 'flex';
+  document.getElementById('shared-modal-step2').style.display = 'none';
+  document.getElementById('shared-confirm-modal').style.display = 'flex';
+}
+
+function sharedModalStep2() {
+  document.getElementById('shared-modal-step1').style.display = 'none';
+  document.getElementById('shared-modal-step2').style.display = 'flex';
+}
+
+function closeSharedModal() {
+  document.getElementById('shared-confirm-modal').style.display = 'none';
+}
+
+async function executeSharedFlag() {
+  var btn = document.getElementById('btn-shared-final-confirm');
+  btn.disabled = true;
+  btn.textContent = 'Flagging...';
+  var fieldLabels = { date: 'Date', starttime: 'Start Time', distance: 'Distance', movingtime: 'Moving Time', pace: 'Pace' };
+  var matchedOn = (_sharedGroups[0] ? _sharedGroups[0].checkedFields : []).map(function(f) { return fieldLabels[f] || f; }).join(', ');
+  var success = 0, failed = 0;
+
+  for (var i = 0; i < _pendingSharedToFlag.length; i++) {
+    var item = _pendingSharedToFlag[i];
+    var grp = item.group;
+    var otherNames = grp.activities.filter(function(a) { return a.strava_athlete_id !== item.act.strava_athlete_id; }).map(function(a) {
+      var reg = regMap[String(a.strava_athlete_id).trim()];
+      return reg ? reg.full_name : 'Unknown';
+    }).join(', ');
+    var reason = 'Shared Activity (auto-detected) — identical ' + matchedOn + ' as: ' + otherNames;
+    try {
+      var r = await fetch(SUPABASE_URL + '/rest/v1/activities?id=eq.' + item.act.id, {
+        method: 'PATCH',
+        headers: Object.assign({}, HDR, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ is_flagged: true, flag_reason: (item.act.flag_reason ? item.act.flag_reason + ' | ' : '') + reason })
+      });
+      if (r.ok) { success++; item.act.is_flagged = true; } else { failed++; }
+    } catch(e) { failed++; }
+  }
+
+  closeSharedModal();
+  btn.disabled = false;
+  btn.textContent = 'Yes, Flag Them All';
+  _pendingSharedToFlag = [];
+
+  var countEl = document.getElementById('shared-preview-count');
+  countEl.textContent = '✅ Done — ' + success + ' flagged' + (failed ? ' | ❌ ' + failed + ' failed' : '');
+  showToast(success + ' activities flagged as Shared Activity', false);
+  // Refresh the preview to show updated states
+  previewSharedActivities();
 }
 
 async function fetchFlagCandidates() {
