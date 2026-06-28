@@ -234,22 +234,26 @@ if (!eventCode || !EVENTS[eventCode]) {
     .then(function(r) { return r.json(); })
     .then(function(d) {
       document.getElementById('processing').style.display = 'none';
-      if (d.success) {
+      if (d.success || d.already_registered) {
         // Store session so dashboard works immediately
         if (d.athlete_id) {
-          sessionStorage.setItem('wk_user', JSON.stringify({
+          localStorage.setItem('wk_user', JSON.stringify({
             loggedIn: true, role: d.role || 'user',
             athleteId: d.athlete_id, name: d.name,
+            profilePhoto: d.profile_photo || '',
             expires: Date.now() + (8 * 60 * 60 * 1000)
           }));
         }
+      }
+
+      if (d.success) {
         document.getElementById('success-msg').innerHTML =
-          '✅ <strong>You're in!</strong><br>Welcome to ' + eventName + '. Your activities will appear on the leaderboard automatically.';
+          '✅ <strong>You\'re in!</strong><br>Welcome to ' + eventName + '. Your activities will appear on the leaderboard automatically.';
         document.getElementById('success-msg').style.display = 'block';
         document.getElementById('dashboard-btn').style.display = 'flex';
       } else if (d.already_registered) {
         document.getElementById('already-msg').innerHTML =
-          'ℹ️ <strong>Already connected!</strong><br>You're already registered for ' + eventName + '. Your activities are being tracked.';
+          'ℹ️ <strong>Already connected!</strong><br>You\'re already registered for ' + eventName + '. Your activities are being tracked.';
         document.getElementById('already-msg').style.display = 'block';
         document.getElementById('dashboard-btn2').style.display = 'flex';
       } else {
