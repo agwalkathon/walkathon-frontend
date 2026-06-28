@@ -6259,6 +6259,18 @@ function precomputeLBScores() {
     LB_SCORES[aid] = calcFullPts(pActs, p.gender, p.shift);
   });
 }
+// Synchronously load cached ranking data on script parse so it is immediately available
+(function() {
+  try {
+    var cachedReg = JSON.parse(localStorage.getItem('agwalk_ranking_reg') || 'null');
+    var cachedActs = JSON.parse(localStorage.getItem('agwalk_ranking_acts_v2') || 'null');
+    if (cachedReg && cachedReg.val && cachedActs && cachedActs.val) {
+      LB_REG = cachedReg.val;
+      LB_ACTS = cachedActs.val;
+      precomputeLBScores();
+    }
+  } catch(e) {}
+})();
 
 // Gender-aware medal helper — mirrors ag-leaderboard getMedal().
 // Uses medalData loaded in Phase 1 (falls back to defaults if not yet loaded).
@@ -6867,6 +6879,12 @@ async function checkMilestoneNotifications(athleteId, currentRank, currentPoints
 
 // Show splash screen on every page load until all resources/data are preloaded
 window.addEventListener('DOMContentLoaded', function() {
+  // If cache was loaded synchronously, render the pulse dashboard instantly before splash screen hides!
+  try {
+    if (LB_REG && LB_REG.length && LB_ACTS && LB_ACTS.length) {
+      if (typeof renderCommunityPulse === 'function') renderCommunityPulse();
+    }
+  } catch(e) {}
   load().finally(function(){ hideSplash(); });
 });
 </script>
