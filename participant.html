@@ -4295,6 +4295,9 @@ async function load(isBackgroundRefresh) {
         LB_ACTS=allActsRaw;
         precomputeLBScores();
         if(LB_ME){_lbReady=true;lbRender();}
+        // Refresh feed highlights and community pulse once data is available in memory
+        if (typeof renderFeedHighlights === 'function') renderFeedHighlights();
+        if (typeof renderCommunityPulse === 'function') renderCommunityPulse();
       }catch(e2){console.warn('Ranking load failed:',e2);return;}
 
     // Standing
@@ -7353,6 +7356,8 @@ async function lbBoot(){
     // LB_ME already set from Phase 1 reg; CONFIG_LB already set from Phase 1 config
     _lbReady=true;
     lbRender();
+    if (typeof renderFeedHighlights === 'function') renderFeedHighlights();
+    if (typeof renderCommunityPulse === 'function') renderCommunityPulse();
   }catch(e){console.error('lbBoot error:',e);safeSetHtml('lb-list', '<div class="empty-box"><div class="ei">⚠️</div><p>Could not load.<br>Tap refresh.</p></div>');}
 }
 
