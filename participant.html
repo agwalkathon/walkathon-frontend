@@ -6199,14 +6199,14 @@ function renderFeed() {
       if (act.summary_polyline) {
         var mapContainerId = 'map-' + item.id;
         mapHtml = `
-          <div class="feed-card-map-wrap" style="position: relative; margin: 12px 0 16px 0; height: 160px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden; background: #0E1012;">
+          <div class="feed-card-map-wrap" onclick="event.stopPropagation();" style="position: relative; margin: 12px 0 16px 0; height: 160px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden; background: #0E1012;">
             <div id="${mapContainerId}" style="width: 100%; height: 100%;"></div>
           </div>
         `;
       }
 
       return `
-        <div class="feed-card type-activity ${timeClass}">
+        <div class="feed-card type-activity ${timeClass}" onclick="openActivityDetail('${item.id}', event)" style="cursor: pointer;">
           <div class="feed-card-header">
             <div class="feed-card-avatar" onclick="openProfileDetail('${item.tagged_athlete_id}', event)" style="${getAvatarStyle(athleteName)}; cursor: pointer;">${initials}</div>
             <div class="feed-card-meta">
@@ -6277,7 +6277,7 @@ function renderFeed() {
               return '<div class="feed-card-stats-grid" style="' + gridStyle + '">' + statsCols.join('') + '</div>';
             })()}
           </div>
-          <div class="feed-card-actions">
+          <div class="feed-card-actions" onclick="event.stopPropagation();">
             ${reactionButtonsHtml}
           </div>
         </div>
