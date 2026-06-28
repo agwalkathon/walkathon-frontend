@@ -2567,7 +2567,6 @@ document.addEventListener('click', function(e) {
     <div id="community-pulse-section" style="display:none; margin-bottom:20px;">
       <div class="sec">Community Pulse</div>
       <div class="community-stats-grid" id="community-stats-grid"></div>
-      <div id="live-activity-ticker" class="ticker-wrap" style="margin-top:10px;"></div>
     </div>
 
     <!-- Metrics -->
@@ -4995,8 +4994,7 @@ function triggerHighlightCheer() {
 function renderCommunityPulse() {
   var pulseSec = document.getElementById('community-pulse-section');
   var carousel = document.getElementById('community-stats-grid');
-  var ticker = document.getElementById('live-activity-ticker');
-  if (!pulseSec || !carousel || !ticker) return;
+  if (!pulseSec || !carousel) return;
 
   if (!LB_REG || !LB_REG.length || !LB_ACTS || !LB_ACTS.length) {
     pulseSec.style.display = 'none';
@@ -5146,8 +5144,13 @@ function renderCommunityPulse() {
   `;
   
   carousel.innerHTML = cardsHtml;
+}
 
-  // 6. Live Ticker
+function startLiveTicker() {
+  var ticker = document.getElementById('live-activity-ticker');
+  if (!ticker) return;
+  
+  var validActs = LB_ACTS.filter(function(a){return !a.is_flagged;});
   var recentActs = validActs.slice()
     .sort(function(a,b){return (b.activity_date||'').localeCompare(a.activity_date||'');})
     .slice(0, 5);
@@ -5159,7 +5162,6 @@ function renderCommunityPulse() {
   
   ticker.style.display = 'flex';
   
-  // Find names mapping
   var regNames = {};
   LB_REG.forEach(function(r){
     var firstLast = r.full_name || '—';
@@ -5172,29 +5174,39 @@ function renderCommunityPulse() {
 
   var tickerIndex = 0;
   function updateTicker() {
+    var curTicker = document.getElementById('live-activity-ticker');
+    if (!curTicker) {
+      if (window.communityTickerInterval) {
+        clearInterval(window.communityTickerInterval);
+        window.communityTickerInterval = null;
+      }
+      return;
+    }
     if (!recentActs[tickerIndex]) tickerIndex = 0;
     var act = recentActs[tickerIndex];
     var athName = regNames[String(act.strava_athlete_id)] || 'Someone';
     var dist = parseFloat(act.distance_meters||0)/1000;
     var minutesAgoStr = 'just now';
     try {
-      var actTime = new Date(act.activity_date);
-      var diffMs = new Date() - actTime;
-      var diffMin = Math.floor(diffMs / 60000);
-      if (diffMin > 0) {
-        if (diffMin < 60) {
-          minutesAgoStr = diffMin + 'm ago';
-        } else if (diffMin < 1440) {
-          minutesAgoStr = Math.floor(diffMin / 60) + 'h ago';
-        } else {
-          minutesAgoStr = Math.floor(diffMin / 1440) + 'd ago';
+      var actDate = act.activity_date_time_ist ? new Date(act.activity_date_time_ist) : new Date(act.activity_date);
+      if (actDate) {
+        var diffMs = Date.now() - actDate.getTime();
+        var diffMin = Math.floor(diffMs / 60000);
+        if (diffMin > 0) {
+          if (diffMin < 60) {
+            minutesAgoStr = diffMin + 'm ago';
+          } else if (diffMin < 1440) {
+            minutesAgoStr = Math.floor(diffMin / 60) + 'h ago';
+          } else {
+            minutesAgoStr = Math.floor(diffMin / 1440) + 'd ago';
+          }
         }
       }
     } catch(e) {}
     
     var textHtml = `<div class="ticker-text" id="ticker-active-text">🏃 <strong>${athName}</strong> walked ${dist.toFixed(1)} km <span style="color:var(--muted); font-size:11px;">(${minutesAgoStr})</span></div>`;
     
-    ticker.innerHTML = `
+    curTicker.innerHTML = `
       <div class="ticker-label"><span>🏃</span> Live</div>
       <div class="ticker-text-container">
         ${textHtml}
@@ -5281,7 +5293,7 @@ function renderFeed() {
   });
 
   var visibleActs = filteredFeed.slice(0, _feedVisibleCount);
-  var html = visibleActs.map(function(item) {
+  var feedCardsHtml = visibleActs.map(function(item) {
     var timeStr = timeAgo(item.created_at);
     
     // Exact date time stamp format (e.g., 27 Jun at 11:45 AM)
@@ -5715,7 +5727,14 @@ function renderFeed() {
         </div>
       </div>
     `;
-  }).join('');
+  });
+
+  if (feedCardsHtml.length >= 4) {
+    feedCardsHtml.splice(4, 0, `<div id="live-activity-ticker" class="ticker-wrap" style="margin: 16px 0;"></div>`);
+  } else {
+    feedCardsHtml.push(`<div id="live-activity-ticker" class="ticker-wrap" style="margin: 16px 0;"></div>`);
+  }
+  var html = feedCardsHtml.join('');
 
   if (filteredFeed.length > _feedVisibleCount) {
     html += `
@@ -5743,6 +5762,7 @@ function renderFeed() {
   }
 
   list.innerHTML = html;
+  startLiveTicker();
 }
 
 function showMoreAnnouncements() {
