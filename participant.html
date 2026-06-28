@@ -1620,6 +1620,31 @@
 
   /* ── Updates / Feed Tab ── */
   
+  /* Micro-Glass Badges for Highlights */
+  .highlight-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    width: 82px;
+    height: 98px;
+    background: rgba(26, 29, 32, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+  }
+  .highlight-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  
   /* ── Community Pulse Carousel & Ticker ── */
   .community-stats-carousel {
     display: flex;
@@ -2672,7 +2697,7 @@ document.addEventListener('click', function(e) {
 <!-- Updates tab -->
 <div class="content hidden-tab" id="tab-feed">
 <div class="max-w">
-  <div class="sec">Feed</div>
+  <div class="sec">Activity Feed</div>
   <div id="feed-highlights-row" style="display:none; margin-bottom: 16px;"></div>
   
   <!-- Community Pulse Dashboard -->
@@ -4881,7 +4906,7 @@ function renderFeedHighlights() {
     } : null
   };
 
-  var html = '<div style="display:flex; gap:14px; overflow-x:auto; padding: 4px 4px 10px; margin-bottom:0; scrollbar-width: none; -ms-overflow-style: none;">';
+  var html = '<div style="display:flex; gap:10px; overflow-x:auto; padding: 4px 4px 10px; margin-bottom:0; scrollbar-width: none; -ms-overflow-style: none;">';
   var order = ['champ', 'streak', 'active', 'team'];
   order.forEach(function(key) {
     var data = _highlightsData[key];
@@ -4889,12 +4914,10 @@ function renderFeedHighlights() {
     var firstName = data.title.indexOf('Team') > -1 ? data.subtitle.split(' · ')[0] : data.body.split(' ')[0];
     
     html += `
-      <div class="highlight-bubble" onclick="openHighlightDetail('${key}')" style="display:flex; flex-direction:column; align-items:center; flex-shrink:0; cursor:pointer; width:70px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        <div style="position:relative; width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.02); display:flex; align-items:center; justify-content:center; border: 2.5px solid ${data.ringColor}; box-shadow: 0 0 10px ${data.ringColor}35; margin-bottom:6px;">
-          <span style="font-size:22px;">${data.emoji}</span>
-        </div>
-        <span style="font-size:10px; font-weight:700; color:#fff; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${firstName}</span>
-        <span style="font-size:8px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${data.title.split(' ')[0]}</span>
+      <div class="highlight-card" onclick="openHighlightDetail('${key}')" style="border-top: 2.5px solid ${data.ringColor};">
+        <div style="font-size:24px; margin-bottom:6px; filter: drop-shadow(0 0 4px ${data.ringColor}50);">${data.emoji}</div>
+        <span style="font-size:10.5px; font-weight:800; color:#fff; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${firstName}</span>
+        <span style="font-size:8px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center; margin-top:2px;">${data.title.split(' ')[0]}</span>
       </div>
     `;
   });
