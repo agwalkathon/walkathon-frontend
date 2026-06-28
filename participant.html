@@ -4332,7 +4332,7 @@ function showDateDetails(dateStr) {
           '<div class="detail-status-row" style="margin-bottom: 12px; margin-top: 0;">' +
             '<div style="display: flex; align-items: center; justify-content: space-between;">' +
               '<span class="detail-label" style="margin-bottom: 0;">Activity Status</span>' +
-              '<span class="status-badge ' + (isFlag ? 'invalid' : 'valid') + '" style="align-self: auto;">' + (isFlag ? '⚑ Invalid' : '✓ Valid') + '</span>' +
+              '<span class="status-badge ' + (isFlag ? 'invalid' : 'valid') + '" style="align-self: auto;">' + (isFlag ? (a.is_reviewed === true || a.is_reviewed === 'true' ? '⚑ Invalid (Reviewed)' : '⚑ Invalid (Under Review)') : '✓ Valid') + '</span>' +
             '</div>' +
             (isFlag ? 
             '<div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">' +
