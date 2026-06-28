@@ -3221,6 +3221,22 @@ document.addEventListener('click', function(e) {
         </div>
       </div>
 
+      <!-- Strava Stats Section -->
+      <div style="margin-bottom:24px;">
+        <div class="detail-metrics-title">Strava Stats Breakdown</div>
+        
+        <!-- Time Filter Tabs -->
+        <div style="display:flex; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:3px; margin:8px 0 16px 0;">
+          <button id="btn-stats-recent" onclick="toggleStatsTimeframe('recent')" style="flex:1; background:rgba(255,255,255,0.08); border:none; color:#fff; padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">Last 4 Weeks</button>
+          <button id="btn-stats-alltime" onclick="toggleStatsTimeframe('all')" style="flex:1; background:none; border:none; color:var(--muted); padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">All-Time</button>
+        </div>
+        
+        <!-- Sports Stats Container -->
+        <div id="prof-sports-stats-container" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- dynamically rendered -->
+        </div>
+      </div>
+
       <!-- Personal Bests Grid -->
       <div style="margin-bottom:24px;">
         <div class="detail-metrics-title">Personal Bests</div>
@@ -6696,11 +6712,114 @@ function closeActivityDetail() {
   }, 350);
 }
 
+var _activeProfileStats = null;
+var _activeStatsTimeframe = 'recent';
+
+function toggleStatsTimeframe(timeframe) {
+  _activeStatsTimeframe = timeframe;
+  var btnRecent = document.getElementById('btn-stats-recent');
+  var btnAll = document.getElementById('btn-stats-alltime');
+  if (btnRecent && btnAll) {
+    if (timeframe === 'recent') {
+      btnRecent.style.background = 'rgba(255, 255, 255, 0.08)';
+      btnRecent.style.color = '#fff';
+      btnAll.style.background = 'none';
+      btnAll.style.color = 'var(--muted)';
+    } else {
+      btnAll.style.background = 'rgba(255, 255, 255, 0.08)';
+      btnAll.style.color = '#fff';
+      btnRecent.style.background = 'none';
+      btnRecent.style.color = 'var(--muted)';
+    }
+  }
+  renderSportsStats();
+}
+
+function renderSportsStats() {
+  var container = document.getElementById('prof-sports-stats-container');
+  if (!container) return;
+  if (!_activeProfileStats) {
+    container.innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:12px 0;">No Strava stats breakdown available.</div>';
+    return;
+  }
+  
+  var prefix = _activeStatsTimeframe; // 'recent' or 'all'
+  var run = _activeProfileStats[prefix + '_run_totals'] || { count: 0, distance: 0, moving_time: 0, elevation_gain: 0 };
+  var ride = _activeProfileStats[prefix + '_ride_totals'] || { count: 0, distance: 0, moving_time: 0, elevation_gain: 0 };
+  var swim = _activeProfileStats[prefix + '_swim_totals'] || { count: 0, distance: 0, moving_time: 0, elevation_gain: 0 };
+  
+  var sports = [
+    { name: 'Run/Walk', icon: '🏃', data: run },
+    { name: 'Ride', icon: '🚴', data: ride },
+    { name: 'Swim', icon: '🏊', data: swim }
+  ];
+  
+  var html = '';
+  sports.forEach(function(sport) {
+    var count = sport.data.count || 0;
+    var dist = ((sport.data.distance || 0) / 1000).toFixed(1) + ' km';
+    if (sport.name === 'Swim') {
+      dist = (sport.data.distance || 0).toLocaleString('en-IN') + ' m';
+    }
+    
+    var timeSec = sport.data.moving_time || 0;
+    var timeStr = '0m';
+    if (timeSec >= 3600) {
+      timeStr = Math.floor(timeSec / 3600) + 'h ' + Math.floor((timeSec % 3600) / 60) + 'm';
+    } else if (timeSec > 0) {
+      timeStr = Math.floor(timeSec / 60) + 'm';
+    }
+    var elev = Math.round(sport.data.elevation_gain || 0) + ' m';
+    
+    html += `
+      <div class="prof-pb-card" style="padding:14px; background:rgba(255,255,255,0.01);">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.04); padding-bottom:6px; margin-bottom:10px;">
+          <span style="font-size:12.5px; font-weight:800; color:#fff;">${sport.icon} ${sport.name}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); text-align:center; gap:6px;">
+          <div>
+            <div style="font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Activities</div>
+            <div style="font-size:12.5px; font-weight:800; color:#fff; margin-top:2px;">${count}</div>
+          </div>
+          <div>
+            <div style="font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Distance</div>
+            <div style="font-size:12.5px; font-weight:800; color:#fff; margin-top:2px;">${dist}</div>
+          </div>
+          <div>
+            <div style="font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Time</div>
+            <div style="font-size:12.5px; font-weight:800; color:#fff; margin-top:2px;">${timeStr}</div>
+          </div>
+          <div>
+            <div style="font-size:9px; color:var(--muted); text-transform:uppercase; font-weight:700; letter-spacing:0.5px;">Elev Gain</div>
+            <div style="font-size:12.5px; font-weight:800; color:#fff; margin-top:2px;">${elev}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
 function openProfileDetail(athleteId, event) {
   if (event && event.target && (event.target.closest('button') || event.target.closest('a') || event.target.closest('.feed-react-btn'))) {
     return;
   }
   if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+
+  _activeProfileStats = null;
+  _activeStatsTimeframe = 'recent';
+  
+  var statsContainer = document.getElementById('prof-sports-stats-container');
+  if (statsContainer) statsContainer.innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:12px 0;">Loading Strava stats breakdown...</div>';
+
+  var btnRecent = document.getElementById('btn-stats-recent');
+  var btnAll = document.getElementById('btn-stats-alltime');
+  if (btnRecent && btnAll) {
+    btnRecent.style.background = 'rgba(255, 255, 255, 0.08)';
+    btnRecent.style.color = '#fff';
+    btnAll.style.background = 'none';
+    btnAll.style.color = 'var(--muted)';
+  }
 
   document.getElementById('prof-name').innerText = 'Loading...';
   document.getElementById('prof-team-shift').innerText = '—';
@@ -6719,6 +6838,22 @@ function openProfileDetail(athleteId, event) {
   setTimeout(function() {
     modal.classList.add('open');
   }, 10);
+
+  // 0. Fetch Strava stats from our backend
+  fetch(BACKEND + '/athlete-stats/' + athleteId)
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data && data.success && data.stats) {
+        _activeProfileStats = data.stats;
+        renderSportsStats();
+      } else {
+        document.getElementById('prof-sports-stats-container').innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:12px 0;">No connected Strava stats available.</div>';
+      }
+    })
+    .catch(function(err) {
+      console.warn('Failed to fetch Strava stats:', err);
+      document.getElementById('prof-sports-stats-container').innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:12px 0;">No connected Strava profile stats.</div>';
+    });
 
   // 1. Fetch Profile Registration details
   fetch(SUPABASE_URL + '/rest/v1/registration?strava_athlete_id=eq.' + athleteId + '&select=*', { headers: HDR })
