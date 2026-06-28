@@ -4046,7 +4046,7 @@ function renderFeed() {
       var active = item.my_reactions.indexOf(emo.type) > -1;
       var activeClass = active ? 'active' : '';
       return `
-        <button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}')">
+        <button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event)">
           <span class="emoji">${emo.char}</span>
           <span class="count">${count}</span>
         </button>
@@ -4231,7 +4231,67 @@ function showMoreAnnouncements() {
   renderFeed();
 }
 
-async function reactToAnnouncement(announcementId, reactionType) {
+function getEmojiCharForType(type) {
+  var map = {
+    like: '👍',
+    fire: '🔥',
+    clap: '👏',
+    power: '💪',
+    crown: '👑',
+    celebrate: '🎉',
+    awesome: '🌟'
+  };
+  return map[type] || '✨';
+}
+
+function triggerConfettiBurst(x, y, emojiChar) {
+  var container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = x + 'px';
+  container.style.top = y + 'px';
+  container.style.pointerEvents = 'none';
+  container.style.zIndex = '9999';
+  document.body.appendChild(container);
+
+  var particleCount = 12;
+  var emojis = [emojiChar, '✨', '🎉', '🌟', emojiChar];
+
+  for (var i = 0; i < particleCount; i++) {
+    var p = document.createElement('span');
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.position = 'absolute';
+    p.style.fontSize = (Math.random() * 12 + 14) + 'px';
+    p.style.left = '0';
+    p.style.top = '0';
+    p.style.transform = 'translate(-50%, -50%)';
+    p.style.opacity = '1';
+    
+    var angle = Math.random() * Math.PI * 2;
+    var distance = Math.random() * 60 + 40;
+    var destX = Math.cos(angle) * distance;
+    var destY = Math.sin(angle) * distance - (Math.random() * 40 + 30); // travel upwards more
+
+    p.style.transition = 'all 0.8s cubic-bezier(0.1, 0.8, 0.3, 1)';
+    container.appendChild(p);
+
+    (function(el, dx, dy) {
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          el.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) rotate(' + (Math.random() * 360 - 180) + 'deg)';
+          el.style.opacity = '0';
+        });
+      });
+    })(p, destX, destY);
+  }
+
+  setTimeout(function() {
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+  }, 1000);
+}
+
+async function reactToAnnouncement(announcementId, reactionType, event) {
   var athleteId = currentSession ? currentSession.athleteId : '';
   if (!athleteId) return;
 
@@ -4242,8 +4302,28 @@ async function reactToAnnouncement(announcementId, reactionType) {
       item.my_reactions.splice(idx, 1);
       if (item.reaction_counts[reactionType] > 0) item.reaction_counts[reactionType]--;
     } else {
+      // Get click position before rendering feed (which recreates DOM elements)
+      var clickX = 0, clickY = 0;
+      if (event) {
+        if (event.clientX && event.clientY) {
+          clickX = event.clientX;
+          clickY = event.clientY;
+        } else {
+          var target = event.currentTarget || event.target;
+          if (target && typeof target.getBoundingClientRect === 'function') {
+            var rect = target.getBoundingClientRect();
+            clickX = rect.left + rect.width / 2;
+            clickY = rect.top + rect.height / 2;
+          }
+        }
+      }
+
       item.my_reactions.push(reactionType);
       item.reaction_counts[reactionType] = (item.reaction_counts[reactionType] || 0) + 1;
+
+      if (clickX && clickY) {
+        triggerConfettiBurst(clickX, clickY, getEmojiCharForType(reactionType));
+      }
     }
     renderFeed();
   }
