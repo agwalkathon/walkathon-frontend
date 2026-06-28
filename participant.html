@@ -5040,6 +5040,10 @@ function renderCommunityPulse() {
   validActs.forEach(function(a) {
     var tStr = a.activity_date_time_ist || a.activity_date;
     if (!tStr) return;
+    // Skip activities before June 22 (older activities do not have times)
+    if (tStr.substring(0, 10) < '2026-06-22') {
+      return;
+    }
     // Skip default/placeholder time values (e.g. 23:00, 00:00, 18:30, 17:30)
     if (tStr.match(/T(23:00:00|23:01:00|00:00:00|18:30:00|17:30:00|23:00:01)/)) {
       return;
