@@ -162,7 +162,11 @@ function showTab(tab) {
       }
       var targetModal = e.target.closest('.detail-modal');
       var leafletTouch = e.target.closest('.leaflet-container');
-      if (targetModal || leafletTouch) {
+      var actModalOpen = document.getElementById('activity-detail-modal');
+      var profModalOpen = document.getElementById('profile-detail-modal');
+      var anyModalOpen = (actModalOpen && actModalOpen.classList.contains('open')) ||
+                         (profModalOpen && profModalOpen.classList.contains('open'));
+      if (targetModal || leafletTouch || anyModalOpen) {
         return;
       }
       if (e.cancelable) e.preventDefault();
@@ -173,6 +177,12 @@ function showTab(tab) {
     if (_swipeDir !== 'h') return;
     var dx = e.changedTouches[0].clientX - startX;
     if (Math.abs(dx) < MIN_SWIPE_X) return;
+
+    // Don't switch tabs if a detail modal is open
+    var actModal = document.getElementById('activity-detail-modal');
+    var profModal = document.getElementById('profile-detail-modal');
+    if ((actModal && actModal.classList.contains('open')) ||
+        (profModal && profModal.classList.contains('open'))) return;
 
     var curIdx = TAB_ORDER.indexOf(_currentTab);
     if (curIdx === -1) return;
