@@ -68,7 +68,12 @@ function showTab(tab) {
     setTimeout(function() {
       if (window._feedMaps && window._feedMaps.length > 0) {
         window._feedMaps.forEach(function(m) {
-          try { m.invalidateSize(); } catch(e) {}
+          try {
+            m.invalidateSize();
+            if (typeof m._refit === 'function') {
+              m._refit();
+            }
+          } catch(e) {}
         });
       }
     }, 350);
@@ -1825,9 +1830,22 @@ function renderFeed() {
               lineJoin: 'round'
             }).addTo(map);
 
-            map.fitBounds(poly.getBounds(), {
-              padding: [12, 12]
-            });
+            map._refit = function() {
+              try {
+                map.fitBounds(poly.getBounds(), {
+                  padding: [12, 12]
+                });
+              } catch(e) {}
+            };
+
+            // Run refit immediately and also schedule a deferred check
+            map._refit();
+            setTimeout(function() {
+              try {
+                map.invalidateSize();
+                map._refit();
+              } catch(e) {}
+            }, 150);
           }
         } catch (mapErr) {
           console.warn('Failed to initialize map for card ' + mapContainerId + ':', mapErr);
