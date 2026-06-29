@@ -2077,16 +2077,41 @@ async function reactToAnnouncement(announcementId, reactionType, event) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         announcement_id: announcementId,
-        athlete_id: athleteId,
+        athlete_id: String(athleteId),
         reaction_type: reactionType
       })
     });
     var d = await res.json();
-    if (!d.success) {
+    if (d.success) {
+      // Update DOM with server-confirmed count
+      var confirmedBtn = document.querySelector('button[data-ann-id="' + announcementId + '"][data-react-type="' + reactionType + '"]');
+      if (confirmedBtn) {
+        var cntEl = confirmedBtn.querySelector('.count');
+        if (cntEl) {
+          cntEl.textContent = d.count > 0 ? d.count : '';
+        }
+        if (d.action === 'added') {
+          confirmedBtn.classList.add('active');
+        } else {
+          confirmedBtn.classList.remove('active');
+        }
+      }
+    } else {
       console.warn('React API unsuccessful:', d.error);
+      // Revert optimistic update
+      renderFeed();
     }
   } catch(err) {
-    console.warn('React API error:', err);
+    console.warn('React API error — reverting:', err);
+    // Revert optimistic update on network failure
+    if (item) {
+      var revertIdx = item.my_reactions ? item.my_reactions.indexOf(reactionType) : -1;
+      if (revertIdx > -1) {
+        item.my_reactions.splice(revertIdx, 1);
+        if (item.reaction_counts) item.reaction_counts[reactionType] = Math.max(0, (item.reaction_counts[reactionType] || 1) - 1);
+      }
+    }
+    renderFeed();
   }
 }
 
