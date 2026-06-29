@@ -630,3 +630,64 @@ function closeProfileDetail() {
     modal.style.display = 'none';
   }, 350);
 }
+
+/* ── Swipe-right-to-close for detail modals ─────────────────────────── */
+(function() {
+  function attachSwipeClose(modalId, closeFn) {
+    var modal = document.getElementById(modalId);
+    if (!modal) return;
+    var startX = 0, startY = 0, dragging = false;
+    var THRESHOLD = 80;   // px to trigger close
+    var EDGE_ZONE = 40;   // px from left edge to start swipe
+
+    modal.addEventListener('touchstart', function(e) {
+      var t = e.touches[0];
+      // only start from left-edge zone OR if already partially dragged
+      if (t.clientX > EDGE_ZONE) {
+        startX = t.clientX;
+        startY = t.clientY;
+        dragging = true;
+      }
+    }, { passive: true });
+
+    modal.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      var dx = e.touches[0].clientX - startX;
+      var dy = e.touches[0].clientY - startY;
+      // Only handle horizontal-dominant swipes
+      if (Math.abs(dy) > Math.abs(dx)) { dragging = false; return; }
+      if (dx <= 0) return; // only rightward
+      // Move modal with finger, disable transition while dragging
+      modal.style.transition = 'none';
+      modal.style.transform = 'translateX(' + dx + 'px)';
+    }, { passive: true });
+
+    modal.addEventListener('touchend', function(e) {
+      if (!dragging) return;
+      dragging = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      // Restore transition
+      modal.style.transition = '';
+      if (dx >= THRESHOLD) {
+        // Commit close
+        closeFn();
+        // Reset transform after animation
+        setTimeout(function() { modal.style.transform = ''; }, 400);
+      } else {
+        // Snap back
+        modal.style.transform = 'translateX(0)';
+      }
+    }, { passive: true });
+  }
+
+  // Attach after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      attachSwipeClose('activity-detail-modal', closeActivityDetail);
+      attachSwipeClose('profile-detail-modal', closeProfileDetail);
+    });
+  } else {
+    attachSwipeClose('activity-detail-modal', closeActivityDetail);
+    attachSwipeClose('profile-detail-modal', closeProfileDetail);
+  }
+})();
