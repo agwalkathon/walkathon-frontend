@@ -160,13 +160,7 @@ function showTab(tab) {
 
 // Dashboard community pulse tab rendering
 function renderCommunityPulse() {
-  var grid = document.getElementById('community-stats-grid');
-  if (!grid || !LB_REG || !LB_REG.length || !LB_ACTS) return;
-
-  var container = document.getElementById('community-pulse-section');
-  if (container) {
-    container.style.display = 'block';
-  }
+  return; // Temporarily disabled for now
 
   var actsByAthlete = {};
   LB_ACTS.forEach(function(a) {
