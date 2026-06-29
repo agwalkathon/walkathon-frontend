@@ -16,8 +16,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-  <link rel="stylesheet" href="participant.css?v=20260630">
+  <link rel="stylesheet" href="participant.css?v=20260629_v3">
 </head>
 </head>
 <body>
@@ -79,7 +78,9 @@
   <div class="hdr-center" id="hdr-today-date">—</div>
   <div class="hdr-right">
     <button class="hdr-btn" onclick="clearPWACache(this)" title="Clear cache">
-      <i class="ti ti-rotate-2" style="font-size:18px;" aria-hidden="true"></i>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20h16"/><path d="m11 16 1-1 3 3 1-1-3-3 1-1 3 3 1-1-3-3 1-1 3 3 1-1-6.5-6.5a2 2 0 0 0-2.8 0L4 16l3 3 3-3"/><path d="M12 12 9 9l-1 1"/>
+      </svg>
     </button>
   </div>
 </header>
@@ -356,11 +357,25 @@
 <div class="content hidden-tab" id="tab-feed">
 <div class="max-w">
   <div class="sec">Activity Feed</div>
+  <div id="feed-highlights-row" style="display:none; margin-bottom: 16px;"></div>
+  
+
   <div id="feed-list">
     <div class="skel-card"><div class="skeleton skel-line full"></div><div class="skeleton skel-line medium"></div><div class="skeleton skel-line short"></div></div>
     <div class="skel-card"><div class="skeleton skel-line full"></div><div class="skeleton skel-line medium"></div><div class="skeleton skel-line short"></div></div>
   </div>
   
+  <!-- Highlights Detail Modal -->
+  <div id="highlight-detail-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100dvh; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:24px;" onclick="this.style.display='none'">
+    <div class="modal-card" style="background:var(--surface); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px; max-width:400px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,0.5); text-align:center; transform:scale(0.9); transition:transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); position:relative;" onclick="event.stopPropagation()">
+      <button style="position:absolute; top:12px; right:12px; background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;" onclick="document.getElementById('highlight-detail-modal').style.display='none'">✕</button>
+      <div id="highlight-modal-emoji" style="font-size:54px; margin-bottom:12px; filter:drop-shadow(0 0 10px rgba(255,255,255,0.15));">🔥</div>
+      <div id="highlight-modal-title" style="font-size:18px; font-weight:800; color:#fff; margin-bottom:6px; letter-spacing:0.3px;">Streak Leader!</div>
+      <div id="highlight-modal-subtitle" style="font-size:11px; font-weight:700; color:var(--brand); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px;">12 Days Active</div>
+      <div id="highlight-modal-body" style="font-size:13.5px; color:rgba(255,255,255,0.7); line-height:1.5; margin-bottom:20px;">Prakash Mali is on fire with 12 consecutive days of activities! Keep it going!</div>
+      <button class="btn" style="width:100%; border:none; border-radius:10px; font-weight:700; padding:12px; background:linear-gradient(135deg, #FC6100 0%, #E8622A 100%); color:#fff; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 4px 12px rgba(232,98,42,0.3);" onclick="triggerHighlightCheer()">Clap Support 👏</button>
+    </div>
+  </div>
   
   <!-- Activity Detail Modal -->
   <div id="activity-detail-modal" class="detail-modal">
@@ -816,10 +831,10 @@
 
   <!-- Modular App Assets -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="participant-config.js?v=20260630"></script>
-  <script src="participant-api.js?v=20260630"></script>
-  <script src="participant-drawers.js?v=20260630"></script>
-  <script src="participant-tabs.js?v=20260630"></script>
+  <script src="participant-config.js?v=20260629_v3"></script>
+  <script src="participant-api.js?v=20260629_v3"></script>
+  <script src="participant-drawers.js?v=20260629_v3"></script>
+  <script src="participant-tabs.js?v=20260629_v3"></script>
 
 </body>
 </html>
