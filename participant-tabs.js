@@ -2419,15 +2419,18 @@ async function checkPushSubscriptionState() {
 
     if (sub) {
       desc.innerHTML = '<span style="color:#10b981;">✓ Push notifications active.</span> You will receive real-time updates when peers react, achievements unlock, and challenges start.';
-      btn.textContent = 'Mute Notifications';
-      btn.style.background = 'rgba(255,255,255,0.06)';
-      btn.style.color = 'var(--muted)';
+      btn.textContent = 'Active';
+      btn.style.background = 'rgba(16, 185, 129, 0.12)';
+      btn.style.border = '1px solid rgba(16, 185, 129, 0.25)';
+      btn.style.color = '#10B981';
+      btn.style.pointerEvents = 'auto';
       btn.style.boxShadow = 'none';
       btn.onclick = disablePushNotifications;
     } else {
       desc.innerHTML = 'Stay updated. Enable push notifications to receive real-time alerts when medals unlock, challenges trigger, and comments/reactions land.';
-      btn.textContent = 'Enable Push Notifications';
-      btn.style.background = 'linear-gradient(135deg, #FC6100 0%, #E8622A 100%)';
+      btn.textContent = 'Enable';
+      btn.style.background = 'var(--brand)';
+      btn.style.border = 'none';
       btn.style.color = '#fff';
       btn.style.pointerEvents = 'auto';
       btn.style.boxShadow = '0 4px 12px rgba(232,98,42,0.3)';
@@ -2488,12 +2491,13 @@ async function enablePushNotifications() {
       throw new Error('Active session not found. Please log in again.');
     }
 
-    var res = await fetch(BACKEND + '/push-subscribe', {
+    var res = await fetch(BACKEND + '/push/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         athlete_id: athleteId,
-        subscription: sub
+        subscription: sub,
+        device_name: getDeviceName()
       })
     });
     var d = await res.json();
@@ -2511,12 +2515,38 @@ async function enablePushNotifications() {
   }
 }
 
+function getDeviceName() {
+  var ua = navigator.userAgent || '';
+  var device = 'Web Browser';
+  if (/android/i.test(ua)) {
+    device = 'Android';
+    if (/chrome/i.test(ua)) device = 'Android (Chrome)';
+    else if (/firefox/i.test(ua)) device = 'Android (Firefox)';
+  } else if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+    device = 'iPhone/iPad';
+    if (/crios/i.test(ua)) device = 'iOS (Chrome)';
+    else if (/safari/i.test(ua) && !/chrome/i.test(ua)) device = 'iOS (Safari)';
+  } else if (/macintosh|mac os x/i.test(ua)) {
+    device = 'Mac';
+    if (/safari/i.test(ua) && !/chrome/i.test(ua)) device = 'Mac (Safari)';
+    else if (/chrome/i.test(ua)) device = 'Mac (Chrome)';
+  } else if (/windows/i.test(ua)) {
+    device = 'Windows PC';
+    if (/edge/i.test(ua)) device = 'Windows (Edge)';
+    else if (/chrome/i.test(ua)) device = 'Windows (Chrome)';
+    else if (/firefox/i.test(ua)) device = 'Windows (Firefox)';
+  }
+  var isPWA = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (isPWA) device += ' (PWA)';
+  return device;
+}
+
 async function disablePushNotifications() {
   var btn = document.getElementById('btn-enable-push');
   if (btn) {
     btn.style.pointerEvents = 'none';
     btn.style.opacity = '0.7';
-    btn.textContent = 'Muting...';
+    btn.textContent = 'Disabling...';
   }
 
   try {
@@ -2525,13 +2555,8 @@ async function disablePushNotifications() {
     if (sub) {
       var athleteId = currentSession ? currentSession.athleteId : '';
       if (athleteId) {
-        await fetch(BACKEND + '/push-unsubscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            athlete_id: athleteId,
-            endpoint: sub.endpoint
-          })
+        await fetch(BACKEND + '/push/subscribers/' + athleteId, {
+          method: 'DELETE'
         });
       }
       await sub.unsubscribe();
