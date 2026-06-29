@@ -154,46 +154,184 @@ function showTab(tab) {
 
 // Dashboard community pulse tab rendering
 function renderCommunityPulse() {
-  var dTotalDist = document.getElementById('pulse-total-dist');
-  var dTotalSteps = document.getElementById('pulse-total-steps');
-  var dActCount = document.getElementById('pulse-active-count');
-  var dTotalCount = document.getElementById('pulse-total-count');
-  
-  if (!LB_REG || !LB_REG.length || !LB_ACTS || !LB_ACTS.length) {
-    if (dTotalDist) dTotalDist.textContent = '—';
-    return;
-  }
+  var grid = document.getElementById('community-stats-grid');
+  if (!grid || !LB_REG || !LB_REG.length || !LB_ACTS) return;
 
   var actsByAthlete = {};
   LB_ACTS.forEach(function(a) {
+    if (a.is_flagged) return;
     var aid = String(a.strava_athlete_id);
     if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
     actsByAthlete[aid].push(a);
   });
 
-  var totalDist = 0;
-  var totalActs = 0;
-  var activeAthleteIds = {};
+  var totalKm = 0, totalHours = 0, activeCount = 0;
+  var hourBuckets = {};
 
   LB_REG.forEach(function(p) {
     var acts = actsByAthlete[p.strava_athlete_id] || [];
-    var fullPts = calcFullPts(acts, p.gender, p.shift);
-    totalDist += fullPts.km;
-    
-    var validActs = acts.filter(function(a) { return !a.is_flagged; });
-    totalActs += validActs.length;
-    if (validActs.length > 0) {
-      activeAthleteIds[p.strava_athlete_id] = true;
+    var km = acts.reduce(function(s,a){return s+(a.distance_meters||0)/1000;},0);
+    var hr = acts.reduce(function(s,a){return s+(a.moving_time_seconds||0)/3600;},0);
+    totalKm += km;
+    totalHours += hr;
+    if (acts.length > 0) {
+      activeCount++;
     }
+
+    acts.forEach(function(a) {
+      try {
+        var localDt = new Date(a.activity_date);
+        if (a.start_time) {
+          var hp = a.start_time.split(':');
+          var hrVal = parseInt(hp[0], 10);
+          if (!isNaN(hrVal)) {
+            hourBuckets[hrVal] = (hourBuckets[hrVal] || 0) + 1;
+          }
+        } else if (!isNaN(localDt.getTime())) {
+          var hrVal = localDt.getHours();
+          hourBuckets[hrVal] = (hourBuckets[hrVal] || 0) + 1;
+        }
+      } catch (e) {}
+    });
   });
 
-  var totalSteps = Math.round(totalDist * 1350);
-  var activeCount = Object.keys(activeAthleteIds).length;
+  var peakHour = '—';
+  var maxActs = 0;
+  for (var h = 0; h < 24; h++) {
+    if ((hourBuckets[h] || 0) > maxActs) {
+      maxActs = hourBuckets[h];
+      var startH = h;
+      var endH = (h + 1) % 24;
+      var fmtH = function(x) {
+        var ampm = x >= 12 ? 'PM' : 'AM';
+        var h12 = x % 12;
+        if (h12 === 0) h12 = 12;
+        return h12 + ' ' + ampm;
+      };
+      peakHour = fmtH(startH) + ' - ' + fmtH(endH);
+    }
+  }
 
-  if (dTotalDist) dTotalDist.textContent = Math.round(totalDist).toLocaleString('en-IN');
-  if (dTotalSteps) dTotalSteps.textContent = totalSteps.toLocaleString('en-IN');
-  if (dActCount) dActCount.textContent = activeCount;
-  if (dTotalCount) dTotalCount.textContent = 'of ' + LB_REG.length + ' registered';
+  var activePct = Math.round((activeCount / LB_REG.length) * 100);
+  var co2 = Math.round(totalKm * 0.12);
+  var totalSteps = Math.round(totalKm * 1350);
+
+  // K2K journey
+  var k2kLength = 3600;
+  var k2kRawCount = totalKm / k2kLength;
+  var k2kCompletions = Math.floor(k2kRawCount);
+  var k2kRemKm = totalKm % k2kLength;
+  var k2kRemPct = ((k2kRemKm / k2kLength) * 100).toFixed(1);
+
+  // Odometer HTML
+  var target = totalKm.toFixed(0);
+  var padTarget = target.padStart(6, '0');
+  var odoHtml = '';
+  for (var i = 0; i < padTarget.length; i++) {
+    odoHtml += '<div class="digit-box">' + padTarget[i] + '</div>';
+  }
+
+  // Ring Dash offsets
+  var activeOffset = 220 - (220 * activePct) / 100;
+  var k2kOffset = 220 - (220 * parseFloat(k2kRemPct)) / 100;
+
+  var cardsHtml = 
+    // Odometer section
+    '<div class="pulse-odo-card" style="grid-column: span 3;">' +
+      '<div style="font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-family: var(--font); text-align: left;">' +
+        'Odometer' +
+      '</div>' +
+      '<div style="display: flex; align-items: baseline; gap: 8px;">' +
+        '<div class="pulse-odometer" style="display:flex; gap: 4px;">' + odoHtml + '</div>' +
+        '<span style="font-size: 16px; font-weight: 800; color: var(--muted); font-family: var(--font);">KM</span>' +
+      '</div>' +
+    '</div>' +
+
+    // K2K journey card
+    '<div class="pulse-card" style="grid-column: span 3;">' +
+      '<div class="pulse-card-top">' +
+        '<div class="pulse-circle">' +
+          '<svg>' +
+            '<circle class="bg" cx="40" cy="40" r="35"></circle>' +
+            '<circle class="fill k2k-fill" cx="40" cy="40" r="35" style="stroke-dashoffset: 220; stroke: #A78BFA;"></circle>' +
+          '</svg>' +
+          '<div class="pulse-pct k2k-pct">0%</div>' +
+        '</div>' +
+        '<div class="pulse-desc">' +
+          '<div class="pulse-title">Virtual Journey</div>' +
+          '<div class="pulse-subtitle">Kashmir to Kanyakumari (3,600 km)</div>' +
+          '<div class="pulse-metric" style="color: #C084FC;">' + k2kRemKm.toFixed(0) + ' km / 3,600 km</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pulse-card-footer">' +
+        'Completed <strong style="color:#C084FC; font-weight:800;">' + k2kCompletions + ' times</strong>. ' + (k2kCompletions > 0 ? 'On journey #' + (k2kCompletions + 1) : 'First journey') + '.' +
+      '</div>' +
+    '</div>' +
+
+    // Active Today card
+    '<div class="pulse-card">' +
+      '<div class="pulse-card-top">' +
+        '<div class="pulse-circle">' +
+          '<svg>' +
+            '<circle class="bg" cx="40" cy="40" r="35"></circle>' +
+            '<circle class="fill active-fill" cx="40" cy="40" r="35" style="stroke-dashoffset: 220; stroke: var(--brand);"></circle>' +
+          '</svg>' +
+          '<div class="pulse-pct active-pct">0%</div>' +
+        '</div>' +
+        '<div class="pulse-desc">' +
+          '<div class="pulse-title">Active Today</div>' +
+          '<div class="pulse-subtitle">' + activeCount + ' of ' + LB_REG.length + ' athletes</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // Total Steps card
+    '<div class="pulse-card-stat">' +
+      '<div class="pulse-stat-val">' + totalSteps.toLocaleString('en-IN') + '</div>' +
+      '<div class="pulse-stat-lbl">TOTAL STEPS</div>' +
+      '<div class="pulse-stat-sub">Based on average cadence</div>' +
+    '</div>' +
+
+    // CO2 offset card
+    '<div class="pulse-card-stat">' +
+      '<div class="pulse-stat-val" style="color: #34D399;">' + co2.toLocaleString('en-IN') + ' kg</div>' +
+      '<div class="pulse-stat-lbl" style="color: #34D399;">CO₂ OFFSET</div>' +
+      '<div class="pulse-stat-sub">Equivalent trees carbon offset</div>' +
+    '</div>' +
+
+    // Total Active Hours card
+    '<div class="pulse-card-stat">' +
+      '<div class="pulse-stat-val" style="color: #60A5FA;">' + Math.round(totalHours).toLocaleString('en-IN') + ' hrs</div>' +
+      '<div class="pulse-stat-lbl" style="color: #60A5FA;">ACTIVE TIME</div>' +
+      '<div class="pulse-stat-sub">Cumulative moving duration</div>' +
+    '</div>' +
+
+    // Peak active hour card
+    '<div class="pulse-card-stat">' +
+      '<div class="pulse-stat-val" style="color: #FBBF24;">' + peakHour + '</div>' +
+      '<div class="pulse-stat-lbl" style="color: #FBBF24;">PEAK ACTIVE HOUR</div>' +
+      '<div class="pulse-stat-sub">Most active start hour bracket</div>' +
+    '</div>';
+
+  grid.innerHTML = cardsHtml;
+
+  // Queue ring animation
+  var anims = [];
+  var actFill = grid.querySelector('.active-fill');
+  var actPct = grid.querySelector('.active-pct');
+  if (actFill && actPct) {
+    anims.push({ fillEl: actFill, pctEl: actPct, offset: activeOffset, displayPct: activePct });
+  }
+  var k2kFill = grid.querySelector('.k2k-fill');
+  var k2kPct = grid.querySelector('.k2k-pct');
+  if (k2kFill && k2kPct) {
+    anims.push({ fillEl: k2kFill, pctEl: k2kPct, offset: k2kOffset, displayPct: Math.round(parseFloat(k2kRemPct)) });
+  }
+
+  window._ringAnimationData = anims;
+  setTimeout(function() {
+    triggerRingAnimation();
+  }, 100);
 }
 
 function triggerRingAnimation() {
@@ -219,180 +357,295 @@ function triggerRingAnimation() {
 }
 
 // Activities tab rendering
+// Activities tab rendering
+var CURRENT_ACTS = [];
+var CURRENT_DAY_BREAKDOWN = {};
+var CURRENT_ACT_BREAKDOWN = {};
+var CURRENT_GENDER = '';
+
 function renderActivities(acts, dayBreakdown, actBreakdown, gender) {
+  dayBreakdown = dayBreakdown || {}; actBreakdown = actBreakdown || {};
+  CURRENT_ACTS = acts;
+  CURRENT_DAY_BREAKDOWN = dayBreakdown;
+  CURRENT_ACT_BREAKDOWN = actBreakdown;
+  CURRENT_GENDER = gender;
+
   var list = document.getElementById('act-list');
   if (!list) return;
   if (!acts || !acts.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">🏃</div><p>No activities logged yet this month.<br>Activities synced from Strava will appear here.</p></div>';
+    list.innerHTML = '<div class="empty-state"><div class="icon">' + icoRun + '</div><p>No activities yet.<br>Save a walk or run on Strava — it will appear here.</p></div>';
     return;
   }
-  list.innerHTML = '';
+  var flaggedCount = acts.filter(function(a){return a.is_flagged;}).length;
+  var banner = document.getElementById('flagged-banner');
+  if (banner) {
+    banner.style.display = flaggedCount > 0 ? 'block' : 'none';
+  }
 
-  var groupedByDay = {};
+  var groups = {}, dateOrder = [];
   acts.forEach(function(a) {
     var d = getActDate(a);
     if (!d) return;
-    if (!groupedByDay[d]) groupedByDay[d] = [];
-    groupedByDay[d].push(a);
+    if (!groups[d]) {
+      groups[d] = [];
+      dateOrder.push(d);
+    }
+    groups[d].push(a);
   });
 
-  var sortedDays = Object.keys(groupedByDay).sort(function(a,b){ return b.localeCompare(a); });
-  sortedDays.forEach(function(date) {
-    var dayActs = groupedByDay[date];
-    var db = dayBreakdown[date] || { km: 0, distPts: 0, bonusPts: 0, challenges: [], capped: false };
-    
-    var dateObj = new Date(date + 'T00:00:00');
-    var dateStr = dateObj.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
-    
+  list.innerHTML = '';
+  dateOrder.forEach(function(date, gi) {
+    var dayActs = groups[date], db = dayBreakdown[date] || {km:0,distPts:0,bonusPts:0,challenges:[]};
+    var rawKm = dayActs.filter(function(a){return !a.is_flagged;}).reduce(function(s,a){return s+(a.distance_meters||0)/1000;},0);
+    var chPts = parseFloat(dayActs.reduce(function(s,a){var ab=actBreakdown[a.strava_activity_id];return s+(ab?ab.challenges.reduce(function(s2,c){return s2+(c.pts||0);},0):0);},0).toFixed(2));
+    var dateObj = new Date(date+'T00:00:00');
+    var dN = dateObj.getDate();
+    var dM = dateObj.toLocaleDateString('en-US',{month:'long'});
+    var daySteps = Math.round(rawKm*1350);
+    var shortMonth = dM.substring(0, 3).toUpperCase();
+
+    var group = document.createElement('div');
+    group.className = 'date-group' + (dayActs.length > 1 ? ' multi-activity' : '');
+    group.id = 'dg-'+gi;
+
     var dateRow = document.createElement('div');
-    dateRow.className = 'act-date-row';
-    dateRow.innerHTML = `
-      <span class="date-lbl">${dateStr}</span>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span class="date-km">${db.km.toFixed(1)} km</span>
-        <span class="date-pts">+${(db.distPts + db.bonusPts).toFixed(1)} pts</span>
-      </div>
-    `;
-    list.appendChild(dateRow);
+    dateRow.className = 'date-row';
+    
+    var dayTotal = parseFloat((db.distPts + db.bonusPts + chPts).toFixed(2));
+    var hasFlagged = dayActs.some(function(a){ return a.is_flagged; });
+    var actValHtml = hasFlagged ? 
+      '<span class="whoop-stat-val" style="color: #EF4444;">' + dayActs.length + ' (Flagged)</span>' : 
+      '<span class="whoop-stat-val">' + dayActs.length + '</span>';
 
-    dayActs.forEach(function(a) {
-      var actCard = document.createElement('div');
-      actCard.className = 'act-card' + (a.is_flagged ? ' flagged' : '');
-      var startLocalTime = '';
-      try {
-        var localDt = new Date(a.activity_date);
-        if (!isNaN(localDt.getTime())) {
-          startLocalTime = localDt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-        }
-      } catch (e) {}
-
-      var distKmVal = (a.distance_meters || 0) / 1000;
-      var paceValStr = '—';
-      var movingSec = a.moving_time_seconds || 0;
-      if (distKmVal > 0 && movingSec > 0) {
-        paceValStr = fmtPS(movingSec / distKmVal, a.sport_type);
-      }
-
-      var calculatedSteps = Math.round(distKmVal * 1350);
-      var displaySteps = calculatedSteps.toLocaleString('en-IN');
-      if (a.steps && a.steps > 0) {
-        displaySteps = a.steps.toLocaleString('en-IN') + ' <span style="font-size:10px; color:var(--green); font-weight:700;">(Strava)</span>';
-      }
-
-      var splitBtn = '';
-      if (a.strava_activity_id) {
-        splitBtn = `<div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid rgba(255,255,255,0.04); margin-top:10px; padding-top:10px;">
-          <button class="splits-toggle-btn" onclick="loadSplitsForActivity('${a.strava_activity_id}')">Show Splits</button>
-          <div id="splits-loader-${a.strava_activity_id}" style="display:none; font-size:11px; color:var(--muted);">Loading splits...</div>
-        </div>
-        <div id="splits-container-${a.strava_activity_id}" class="splits-container-block" style="display:none;"></div>`;
-      }
-
-      var actName = a.activity_name || (a.sport_type + ' Activity');
-      var onclickAttr = 'openActivityDetail(\'' + a.strava_activity_id + '\', event, true)';
-
-      actCard.innerHTML = `
-        <div class="act-card-inner" onclick="${onclickAttr}" style="cursor: pointer;">
-          <div class="act-header">
-            <span class="act-name">${esc(actName)}</span>
-            <span class="act-time">${startLocalTime}</span>
-          </div>
-          <div class="act-stats">
-            <div class="act-stat">
-              <span class="lbl">Distance</span>
-              <span class="val">${distKmVal.toFixed(2)} km</span>
-            </div>
-            <div class="act-stat">
-              <span class="lbl">Duration</span>
-              <span class="val">${fmtDur(movingSec)}</span>
-            </div>
-            <div class="act-stat">
-              <span class="lbl">Pace</span>
-              <span class="val">${paceValStr}</span>
-            </div>
-            <div class="act-stat">
-              <span class="lbl">Est Steps</span>
-              <span class="val">${displaySteps}</span>
-            </div>
-          </div>
-          ${a.is_flagged ? '<div class="flagged-banner">⚠️ Flagged in Strava (not counted in points)</div>' : ''}
-        </div>
-        ${splitBtn}
-      `;
-      list.appendChild(actCard);
-    });
+    dateRow.innerHTML =
+      '<div class="whoop-date-box">' +
+        '<span class="whoop-date-num">' + dN + '</span>' +
+        '<span class="whoop-date-month">' + esc(shortMonth) + '</span>' +
+      '</div>' +
+      '<div style="flex:1; display:flex; flex-direction:column; margin-left:12px; min-width:0; align-items:stretch;">' +
+        '<div class="whoop-stats-box" style="margin-left:0; width:100%; justify-content:flex-end;">' +
+          '<div class="whoop-stat-item">' + actValHtml + '<span class="whoop-stat-lbl">ACTS</span></div>' +
+          '<div class="whoop-stat-item"><span class="whoop-stat-val">' + daySteps.toLocaleString('en-IN') + '</span><span class="whoop-stat-lbl">STEPS</span></div>' +
+          '<div class="whoop-stat-item"><span class="whoop-stat-val">' + rawKm.toFixed(1) + '</span><span class="whoop-stat-lbl">KM</span></div>' +
+        '</div>' +
+        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--muted); margin-top:6px; justify-content:flex-end; align-self:flex-end; font-weight:600; font-family:var(--font);">' +
+          '<span>Base: <strong style="color:#60A5FA;">' + db.distPts + '</strong></span>' +
+          '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
+          '<span>Bonus: <strong style="color:#FFD000;">' + db.bonusPts + '</strong></span>' +
+          '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
+          '<span>Challenge: <strong style="color:#A78BFA;">' + chPts + '</strong></span>' +
+        '</div>' +
+        '<div class="whoop-total-box" style="font-size:13px; font-weight:700; color:var(--muted); margin-top:4px; align-self:flex-end; font-family:var(--font);">' +
+          'Total: <strong style="color:var(--brand); font-size:14px; font-weight:800;">' + dayTotal + ' pts</strong>' +
+        '</div>' +
+      '</div>' +
+      '<div class="date-chevron">❯</div>';
+    
+    dateRow.addEventListener('click', (function(d){return function(){showDateDetails(d);}})(date));
+    group.appendChild(dateRow);
+    list.appendChild(group);
   });
 }
 
-function loadSplitsForActivity(actId) {
-  var container = document.getElementById('splits-container-' + actId);
-  var loader = document.getElementById('splits-loader-' + actId);
-  var btn = container ? container.parentElement.querySelector('.splits-toggle-btn') : null;
-  if (!container || !loader) return;
+function showDateDetails(dateStr) {
+  var detailsView = document.getElementById('date-details-view');
+  var titleEl = document.getElementById('details-date-title');
+  var contentEl = document.getElementById('details-content-area');
+  if (!detailsView || !contentEl) return;
 
-  var isVisible = container.style.display === 'block';
-  if (isVisible) {
-    container.style.display = 'none';
-    if (btn) btn.textContent = 'Show Splits';
+  try {
+    var dateObj = new Date(dateStr + 'T00:00:00');
+    var weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+    var month = dateObj.toLocaleDateString('en-US', { month: 'long' });
+    var dN = dateObj.getDate();
+    if (titleEl) {
+      titleEl.textContent = weekday + ', ' + month + ' ' + dN;
+    }
+  } catch(e) {
+    if (titleEl) titleEl.textContent = dateStr;
+  }
+
+  var dayActs = (CURRENT_ACTS || []).filter(function(a) {
+    return getActDate(a) === dateStr;
+  });
+
+  if (!dayActs.length) {
+    contentEl.innerHTML = '<div class="empty-state"><p>No activities found for this date.</p></div>';
+    detailsView.classList.add('visible');
     return;
   }
 
-  if (container.getAttribute('data-loaded') === 'true') {
-    container.style.display = 'block';
-    if (btn) btn.textContent = 'Hide Splits';
-    return;
-  }
+  var html = '';
+  dayActs.forEach(function(a) {
+    var sportStr = toTitleCaseDetail(a.sport_type || 'Activity');
+    var actName = a.activity_name || 'Activity';
+    var tc = tileClass(a.sport_type);
+    
+    var km = a.base_km ? a.base_km.toFixed(2) : (a.distance_meters ? (a.distance_meters/1000).toFixed(2) : '0.00');
+    var dur = a.moving_time_seconds ? fmtDur(a.moving_time_seconds) : '—';
+    var ela = a.elapsed_time_seconds ? fmtDur(a.elapsed_time_seconds) : '—';
+    var ps = fmtPS(a.avg_speed, a.sport_type);
+    
+    var dateStartTimeStr = '—';
+    var timePart = '';
+    try {
+      var dt = new Date(a.activity_date);
+      var datePart = dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      timePart = a.start_time ? fmtTime(a.activity_date, a.start_time) : (a.activity_date.indexOf('T') > -1 ? fmtTime(a.activity_date, '00:00:00') : '');
+      dateStartTimeStr = datePart + (timePart ? ' at ' + timePart : '');
+    } catch(e) {}
 
-  loader.style.display = 'block';
-  if (btn) btn.style.display = 'none';
+    var isFlag = a.is_flagged;
+    var cardId = 'dac-' + a.strava_activity_id;
+    var expandByDefault = (dayActs.length === 1);
 
-  fetch(SUPABASE_URL + '/rest/v1/activity_splits?activity_id=eq.' + actId + '&order=split_number.asc', { headers: HDR })
-    .then(function(res) { return res.json(); })
-    .then(function(splits) {
-      loader.style.display = 'none';
-      if (btn) {
-        btn.style.display = 'block';
-        btn.textContent = 'Hide Splits';
-      }
-      
-      if (!splits || splits.length === 0) {
-        container.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0;">No splits available.</div>';
-        container.style.display = 'block';
-        container.setAttribute('data-loaded', 'true');
-        return;
-      }
+    var gridItems = [];
+    if (km && parseFloat(km) > 0) gridItems.push({ label: 'Distance', val: km + ' km' });
+    if (ps && ps !== '—' && ps !== '') gridItems.push({ label: 'Pace', val: ps });
+    if (dur && dur !== '—' && dur !== '') gridItems.push({ label: 'Moving Time', val: dur });
+    if (ela && ela !== '—' && ela !== '') gridItems.push({ label: 'Elapsed Time', val: ela });
+    if (a.avg_heart_rate && parseFloat(a.avg_heart_rate) > 0) gridItems.push({ label: 'Avg HR', val: Math.round(a.avg_heart_rate) + ' bpm' });
+    if (a.max_heart_rate && parseFloat(a.max_heart_rate) > 0) gridItems.push({ label: 'Max HR', val: Math.round(a.max_heart_rate) + ' bpm' });
+    if (a.avg_cadence && parseFloat(a.avg_cadence) > 0) gridItems.push({ label: 'Avg Cadence', val: Math.round(a.avg_cadence * 2) + ' steps/min' });
+    if (a.steps && parseInt(a.steps) > 0) gridItems.push({ label: 'Strava Steps', val: parseInt(a.steps).toLocaleString('en-IN') });
+    if (a.distance_meters && parseFloat(a.distance_meters) > 0) {
+      var calcSteps = Math.round((a.distance_meters / 1000) * 1350);
+      gridItems.push({ label: 'Calculated Steps', val: calcSteps.toLocaleString('en-IN') });
+    }
+    if (a.elevation_gain && parseFloat(a.elevation_gain) > 0) gridItems.push({ label: 'Elevation', val: Math.round(a.elevation_gain) + ' m' });
+    if (a.calories && parseFloat(a.calories) > 0) gridItems.push({ label: 'Calories', val: Math.round(a.calories) + ' kcal' });
+    var devName = a.device_name || a.device || '';
+    if (devName && devName !== '—' && devName !== '') gridItems.push({ label: 'Device', val: esc(devName) });
 
-      var hasHR = splits.some(function(s) { return s.average_heartrate !== null && s.average_heartrate !== undefined && s.average_heartrate > 0; });
-      var html = '<table class="splits-table"><thead><tr><th style="text-align:left;">Split #</th><th style="text-align:left;">Distance</th><th style="text-align:left;">Pace</th>' + (hasHR ? '<th style="text-align:left;">Avg HR</th>' : '') + '</tr></thead><tbody>';
-      
-      splits.forEach(function(s) {
-        var sDist = ((s.distance_meters || 0) / 1000).toFixed(2) + ' km';
-        var sPace = '--';
-        var sDistKm = (s.distance_meters || 0) / 1000;
-        var sMoving = s.moving_time_seconds || 0;
-        if (sDistKm > 0 && sMoving > 0) {
-          var sPaceSec = sMoving / sDistKm;
-          var sPaceMin = Math.floor(sPaceSec / 60);
-          var sPaceRemainder = Math.round(sPaceSec % 60);
-          if (sPaceRemainder < 10) sPaceRemainder = '0' + sPaceRemainder;
-          sPace = sPaceMin + ':' + sPaceRemainder + ' /km';
-        }
-        var sHR = s.average_heartrate ? Math.round(s.average_heartrate) + ' bpm' : '—';
-        html += '<tr><td style="color:var(--muted); font-weight:600;">#' + s.split_number + '</td><td style="color:#fff; font-weight:600;">' + sDist + '</td><td style="color:#E8622A; font-weight:700;">' + sPace + '</td>' + (hasHR ? '<td style="color:rgba(255,255,255,0.7);">' + sHR + '</td>' : '') + '</tr>';
-      });
-      html += '</tbody></table>';
-      
-      container.innerHTML = html;
-      container.style.display = 'block';
-      container.setAttribute('data-loaded', 'true');
-    })
-    .catch(function(err) {
-      console.warn('Failed to load splits:', err);
-      loader.style.display = 'none';
-      if (btn) btn.style.display = 'block';
-      container.innerHTML = '<div style="font-size:11px;color:#EF4444;padding:8px 0;cursor:pointer;" onclick="loadSplitsForActivity(\'' + actId + '\')">Failed to load splits. Click to retry.</div>';
-      container.style.display = 'block';
+    var gridHtml = '';
+    gridItems.forEach(function(item) {
+      gridHtml += '<div class="detail-item"><span class="detail-label">' + item.label + '</span><span class="detail-value">' + item.val + '</span></div>';
     });
+
+    html +=
+      '<div class="detail-act-card' + (isFlag ? ' flagged' : '') + (expandByDefault ? ' open' : '') + '" id="' + cardId + '">' +
+        '<div class="detail-act-hdr" onclick="toggleActCard(\'' + a.strava_activity_id + '\')">' +
+          '<div class="detail-act-hdr-left">' +
+            '<div class="detail-act-icon ' + tc + '">' + renderIcon(a.sport_type) + '</div>' +
+            '<div class="detail-act-title-wrap">' +
+              '<div class="detail-act-name">' + esc(sportStr + ' - ' + actName) + '</div>' +
+              '<div class="detail-act-sub">' + (timePart ? 'Started at ' + timePart : sportStr) + ' &middot; ' + km + ' km</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="detail-act-hdr-right">' +
+            '<div class="detail-act-chevron">▼</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="detail-act-body">' +
+          '<div class="detail-status-row" style="margin-bottom: 12px; margin-top: 0;">' +
+            '<div style="display: flex; align-items: center; justify-content: space-between;">' +
+              '<span class="detail-label" style="margin-bottom: 0;">Activity Status</span>' +
+              '<span class="status-badge ' + (isFlag ? 'invalid' : 'valid') + '" style="align-self: auto;">' + (isFlag ? (a.is_reviewed === true || a.is_reviewed === 'true' ? '⚑ Invalid (Reviewed)' : '⚑ Invalid (Under Review)') : '✓ Valid') + '</span>' +
+            '</div>' +
+            (isFlag ? 
+            '<div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">' +
+              '<span class="detail-label">Flag Reason</span>' +
+              '<span class="flag-reason-text" style="margin-top: 0;">' + esc(a.flag_reason || 'Under review') + '</span>' +
+            '</div>' : '') +
+          '</div>' +
+          '<div class="detail-divider" style="margin: 12px 0;"></div>' +
+          '<div class="detail-grid">' +
+            gridHtml +
+          '</div>' +
+          '<div class="detail-divider"></div>' +
+          '<div id="splits-area-' + a.strava_activity_id + '" style="margin-top: 12px; margin-bottom: 12px;">' +
+            '<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Splits (per km)</div>' +
+            '<div style="padding:16px 0;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;">' +
+              'Loading splits…' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+  });
+
+  contentEl.innerHTML = html;
+  detailsView.classList.add('visible');
+
+  if (dayActs.length === 1) {
+    loadSplitsForActivity(dayActs[0].strava_activity_id);
+  }
+}
+
+function toggleActCard(actId) {
+  var card = document.getElementById('dac-' + actId);
+  if (card) {
+    card.classList.toggle('open');
+    if (card.classList.contains('open')) {
+      loadSplitsForActivity(actId);
+    }
+  }
+}
+
+function goBackToActivities() {
+  var detailsView = document.getElementById('date-details-view');
+  if (detailsView) {
+    detailsView.classList.remove('visible');
+  }
+}
+
+function toTitleCaseDetail(str) {
+  if (!str) return '';
+  return str.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
+async function loadSplitsForActivity(actId) {
+  var area = document.getElementById('splits-area-' + actId);
+  if (!area || area.getAttribute('data-loaded') === 'true') return;
+
+  try {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/activity_splits?activity_id=eq.' + actId + '&order=split_number.asc', { headers: HDR });
+    var splits = await res.json();
+    if (!splits || !splits.length) {
+      area.innerHTML = 
+        '<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Splits (per km)</div>' +
+        '<div style="padding:10px 0;font-size:13px;color:var(--muted)">No split data available for this activity.</div>';
+      area.setAttribute('data-loaded', 'true');
+      return;
+    }
+
+    var hasHR = splits.some(function(s){ return s.average_heartrate && parseFloat(s.average_heartrate) > 0; });
+    var tableHtml = 
+      '<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Splits (per km)</div>' +
+      '<div style="overflow-x:auto;"><table class="splits-table"><thead><tr>' +
+        '<th>#</th><th>Pace</th><th>Distance</th>' + (hasHR ? '<th>Avg HR</th>' : '') +
+      '</tr></thead><tbody>';
+
+    splits.forEach(function(s) {
+      var dVal = (s.distance_meters || 0) / 1000;
+      var dStr = dVal.toFixed(2) + ' km';
+      var mTime = s.moving_time_seconds || 0;
+      var pStr = '—';
+      if (dVal > 0 && mTime > 0) {
+        var paceSec = mTime / dVal;
+        var pMin = Math.floor(paceSec / 60);
+        var pSec = Math.round(paceSec % 60);
+        pStr = pMin + ':' + (pSec < 10 ? '0' : '') + pSec + '/km';
+      }
+      var hrVal = s.average_heartrate ? Math.round(s.average_heartrate) + ' bpm' : '—';
+      tableHtml += '<tr>' +
+        '<td style="color:var(--muted);font-weight:600;">' + s.split_number + '</td>' +
+        '<td style="color:var(--brand);font-weight:700;">' + pStr + '</td>' +
+        '<td style="color:#fff;font-weight:600;">' + dStr + '</td>' +
+        (hasHR ? '<td>' + hrVal + '</td>' : '') +
+      '</tr>';
+    });
+    tableHtml += '</tbody></table></div>';
+    area.innerHTML = tableHtml;
+    area.setAttribute('data-loaded', 'true');
+  } catch(err) {
+    console.error('Error loading splits:', err);
+    area.innerHTML = 
+      '<div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Splits (per km)</div>' +
+      '<div style="font-size:13px;color:#EF4444;padding:8px 0;cursor:pointer;" onclick="loadSplitsForActivity(\'' + actId + '\')">Failed to load splits. Click to retry.</div>';
+    area.removeAttribute('data-loaded');
+  }
 }
 
 // Leaderboards Logic
@@ -475,59 +728,310 @@ function getMedalLB(pts, gender) {
   return pts >= g ? '🥇' : pts >= s ? '🥈' : pts >= b ? '🥉' : '';
 }
 
-var _lbMode = 'peer';
-function lbRender() {
-  var list = document.getElementById('lb-peer-list');
-  var teamList = document.getElementById('lb-team-list');
-  if (!list || !teamList) return;
+var LB_currentTab = 'shift';
+window.LB_currentTab = LB_currentTab;
+
+function lastActiveLabel(dateStr) {
+  if (!dateStr) return {text:'No activity',recent:false};
+  var today=new Date(), d=new Date(dateStr+'T12:00:00');
+  var diff=Math.floor((today-d)/86400000);
+  if(diff===0) return {text:'Active today',recent:true};
+  if(diff===1) return {text:'Active yesterday',recent:true};
+  return {text:diff+' days ago',recent:false};
+}
+
+function buildSparkline(acts) {
+  var dayKm={}, now=new Date();
+  (acts||[]).filter(function(a){return !a.is_flagged;}).forEach(function(a){
+    var d=getActDate(a); if(!d)return;
+    dayKm[d]=(dayKm[d]||0)+(a.distance_meters||0)/1000;
+  });
+  var vals=[];
+  for(var i=6;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);d.setHours(12,0,0,0);var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');vals.push({km:dayKm[ds]||0,isToday:i===0});}
+  var maxKm=Math.max.apply(null,vals.map(function(v){return v.km;}))||1;
+  return vals.map(function(v){var h=Math.max(2,Math.round((v.km/maxKm)*20));return '<div class="spark-bar'+(v.isToday?' today':'')+'" style="height:'+h+'px" title="'+v.km.toFixed(1)+' km"></div>';}).join('');
+}
+
+function renderRows(rows, prevRanks) {
+  prevRanks = prevRanks || {};
+  var meId = LB_ME ? String(LB_ME.strava_athlete_id) : '', list = document.getElementById('lb-list');
+  if (!list) return;
+  if (rows.length === 0) {
+    list.innerHTML = '<div class="empty-box"><div class="ei">🏃</div><p>No activities yet in this category.</p></div>';
+    safeSetText('lb-my-rank', '—');
+    return;
+  }
   list.innerHTML = '';
-  teamList.innerHTML = '';
-
-  var peerRows = getRows('peer');
-  var teamRows = getRows('team');
-
-  var myId = String(currentSession ? currentSession.athleteId : '');
-
-  function buildList(rows, targetEl) {
-    if (!rows.length) {
-      targetEl.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--muted)">No rankings compiled yet.</div>';
-      return;
+  
+  var myRank = 0;
+  var meRow = null;
+  rows.forEach(function(r, i) {
+    if (String(r.p.strava_athlete_id) === meId) {
+      myRank = i + 1;
+      meRow = r;
     }
-    rows.forEach(function(r, idx) {
-      var isMe = String(r.p.strava_athlete_id) === myId;
-      var medal = getMedalLB(r.pts.total, r.p.gender);
-      var row = document.createElement('div');
-      row.className = 'lb-row' + (isMe ? ' me' : '');
-      if (targetEl === list && r.p.strava_athlete_id) {
-        row.style.cursor = 'pointer';
-        row.onclick = function(event) {
-          openProfileDetail(r.p.strava_athlete_id, event);
-        };
-      }
-      
-      row.innerHTML = `
-        <div class="lb-rank">${idx + 1}</div>
-        <div class="lb-avatar">${esc(r.p.full_name ? r.p.full_name[0] : '?')}</div>
-        <div class="lb-details">
-          <span class="lb-name">${esc(r.p.full_name || '—')} ${isMe ? '<span class="you-chip">You</span>' : ''}</span>
-          <span class="lb-sub">${Math.round(r.pts.km)} km &middot; ${r.pts.distPts.toFixed(0)} dist &middot; ${r.pts.bonusPts} bonus &middot; ${r.pts.challengePts} challenges</span>
-        </div>
-        <div class="lb-pts-col">
-          <span class="pts">${r.pts.total.toFixed(0)}</span>
-          <span class="medal">${medal}</span>
-        </div>
-      `;
-      targetEl.appendChild(row);
+  });
+
+  var actsByAthlete = {};
+  LB_ACTS.forEach(function(a) {
+    var aid = String(a.strava_athlete_id);
+    if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
+    actsByAthlete[aid].push(a);
+  });
+
+  function buildRowElement(r, i, isMePinned) {
+    var isMe = String(r.p.strava_athlete_id) === meId;
+    var topCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    var rankIcon = i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : '#' + (i + 1);
+    var rankColCls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
+    var mPts = r.pts.total;
+    var rowMedal = getMedalLB(mPts, r.p.gender);
+    var teamName = (r.p.leaderboard_team || '').replace(/^Team\s+/i, '');
+
+    var athId = String(r.p.strava_athlete_id);
+    var prev = prevRanks[athId];
+    var deltaHtml = '';
+    if (prev != null) {
+      var diff = prev - (i + 1);
+      if (diff > 0) deltaHtml = '<span class="rank-delta delta-up">↑' + diff + '</span>';
+      else if (diff < 0) deltaHtml = '<span class="rank-delta delta-dn">↓' + Math.abs(diff) + '</span>';
+      else deltaHtml = '<span class="rank-delta delta-same">—</span>';
+    }
+
+    var myActsForRow = actsByAthlete[athId] || [];
+    var la = getLastActive(myActsForRow);
+    var laInfo = lastActiveLabel(la);
+
+    var sparkHtml = '<div class="sparkline">' + buildSparkline(myActsForRow) + '</div>';
+
+    var row = document.createElement('div');
+    row.className = 'lb-row ' + topCls + (isMe ? ' is-me' : '') + (isMePinned ? ' is-me-pinned' : '');
+
+    var summary = document.createElement('div');
+    summary.className = 'row-summary';
+    summary.innerHTML =
+      '<div class="rank-col ' + rankColCls + '" style="display:flex;flex-direction:column;align-items:center;">' + rankIcon + deltaHtml + '</div>' +
+      '<div class="row-body">' +
+        '<div class="row-left">' +
+          '<span class="row-name">' + esc(r.p.full_name || '—') + (isMe ? '<span class="you-chip">You</span>' : '') + '</span>' +
+          (teamName ? '<span style="font-size:11px;color:var(--label);margin-top:2px;display:block;">' + esc(teamName) + '</span>' : '') +
+        '</div>' +
+        '<div class="row-right" style="display:flex;align-items:center;gap:6px;">' +
+          '<div class="row-pts">' +
+            '<span class="row-pts-num">' + r.pts.total.toFixed(2) + '</span>' +
+            '<span class="row-pts-unit"> pts</span>' +
+            (rowMedal ? '<span class="row-medal">' + rowMedal + '</span>' : '') +
+          '</div>' +
+          '<span class="row-chevron">▼</span>' +
+        '</div>' +
+      '</div>';
+
+    var detail = document.createElement('div');
+    detail.className = 'row-detail';
+
+    var chalHtml = r.pts.challengePts > 0
+      ? '<div class="detail-cell"><div class="detail-cell-lbl">🎯 Challenge</div><div class="detail-cell-val green">' + r.pts.challengePts.toFixed(1) + '</div></div>'
+      : '';
+
+    detail.innerHTML =
+      '<div class="detail-grid">' +
+        '<div class="detail-cell"><div class="detail-cell-lbl">📏 Distance</div><div class="detail-cell-val blue">' + r.pts.km.toFixed(1) + ' km</div></div>' +
+        '<div class="detail-cell"><div class="detail-cell-lbl">⭐ Dist Pts</div><div class="detail-cell-val brand">' + r.pts.distPts.toFixed(1) + '</div></div>' +
+        '<div class="detail-cell"><div class="detail-cell-lbl">⚡ Bonus</div><div class="detail-cell-val gold">' + r.pts.bonusPts + '</div></div>' +
+        (chalHtml || '<div class="detail-cell"><div class="detail-cell-lbl">🎯 Challenge</div><div class="detail-cell-val" style="color:var(--label)">—</div></div>') +
+        '<div class="detail-cell" style="grid-column:span ' + (r.pts.challengePts > 0 ? '2' : '3') + '"><div class="detail-cell-lbl">🏆 Total</div><div class="detail-cell-val brand" style="font-size:18px;">' + r.pts.total.toFixed(2) + '</div></div>' +
+      '</div>' +
+      '<div class="detail-meta">' +
+        '<span class="last-active-chip' + (laInfo.recent ? ' recent' : '') + '">' + laInfo.text + '</span>' +
+        sparkHtml +
+      '</div>';
+
+    row.appendChild(summary);
+    row.appendChild(detail);
+
+    row.addEventListener('click', function() {
+      var isExp = row.classList.contains('expanded');
+      var allRows = list.querySelectorAll('.lb-row');
+      allRows.forEach(function(r2) { r2.classList.remove('expanded'); });
+      if (!isExp) row.classList.add('expanded');
     });
+
+    return row;
   }
 
-  buildList(peerRows, list);
-  buildList(teamRows, teamList);
+  var frag = document.createDocumentFragment();
+  rows.forEach(function(r, i) {
+    var isMe = String(r.p.strava_athlete_id) === meId;
+    if (isMe && myRank > 3) {
+      return;
+    }
+    
+    var rowEl = buildRowElement(r, i, false);
+    frag.appendChild(rowEl);
+    
+    if (i === 2 && myRank > 3 && meRow) {
+      var pinnedEl = buildRowElement(meRow, myRank - 1, true);
+      frag.appendChild(pinnedEl);
+    }
+  });
+  list.appendChild(frag);
 
-  // Show/Hide Lists based on selected mode
-  document.getElementById('lb-peer-container').style.display = _lbMode === 'peer' ? 'block' : 'none';
-  document.getElementById('lb-team-container').style.display = _lbMode === 'team' ? 'block' : 'none';
+  var rnkEl = document.getElementById('lb-my-rank');
+  if (rnkEl && myRank > 0) rnkEl.textContent = '#' + myRank;
 }
+
+function renderHallOfFame() {
+  var list = document.getElementById('lb-list');
+  if (!list) return;
+  var actsByAthlete = {};
+  LB_ACTS.forEach(function(a) {
+    if (a.is_flagged) return;
+    var aid = String(a.strava_athlete_id);
+    if (!actsByAthlete[aid]) actsByAthlete[aid] = [];
+    actsByAthlete[aid].push(a);
+  });
+
+  var allScored = LB_REG.map(function(p) {
+    var acts = actsByAthlete[p.strava_athlete_id] || [];
+    var totalKm = acts.reduce(function(s,a){return s+(a.distance_meters||0)/1000;},0);
+    var dayKm = {};
+    acts.forEach(function(a){var d=getActDate(a);if(d)dayKm[d]=(dayKm[d]||0)+(a.distance_meters||0)/1000;});
+    var maxDayKm = Object.values(dayKm).reduce(function(m,v){return Math.max(m,v);},0);
+    var days = Object.keys(dayKm).sort(), streak=0, cur=0, prev=null;
+    days.forEach(function(d){if(prev){var diff=Math.round((new Date(d+'T12:00:00')-new Date(prev+'T12:00:00'))/86400000);cur=diff===1?cur+1:1;}else cur=1;streak=Math.max(streak,cur);prev=d;});
+    return {name:p.full_name||'—', totalKm:totalKm, maxDayKm:maxDayKm, streak:streak, actCount:acts.length};
+  }).filter(function(x){return x.totalKm>0;});
+
+  var byKm = allScored.slice().sort(function(a,b){return b.totalKm-a.totalKm;});
+  var byDay = allScored.slice().sort(function(a,b){return b.maxDayKm-a.maxDayKm;});
+  var byStreak = allScored.slice().sort(function(a,b){return b.streak-a.streak;});
+  var byCount = allScored.slice().sort(function(a,b){return b.actCount-a.actCount;});
+
+  function hofCard(title, icon, name, val) {
+    return '<div class="hof-card">'+
+      '<div style="font-size:28px;flex-shrink:0;">'+icon+'</div>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div class="hof-title">'+title+'</div>'+
+        '<div class="hof-val">'+val+'</div>'+
+        '<div class="hof-name">'+esc(name)+'</div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  list.innerHTML = '<div class="hof-grid">'+
+    hofCard('Most km', '🏅', byKm[0]?byKm[0].name:'—', byKm[0]?byKm[0].totalKm.toFixed(1)+' km':'—') +
+    hofCard('Best Day', '🌟', byDay[0]?byDay[0].name:'—', byDay[0]?byDay[0].maxDayKm.toFixed(1)+' km':'—') +
+    hofCard('Longest Streak', '🔥', byStreak[0]?byStreak[0].name:'—', byStreak[0]?byStreak[0].streak+' days':'—') +
+    hofCard('Most Activities', '⚡', byCount[0]?byCount[0].name:'—', byCount[0]?byCount[0].actCount+' acts':'—') +
+  '</div>';
+}
+
+function switchTab(mode) {
+  LB_currentTab = mode;
+  safeToggleClass('lb-tab-shift', 'active', mode === 'shift');
+  safeToggleClass('lb-tab-team', 'active', mode === 'team');
+  safeToggleClass('lb-tab-hof', 'active', mode === 'hof');
+  if (mode === 'hof') {
+    renderHallOfFame();
+    return;
+  }
+  renderRows(getRows(mode));
+}
+window.switchTab = switchTab;
+
+function buildTabs() {
+  if (!LB_ME) return;
+  var myGender = norm(LB_ME.gender), myShift = norm(LB_ME.shift), myTeam = LB_ME.leaderboard_team || 'My Team', isNight = myShift.indexOf('night') > -1, isFemale = myGender === 'female' || myGender === 'f';
+  safeSetText('lb-tab-shift', isNight ? 'Nightshift' : 'Dayshift');
+  safeSetText('lb-tab-team', myTeam);
+}
+
+function showSkeletons() {
+  var h = '';
+  for (var i = 0; i < 6; i++) h += '<div class="skel-row"><div class="skeleton skel-c"></div><div class="skel-lines"><div class="skeleton skel-l m"></div><div class="skeleton skel-l s"></div></div></div>';
+  safeSetHtml('lb-list', h);
+}
+
+function lbRender() {
+  var s = JSON.parse(localStorage.getItem('wk_user') || '{}');
+  try {
+    renderStanding();
+    var name = (LB_ME && LB_ME.full_name) || s.name || 'Participant';
+    safeSetText('lb-my-name', name.toUpperCase());
+    var tags = [];
+    if (LB_ME && LB_ME.gender) tags.push(LB_ME.gender);
+    if (LB_ME && LB_ME.shift) tags.push(LB_ME.shift);
+    if (LB_ME && LB_ME.leaderboard_team) tags.push(LB_ME.leaderboard_team);
+    safeSetHtml('lb-my-tags', tags.map(function(t) { return '<span class="my-tag">' + esc(t) + '</span>'; }).join(''));
+    
+    buildTabs();
+    renderRows(getRows(LB_currentTab));
+    
+    var allRows = getRows(LB_currentTab);
+    var myRow = allRows.find(function(r) { return String(r.p.strava_athlete_id) === String(s.athleteId); });
+    safeSetText('lb-my-pts', myRow ? myRow.pts.total.toFixed(2) : '—');
+    
+    (function() {
+      try {
+        var meId = s.athleteId;
+        var curRank = allRows.findIndex(function(r) { return String(r.p.strava_athlete_id) === String(meId); }) + 1;
+        var cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 7);
+        var cutoffStr = getISTDate(cutoff.toISOString());
+        var oldActs = LB_ACTS.filter(function(a) { return getActDate(a) <= cutoffStr; });
+        
+        var oldActsMap = {};
+        oldActs.forEach(function(a) {
+          var aid = String(a.strava_athlete_id);
+          if (!oldActsMap[aid]) oldActsMap[aid] = [];
+          oldActsMap[aid].push(a);
+        });
+        
+        var myGd = norm(LB_ME.gender), myShd = norm(LB_ME.shift), isNd = myShd.indexOf('night') > -1, isFd = myGd === 'female' || myGd === 'f';
+        var oldRows = LB_REG.filter(function(q) {
+          var pg = norm(q.gender), ps = norm(q.shift), pt = norm(q.leaderboard_team), pIsFemale = pg === 'female' || pg === 'f';
+          if (pIsFemale !== isFd) return false;
+          return LB_currentTab === 'team' ? pt === norm(LB_ME.leaderboard_team) : ps.indexOf('night') > -1 === isNd;
+        }).map(function(q) {
+          var aid = String(q.strava_athlete_id);
+          var acts = oldActsMap[aid] || [];
+          return { id: aid, pts: calcFullPts(acts, q.gender, q.shift).total };
+        }).filter(function(r) { return r.pts > 0; }).sort(function(a, b) { return b.pts - a.pts; });
+        
+        var oldRank = oldRows.findIndex(function(r) { return r.id === String(meId); }) + 1;
+        var rmEl = document.getElementById('lb-rank-move');
+        if (rmEl && curRank > 0) {
+          if (oldRank <= 0 || oldRank === curRank) {
+            rmEl.textContent = 'same';
+            rmEl.style.color = 'var(--muted)';
+          } else if (curRank < oldRank) {
+            rmEl.innerHTML = '<span style="color:var(--green)">&#8679; ' + (oldRank - curRank) + '</span> up';
+          } else {
+            rmEl.innerHTML = '<span style="color:#f87171">&#8681; ' + (curRank - oldRank) + '</span> down';
+          }
+        }
+        
+        var ngEl = document.getElementById('lb-next-gap');
+        var nnEl = document.getElementById('lb-next-name');
+        if (ngEl && curRank > 1 && allRows.length >= curRank) {
+          var above = allRows[curRank - 2];
+          var gap = above.pts.total - (myRow ? myRow.pts.total : 0);
+          ngEl.textContent = gap.toFixed(1) + ' pts behind';
+          if (nnEl) nnEl.textContent = esc(above.p.full_name || '');
+        } else if (ngEl && curRank === 1) {
+          ngEl.textContent = 'You are #1!';
+          ngEl.style.color = 'var(--gold)';
+          if (nnEl) nnEl.textContent = 'Lead to the finish';
+        }
+      } catch (e2) {
+        console.warn('RankMove:', e2);
+      }
+    })();
+  } catch (e) {
+    console.error('lbRender error:', e);
+  }
+}
+window.lbRender = lbRender;
 
 function lbBoot() {
   if (!_lbReady) {
@@ -536,27 +1040,213 @@ function lbBoot() {
   }
   lbRender();
 }
+window.lbBoot = lbBoot;
 
-function toggleLBMode(mode) {
-  _lbMode = mode;
-  var btnPeer = document.getElementById('lb-btn-peer');
-  var btnTeam = document.getElementById('lb-btn-team');
-  if (btnPeer && btnTeam) {
-    btnPeer.classList.toggle('active', mode === 'peer');
-    btnTeam.classList.toggle('active', mode === 'team');
+function renderStanding() {
+  try {
+    var reg = LB_ME || {};
+    var athleteId = reg.strava_athlete_id || (currentSession && currentSession.athleteId);
+    if (!athleteId || !LB_REG || !LB_REG.length) return;
+
+    var allReg=LB_REG,myGenderN=norm(reg.gender),myShiftN=norm(reg.shift);
+    var myTeamN=norm(reg.leaderboard_team),isNight=myShiftN.indexOf('night')>-1,isFemale=myGenderN==='female'||myGenderN==='f';
+    function rankIn(peers){
+      var scored=peers.map(function(p){
+        var aid = String(p.strava_athlete_id);
+        var score = LB_SCORES[aid];
+        var total = score ? score.total : 0;
+        return{id:p.strava_athlete_id,pts:total};
+      }).filter(function(x){return x.pts>0;}).sort(function(a,b){return b.pts-a.pts;});
+      var pos=scored.findIndex(function(x){return String(x.id)===String(athleteId);});
+      return pos>=0?pos+1:null;
+    }
+
+    var shiftPeers=allReg.filter(function(p){
+      var pg=norm(p.gender),ps=norm(p.shift);
+      return ps.indexOf('night')>-1===isNight&&(pg==='female'||pg==='f')===isFemale;
+    });
+
+    var excl=computeTeamExclusions();
+    var exSet=isFemale?excl.female:excl.male;
+    var teamPeers=allReg.filter(function(p){
+      var pg=norm(p.gender),pt=norm(p.leaderboard_team);
+      return pt===myTeamN&&(pg==='female'||pg==='f')===isFemale&&exSet.indexOf(String(p.strava_athlete_id))===-1;
+    });
+
+    var shiftRank=rankIn(shiftPeers),teamRank=rankIn(teamPeers);
+    function ordinal(n){if(!n)return'—';var sfx=['th','st','nd','rd'],v=n%100;var s=sfx[(v-20)%10]||sfx[v]||sfx[0];return n+'<span class="rank-sup">'+s+'</span>';}
+    var shiftLabel=isNight?'Nightshift · '+(isFemale?'Female':'Male'):'Dayshift · '+(isFemale?'Female':'Male');
+    var teamLabel=(reg.leaderboard_team||'Team')+' · '+(isFemale?'Female':'Male');
+
+    var sLabelEl = document.getElementById('standing-shift-label'); if (sLabelEl) sLabelEl.textContent=shiftLabel;
+    var sRankEl = document.getElementById('standing-shift-rank'); if (sRankEl) sRankEl.innerHTML=shiftRank?ordinal(shiftRank):'—';
+    var tLabelEl = document.getElementById('standing-team-label'); if (tLabelEl) tLabelEl.textContent=teamLabel;
+    var tRankEl = document.getElementById('standing-team-rank'); if (tRankEl) tRankEl.innerHTML=teamRank?ordinal(teamRank):'—';
+
+    var isTop3Individual = shiftRank && shiftRank <= 3;
+    var standingGrid = document.querySelector('.standing-grid');
+    var teamCard = tRankEl ? tRankEl.closest('.standing-card') : null;
+    if(isTop3Individual){
+      if(teamCard) teamCard.style.display='none';
+      if(standingGrid) standingGrid.style.gridTemplateColumns='1fr';
+    } else {
+      if(teamCard) teamCard.style.display='';
+      if(standingGrid) standingGrid.style.gridTemplateColumns='1fr 1fr';
+    }
+
+    var myActs = LB_ACTS.filter(function(a){return String(a.strava_athlete_id)===String(athleteId);});
+    var currentPoints = calcFullPts(myActs, reg.gender, reg.shift).total;
+    checkMilestoneNotifications(athleteId, shiftRank, currentPoints, reg.gender, myActs, reg);
+  } catch(e) {
+    console.warn('renderStanding failed:', e);
   }
-  lbRender();
 }
 
-// Standing Indicator inside Dashboard
-function renderStanding() {
-  var el = document.getElementById('s-standing');
-  if (!el || !LB_REG.length || !LB_ME) return;
-  var myId = String(LB_ME.strava_athlete_id);
-  var peerRows = getRows('peer');
-  var rank = peerRows.findIndex(function(r){ return String(r.p.strava_athlete_id) === myId; }) + 1;
-  var total = peerRows.length;
-  el.textContent = rank > 0 ? '#' + rank + ' of ' + total : '—';
+async function checkMilestoneNotifications(athleteId, currentRank, currentPoints, currentGender, myActs, reg) {
+  if (!_notificationsLoaded) return;
+  if (window._checkingMilestones) return;
+  window._checkingMilestones = true;
+
+  async function triggerAchievement(triggerKey, vars) {
+    if (!athleteId) return;
+
+    fetch(BACKEND + '/push/trigger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trigger_key: triggerKey, athlete_id: athleteId, vars: vars })
+    }).catch(function(err){});
+
+    var isAllowed = false;
+    var rules = (typeof CONFIG_LB !== 'undefined' && CONFIG_LB.feed_config && CONFIG_LB.feed_config.rules) ? CONFIG_LB.feed_config.rules : {};
+
+    if (triggerKey.indexOf('medal_') === 0 && rules.allow_medals) {
+      isAllowed = true;
+    } else if (triggerKey.indexOf('club_') === 0 && rules.allow_distance_clubs) {
+      isAllowed = true;
+    } else if (triggerKey === 'rank_top1' && rules.allow_rank_top1) {
+      isAllowed = true;
+    }
+
+    if (isAllowed) {
+      fetch(BACKEND + '/feed/announcement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger_key: triggerKey, athlete_id: athleteId, vars: vars })
+      }).catch(function(err){});
+    }
+  }
+
+  try {
+    var keyRank = 'agprev_prev_rank_' + athleteId;
+    var keyMedals = 'agprev_prev_medals_' + athleteId;
+    var keyChallenges = 'agprev_prev_challenges_' + athleteId;
+
+    var prevRank = localStorage.getItem(keyRank);
+    var prevMedalsRaw = localStorage.getItem(keyMedals);
+    var prevChallengesRaw = localStorage.getItem(keyChallenges);
+
+    var prevMedals = prevMedalsRaw ? JSON.parse(prevMedalsRaw) : [];
+    var prevChallenges = prevChallengesRaw ? JSON.parse(prevChallengesRaw) : [];
+
+    var gKey = (currentGender || '').toLowerCase() === 'female' ? 'female' : 'male';
+    var medalsThresh = { gold: 300, silver: 200, bronze: 125 };
+    if (typeof medalData !== 'undefined' && Array.isArray(medalData) && medalData.length && medalData[0].config_value) {
+      medalsThresh = medalData[0].config_value;
+    }
+    var bt = Number(medalsThresh.bronze[gKey]) || 125;
+    var st = Number(medalsThresh.silver[gKey]) || 200;
+    var gt = Number(medalsThresh.gold[gKey]) || 300;
+
+    var currentMedals = [];
+    if (currentPoints >= bt) currentMedals.push('medal_bronze');
+    if (currentPoints >= st) currentMedals.push('medal_silver');
+    if (currentPoints >= gt) currentMedals.push('medal_gold');
+
+    for (var i = 0; i < currentMedals.length; i++) {
+      var mKey = currentMedals[i];
+      var searchTitle = mKey === 'medal_bronze' ? 'Bronze Medal' : mKey === 'medal_silver' ? 'Silver Medal' : 'Gold Medal';
+      var alreadyNotifiedDb = _notificationsList.some(function(n) {
+        return n.title && n.title.indexOf(searchTitle) !== -1;
+      });
+      if (prevMedals.indexOf(mKey) === -1 && !alreadyNotifiedDb) {
+        await triggerAchievement(mKey);
+      }
+    }
+
+    var validActs = myActs.filter(function(a) { 
+      return !a.is_flagged && !a.is_deleted; 
+    });
+    validActs.forEach(function(a) {
+      a.base_km = parseFloat(a.distance_meters || 0) / 1000;
+    });
+
+    var totalKm = validActs.reduce(function(sum, a) { return sum + a.base_km; }, 0);
+    var keyClubs = 'agprev_prev_clubs_' + athleteId;
+    var prevClubsRaw = localStorage.getItem(keyClubs);
+    var prevClubs = prevClubsRaw ? JSON.parse(prevClubsRaw) : [];
+
+    var clubsToCheck = [
+      { key: 'club_100', thresh: 100, title: '100 KM Club' },
+      { key: 'club_200', thresh: 200, title: '200 KM Club' },
+      { key: 'club_300', thresh: 300, title: '300 KM Club' }
+    ];
+
+    for (var i = 0; i < clubsToCheck.length; i++) {
+      var club = clubsToCheck[i];
+      if (totalKm >= club.thresh) {
+        var alreadyNotifiedDb = _notificationsList.some(function(n) {
+          return n.title && n.title.indexOf(club.title) !== -1;
+        });
+        if (prevClubs.indexOf(club.key) === -1 && !alreadyNotifiedDb) {
+          await triggerAchievement(club.key);
+          prevClubs.push(club.key);
+          localStorage.setItem(keyClubs, JSON.stringify(prevClubs));
+        }
+      }
+    }
+
+    var completedChallenges = [];
+    if (typeof CHALLENGES_LB !== 'undefined' && Array.isArray(CHALLENGES_LB)) {
+      CHALLENGES_LB.forEach(function(c) {
+        if (!c.is_active) return;
+        var qualifies = myActs.some(function(act) { return checkChallengeSingle(act, c); });
+        if (qualifies) {
+          completedChallenges.push(c.id);
+          var alreadyNotifiedDb = _notificationsList.some(function(n) {
+            return n.title && n.title.indexOf(c.name) !== -1;
+          });
+          if (prevChallenges.indexOf(c.id) === -1 && !alreadyNotifiedDb) {
+            triggerAchievement('challenge_bonus', { name: c.name });
+          }
+        }
+      });
+    }
+
+    if (currentRank && prevRank !== null && prevRank !== undefined && prevRank !== '') {
+      var cRank = parseInt(currentRank, 10);
+      var pRank = parseInt(prevRank, 10);
+      if (cRank < pRank) {
+        var tKey = cRank === 1 ? 'rank_top1' : 'rank_improved';
+        triggerAchievement(tKey, { rank: String(cRank) });
+      } else if (cRank > pRank) {
+        triggerAchievement('rank_dropped', { rank: String(cRank) });
+      }
+    }
+
+    localStorage.setItem(keyRank, String(currentRank));
+    localStorage.setItem(keyMedals, JSON.stringify(currentMedals));
+    localStorage.setItem(keyChallenges, JSON.stringify(completedChallenges));
+  } catch (err) {
+    console.warn('Failed to check milestone notifications:', err);
+  } finally {
+    window._checkingMilestones = false;
+  }
+}
+
+function getLastActive(acts) {
+  if (!acts || !acts.length) return null;
+  var sorted = acts.filter(function(a){return !a.is_flagged;}).map(function(a){return getActDate(a);}).filter(Boolean).sort();
+  return sorted.length ? sorted[sorted.length-1] : null;
 }
 
 // Feed Tab Rendering
