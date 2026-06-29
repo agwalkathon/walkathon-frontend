@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="participant.css?v=20260629_v10">
+  <link rel="stylesheet" href="participant.css?v=20260629_v11">
 </head>
 </head>
 <body>
@@ -378,217 +378,10 @@
     </div>
   </div>
   
-  <!-- Activity Detail Modal -->
-  <div id="activity-detail-modal" class="detail-modal">
-    <!-- Top Nav Bar -->
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); position:sticky; top:0; background:#0E1012; z-index:10002;">
-      <button class="btn-back" onclick="closeActivityDetail()" style="background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
-      </button>
-      <div id="detail-top-date" style="font-size:16px; font-weight:800; color:#fff; text-align:center;">Sunday, June 28</div>
-      <div style="width:50px;"></div> <!-- placeholder for symmetry -->
-    </div>
-
-    <!-- Hero Map Section -->
-    <div class="detail-map-wrap" id="detail-map-container" style="display:none;">
-      <div id="detail-map" style="width: 100%; height: 100%;"></div>
-    </div>
-    
-    <!-- Detail Content Container -->
-    <div class="detail-content" style="padding-top:16px;">
-      <!-- Title & Started Info -->
-      <div style="margin-bottom:18px;">
-        <div id="detail-title" style="font-size:18px; font-weight:800; color:#fff; line-height:1.35;">Walk - Evening Walk</div>
-        <div id="detail-started-info" style="font-size:12.5px; color:var(--muted); margin-top:4px;">Started at 06:14 pm · 12.01 km</div>
-      </div>
-      
-      <!-- Activity Status Row -->
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; margin-bottom:20px;">
-        <div style="font-size:10.5px; font-weight:700; color:var(--label); text-transform:uppercase; letter-spacing:0.8px;">Activity Status</div>
-        <div id="detail-status-badge" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; background:rgba(34,197,94,0.12); color:var(--green); border:1px solid rgba(34,197,94,0.25);">✓ Valid</div>
-      </div>
-      
-      <!-- Fields Grid -->
-      <div class="detail-fields-grid">
-        <div class="detail-field-item">
-          <div class="detail-field-label">Distance</div>
-          <div class="detail-field-val" id="det-dist">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Pace</div>
-          <div class="detail-field-val" id="det-pace">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Moving Time</div>
-          <div class="detail-field-val" id="det-movetime">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Elapsed Time</div>
-          <div class="detail-field-val" id="det-elapsed">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Avg Heart Rate</div>
-          <div class="detail-field-val" id="det-avghr">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Max Heart Rate</div>
-          <div class="detail-field-val" id="det-maxhr">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Avg Cadence</div>
-          <div class="detail-field-val" id="det-cadence">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Strava Steps</div>
-          <div class="detail-field-val" id="det-stravasteps">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Calculated Steps</div>
-          <div class="detail-field-val" id="det-calcsteps">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Elevation</div>
-          <div class="detail-field-val" id="det-elevation">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Calories</div>
-          <div class="detail-field-val" id="det-calories">—</div>
-        </div>
-        <div class="detail-field-item">
-          <div class="detail-field-label">Device</div>
-          <div class="detail-field-val" id="det-device">—</div>
-        </div>
-      </div>
-      
-      <!-- Description/Notes -->
-      <div id="detail-desc-box" style="display:none;">
-        <div class="detail-metrics-title">Activity Notes</div>
-        <div class="detail-desc-card">
-          <div class="detail-desc-title" id="detail-desc-title">Evening Walk</div>
-          <div class="detail-desc-text" id="detail-desc-content">—</div>
-        </div>
-      </div>
-      
-      <!-- Splits Section -->
-      <div id="detail-splits-section" style="margin-top:24px; display:none;">
-        <div class="detail-metrics-title">Splits (per km)</div>
-        <div id="detail-splits-table-container">
-          <!-- dynamically rendered -->
-        </div>
-      </div>
-
-      <!-- Appreciation Badge -->
-      <div style="margin-top:24px;">
-        <div class="detail-metrics-title">Kudos Insights</div>
-        <div id="detail-appreciation-box"></div>
-      </div>
-      
-    </div>
-  </div>
+  
 
   <!-- Participant Profile Detail Modal -->
-  <div id="profile-detail-modal" class="detail-modal">
-    <!-- Top Nav Bar -->
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); position:sticky; top:0; background:#0E1012; z-index:10002;">
-      <button class="btn-back" onclick="closeProfileDetail()" style="background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
-      </button>
-      <div style="font-size:16px; font-weight:800; color:#fff; text-align:center;">Profile</div>
-      <div style="width:50px;"></div> <!-- placeholder for symmetry -->
-    </div>
-
-    <!-- Profile content -->
-    <div class="detail-content" style="padding-top:20px;">
-      <!-- Avatar & Basic Info -->
-      <div style="text-align:center; margin-bottom:24px;">
-        <div id="prof-avatar" class="profile-avatar-large">PM</div>
-        <div id="prof-name" style="font-size:20px; font-weight:900; color:#fff;">Prakash Mali</div>
-        <div id="prof-team-shift" style="font-size:12.5px; color:var(--muted); margin-top:4px;">Avengers &middot; India Shift</div>
-      </div>
-
-      <!-- Stats Cumulative Grid (No Total Points included) -->
-      <div class="profile-stats-row">
-        <div class="profile-stat-card">
-          <div class="val" id="prof-total-dist">—</div>
-          <div class="lbl">Total Distance</div>
-        </div>
-        <div class="profile-stat-card">
-          <div class="val" id="prof-total-steps">—</div>
-          <div class="lbl">Total Steps</div>
-        </div>
-        <div class="profile-stat-card">
-          <div class="val" id="prof-total-activities">—</div>
-          <div class="lbl">Activities</div>
-        </div>
-      </div>
-
-      <!-- Heatmap Calendar Grid -->
-      <div style="margin-bottom:24px;">
-        <div class="detail-metrics-title">Consistency Heatmap (June)</div>
-        <div class="card" style="padding:16px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.05); margin-top:8px;">
-          <!-- Heatmap Grid -->
-          <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; font-size:9px; color:var(--muted); font-weight:600; text-align:center; margin-bottom:6px;">
-            <div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div>
-          </div>
-          <div class="heatmap-grid" id="prof-heatmap-grid"></div>
-        </div>
-      </div>
-
-      <!-- Strava Stats Section -->
-      <div style="margin-bottom:24px;">
-        <div class="detail-metrics-title">Strava Stats Breakdown</div>
-        
-        <!-- Time Filter Tabs -->
-        <div style="display:flex; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:3px; margin:8px 0 16px 0;">
-          <button id="btn-stats-recent" onclick="toggleStatsTimeframe('recent')" style="flex:1; background:rgba(255,255,255,0.08); border:none; color:#fff; padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">Last 4 Weeks</button>
-          <button id="btn-stats-alltime" onclick="toggleStatsTimeframe('all')" style="flex:1; background:none; border:none; color:var(--muted); padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">All-Time</button>
-        </div>
-        
-        <!-- Sports Stats Container -->
-        <div id="prof-sports-stats-container" style="display:flex; flex-direction:column; gap:12px;">
-          <!-- dynamically rendered -->
-        </div>
-      </div>
-
-      <!-- Personal Bests Grid -->
-      <div style="margin-bottom:24px;">
-        <div class="detail-metrics-title">Personal Bests</div>
-        <div class="prof-pb-row">
-          <div class="prof-pb-card">
-            <span class="lbl">Longest Activity</span>
-            <span class="val" id="prof-pb-longest">—</span>
-            <span class="sub">single session max</span>
-          </div>
-          <div class="prof-pb-card">
-            <span class="lbl">Best Pace</span>
-            <span class="val" id="prof-pb-pace">—</span>
-            <span class="sub">min/km · walk/run</span>
-          </div>
-          <div class="prof-pb-card">
-            <span class="lbl">Longest Duration</span>
-            <span class="val" id="prof-pb-duration">—</span>
-            <span class="sub">moving duration</span>
-          </div>
-          <div class="prof-pb-card">
-            <span class="lbl">Active Streak</span>
-            <span class="val" id="prof-pb-streak">—</span>
-            <span class="sub">consecutive days</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Activities list -->
-      <div>
-        <div class="detail-metrics-title">Recent Activities</div>
-        <div id="prof-recent-activities" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
-          <!-- dynamically rendered activity cards list -->
-        </div>
-      </div>
-
-    </div>
-  </div>
+  
 </div>
 </div>
 
@@ -832,10 +625,224 @@
 
   <!-- Modular App Assets -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="participant-config.js?v=20260629_v10"></script>
-  <script src="participant-api.js?v=20260629_v10"></script>
-  <script src="participant-drawers.js?v=20260629_v10"></script>
-  <script src="participant-tabs.js?v=20260629_v10"></script>
+  <script src="participant-config.js?v=20260629_v11"></script>
+  <script src="participant-api.js?v=20260629_v11"></script>
+  <script src="participant-drawers.js?v=20260629_v11"></script>
+  <script src="participant-tabs.js?v=20260629_v11"></script>
+
+
+
+<!-- Activity & Profile Detail Modals (moved outside swipe container for position:fixed to work) -->
+<!-- Activity Detail Modal -->
+  <div id="activity-detail-modal" class="detail-modal">
+    <!-- Top Nav Bar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); position:sticky; top:0; background:#0E1012; z-index:10002;">
+      <button class="btn-back" onclick="closeActivityDetail()" style="background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </button>
+      <div id="detail-top-date" style="font-size:16px; font-weight:800; color:#fff; text-align:center;">Sunday, June 28</div>
+      <div style="width:50px;"></div> <!-- placeholder for symmetry -->
+    </div>
+
+    <!-- Hero Map Section -->
+    <div class="detail-map-wrap" id="detail-map-container" style="display:none;">
+      <div id="detail-map" style="width: 100%; height: 100%;"></div>
+    </div>
+    
+    <!-- Detail Content Container -->
+    <div class="detail-content" style="padding-top:16px;">
+      <!-- Title & Started Info -->
+      <div style="margin-bottom:18px;">
+        <div id="detail-title" style="font-size:18px; font-weight:800; color:#fff; line-height:1.35;">Walk - Evening Walk</div>
+        <div id="detail-started-info" style="font-size:12.5px; color:var(--muted); margin-top:4px;">Started at 06:14 pm · 12.01 km</div>
+      </div>
+      
+      <!-- Activity Status Row -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; margin-bottom:20px;">
+        <div style="font-size:10.5px; font-weight:700; color:var(--label); text-transform:uppercase; letter-spacing:0.8px;">Activity Status</div>
+        <div id="detail-status-badge" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; background:rgba(34,197,94,0.12); color:var(--green); border:1px solid rgba(34,197,94,0.25);">✓ Valid</div>
+      </div>
+      
+      <!-- Fields Grid -->
+      <div class="detail-fields-grid">
+        <div class="detail-field-item">
+          <div class="detail-field-label">Distance</div>
+          <div class="detail-field-val" id="det-dist">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Pace</div>
+          <div class="detail-field-val" id="det-pace">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Moving Time</div>
+          <div class="detail-field-val" id="det-movetime">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Elapsed Time</div>
+          <div class="detail-field-val" id="det-elapsed">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Avg Heart Rate</div>
+          <div class="detail-field-val" id="det-avghr">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Max Heart Rate</div>
+          <div class="detail-field-val" id="det-maxhr">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Avg Cadence</div>
+          <div class="detail-field-val" id="det-cadence">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Strava Steps</div>
+          <div class="detail-field-val" id="det-stravasteps">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Calculated Steps</div>
+          <div class="detail-field-val" id="det-calcsteps">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Elevation</div>
+          <div class="detail-field-val" id="det-elevation">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Calories</div>
+          <div class="detail-field-val" id="det-calories">—</div>
+        </div>
+        <div class="detail-field-item">
+          <div class="detail-field-label">Device</div>
+          <div class="detail-field-val" id="det-device">—</div>
+        </div>
+      </div>
+      
+      <!-- Description/Notes -->
+      <div id="detail-desc-box" style="display:none;">
+        <div class="detail-metrics-title">Activity Notes</div>
+        <div class="detail-desc-card">
+          <div class="detail-desc-title" id="detail-desc-title">Evening Walk</div>
+          <div class="detail-desc-text" id="detail-desc-content">—</div>
+        </div>
+      </div>
+      
+      <!-- Splits Section -->
+      <div id="detail-splits-section" style="margin-top:24px; display:none;">
+        <div class="detail-metrics-title">Splits (per km)</div>
+        <div id="detail-splits-table-container">
+          <!-- dynamically rendered -->
+        </div>
+      </div>
+
+      <!-- Appreciation Badge -->
+      <div style="margin-top:24px;">
+        <div class="detail-metrics-title">Kudos Insights</div>
+        <div id="detail-appreciation-box"></div>
+      </div>
+      
+    </div>
+  </div>
+
+<div id="profile-detail-modal" class="detail-modal">
+    <!-- Top Nav Bar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); position:sticky; top:0; background:#0E1012; z-index:10002;">
+      <button class="btn-back" onclick="closeProfileDetail()" style="background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </button>
+      <div style="font-size:16px; font-weight:800; color:#fff; text-align:center;">Profile</div>
+      <div style="width:50px;"></div> <!-- placeholder for symmetry -->
+    </div>
+
+    <!-- Profile content -->
+    <div class="detail-content" style="padding-top:20px;">
+      <!-- Avatar & Basic Info -->
+      <div style="text-align:center; margin-bottom:24px;">
+        <div id="prof-avatar" class="profile-avatar-large">PM</div>
+        <div id="prof-name" style="font-size:20px; font-weight:900; color:#fff;">Prakash Mali</div>
+        <div id="prof-team-shift" style="font-size:12.5px; color:var(--muted); margin-top:4px;">Avengers &middot; India Shift</div>
+      </div>
+
+      <!-- Stats Cumulative Grid (No Total Points included) -->
+      <div class="profile-stats-row">
+        <div class="profile-stat-card">
+          <div class="val" id="prof-total-dist">—</div>
+          <div class="lbl">Total Distance</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="val" id="prof-total-steps">—</div>
+          <div class="lbl">Total Steps</div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="val" id="prof-total-activities">—</div>
+          <div class="lbl">Activities</div>
+        </div>
+      </div>
+
+      <!-- Heatmap Calendar Grid -->
+      <div style="margin-bottom:24px;">
+        <div class="detail-metrics-title">Consistency Heatmap (June)</div>
+        <div class="card" style="padding:16px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.05); margin-top:8px;">
+          <!-- Heatmap Grid -->
+          <div style="display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; font-size:9px; color:var(--muted); font-weight:600; text-align:center; margin-bottom:6px;">
+            <div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div>
+          </div>
+          <div class="heatmap-grid" id="prof-heatmap-grid"></div>
+        </div>
+      </div>
+
+      <!-- Strava Stats Section -->
+      <div style="margin-bottom:24px;">
+        <div class="detail-metrics-title">Strava Stats Breakdown</div>
+        
+        <!-- Time Filter Tabs -->
+        <div style="display:flex; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:3px; margin:8px 0 16px 0;">
+          <button id="btn-stats-recent" onclick="toggleStatsTimeframe('recent')" style="flex:1; background:rgba(255,255,255,0.08); border:none; color:#fff; padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">Last 4 Weeks</button>
+          <button id="btn-stats-alltime" onclick="toggleStatsTimeframe('all')" style="flex:1; background:none; border:none; color:var(--muted); padding:6px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; cursor:pointer; transition:all 0.2s;">All-Time</button>
+        </div>
+        
+        <!-- Sports Stats Container -->
+        <div id="prof-sports-stats-container" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- dynamically rendered -->
+        </div>
+      </div>
+
+      <!-- Personal Bests Grid -->
+      <div style="margin-bottom:24px;">
+        <div class="detail-metrics-title">Personal Bests</div>
+        <div class="prof-pb-row">
+          <div class="prof-pb-card">
+            <span class="lbl">Longest Activity</span>
+            <span class="val" id="prof-pb-longest">—</span>
+            <span class="sub">single session max</span>
+          </div>
+          <div class="prof-pb-card">
+            <span class="lbl">Best Pace</span>
+            <span class="val" id="prof-pb-pace">—</span>
+            <span class="sub">min/km · walk/run</span>
+          </div>
+          <div class="prof-pb-card">
+            <span class="lbl">Longest Duration</span>
+            <span class="val" id="prof-pb-duration">—</span>
+            <span class="sub">moving duration</span>
+          </div>
+          <div class="prof-pb-card">
+            <span class="lbl">Active Streak</span>
+            <span class="val" id="prof-pb-streak">—</span>
+            <span class="sub">consecutive days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities list -->
+      <div>
+        <div class="detail-metrics-title">Recent Activities</div>
+        <div id="prof-recent-activities" style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+          <!-- dynamically rendered activity cards list -->
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 </body>
 </html>
