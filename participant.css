@@ -2192,7 +2192,7 @@
     height: 100%;
     background: #0E1012;
     z-index: 10000;
-    transform: translateX(-100%);
+    transform: translateX(100%);
     transition: transform 0.35s cubic-bezier(0.1, 0.76, 0.55, 0.94);
     overflow-y: auto;
     padding-bottom: 40px;
