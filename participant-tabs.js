@@ -1619,6 +1619,20 @@ function initFeedMaps() {
   });
 }
 
+function getFeedItemPriority(item) {
+  if (item.type === 'milestone') {
+    var title = (item.title || '').toLowerCase();
+    var isRank = title.indexOf('#1') > -1 || title.indexOf('rank 1') > -1 || title.indexOf('first rank') > -1 || title.indexOf('leading') > -1;
+    if (isRank) return 4;
+    var isMedal = title.indexOf('medal') > -1 || title.indexOf('bronze') > -1 || title.indexOf('silver') > -1 || title.indexOf('gold') > -1;
+    if (isMedal) return 3;
+    var isClub = title.indexOf('club') > -1 || title.indexOf('km') > -1;
+    if (isClub) return 2;
+    return 1;
+  }
+  return 1;
+}
+
 function renderFeed() {
   var list = document.getElementById('feed-list');
   if (!list) return;
@@ -1633,16 +1647,84 @@ function renderFeed() {
 
   renderFeedHighlights();
   renderCommunityPulse();
+  
   if (!_feedData.length) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📢</div><p>No updates in the feed yet. Check back later!</p></div>';
     return;
+  }
+
+  // Load configuration rules
+  var config = (CONFIG_LB && CONFIG_LB.feed_config) ? CONFIG_LB.feed_config : defaultConfig;
+  var rules = config.rules || {};
+  var filters = config.filters || {};
+
+  // Build registration profile map
+  var regMap = {};
+  if (Array.isArray(LB_REG)) {
+    LB_REG.forEach(function(r) {
+      regMap[String(r.strava_athlete_id)] = r;
+    });
   }
 
   var filteredFeed = [];
   var milestoneGroups = {};
 
   _feedData.forEach(function(item) {
-    if (item.type === 'milestone') {
+    // 1. Private profile filter
+    var targetAthleteId = item.tagged_athlete_id || '';
+    if (!targetAthleteId && item.type === 'activity') {
+      try {
+        var tempAct = JSON.parse(item.body);
+        targetAthleteId = tempAct.athlete_id || '';
+      } catch(e) {}
+    }
+    targetAthleteId = String(targetAthleteId);
+    
+    if (rules.allow_private_profiles !== false) {
+      var athReg = regMap[targetAthleteId];
+      if (athReg && (athReg.is_private === true || athReg.is_private === 'true')) {
+        return; // Exclude private profiles
+      }
+    }
+
+    if (item.type === 'activity') {
+      // 2. Allow standard activities rule
+      if (rules.allow_standard_activities === false) return;
+
+      var act = {};
+      try { act = JSON.parse(item.body); } catch(e) {}
+
+      // 3. Allow flagged activities rule
+      if (act.is_flagged && rules.allow_flagged_activities !== true) return;
+
+      // 4. Minimum activity distance filter
+      var distKm = (act.distance_meters || 0) / 1000;
+      var minDist = parseFloat(filters.minimum_activity_distance_km !== undefined ? filters.minimum_activity_distance_km : 1.0);
+      if (distKm < minDist) return;
+
+      // 5. Allowed sport types filter
+      var allowedSports = filters.allowed_sports || ["Walk", "Run", "Hike", "Ride"];
+      var sport = act.sport_type || '';
+      if (allowedSports.indexOf(sport) === -1) return;
+
+      filteredFeed.push(item);
+
+    } else if (item.type === 'milestone') {
+      var title = (item.title || '').toLowerCase();
+      
+      // 6. Allow medals rule
+      var isMedal = title.indexOf('medal') > -1 || title.indexOf('bronze') > -1 || title.indexOf('silver') > -1 || title.indexOf('gold') > -1;
+      if (isMedal && rules.allow_medals === false) return;
+
+      // 7. Allow distance clubs rule
+      var isClub = title.indexOf('club') > -1 || title.indexOf('km') > -1;
+      if (isClub && rules.allow_distance_clubs === false) return;
+
+      // 8. Allow rank top1 rule
+      var isRank = title.indexOf('#1') > -1 || title.indexOf('rank 1') > -1 || title.indexOf('first rank') > -1 || title.indexOf('leading') > -1;
+      if (isRank && rules.allow_rank_top1 === false) return;
+
+      // Deduplicate milestone groups by athlete + date
       var athleteId = item.tagged_athlete_id || 'unknown';
       var dateStr = getISTDate(item.created_at);
       var key = athleteId + '_' + dateStr;
@@ -1656,17 +1738,33 @@ function renderFeed() {
         }
       }
     } else {
+      // Allow custom announcements
       filteredFeed.push(item);
     }
   });
 
+  // Push deduplicated milestones
   Object.keys(milestoneGroups).forEach(function(key) {
     filteredFeed.push(milestoneGroups[key].item);
   });
 
-  filteredFeed.sort(function(a, b) {
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  // 9. Chronological and priority tie-breaker sorting
+  if (rules.priority_feed_sorting !== false) {
+    filteredFeed.sort(function(a, b) {
+      var dateA = new Date(a.created_at);
+      var dateB = new Date(b.created_at);
+      if (Math.abs(dateA - dateB) < 1000) {
+        var prioA = getFeedItemPriority(a);
+        var prioB = getFeedItemPriority(b);
+        return prioB - prioA;
+      }
+      return dateB - dateA;
+    });
+  } else {
+    filteredFeed.sort(function(a, b) {
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+  }
 
   var visibleItems = filteredFeed.slice(0, _feedVisibleCount);
   var html = '';
@@ -1678,14 +1776,26 @@ function renderFeed() {
     var initials = '';
     var athleteName = 'Participant';
 
+    // Resolve reactions list (tailored to 2 reactions)
+    var emojis = [];
+    var useSpecific = rules.post_specific_reactions !== false;
+    if (item.type === 'activity') {
+      emojis = useSpecific 
+        ? [{type: 'like', char: '👏'}, {type: 'fire', char: '🔥'}]
+        : [{type: 'like', char: '👏'}, {type: 'heart', char: '❤️'}];
+    } else {
+      emojis = useSpecific
+        ? [{type: 'like', char: '🎉'}, {type: 'heart', char: '❤️'}]
+        : [{type: 'like', char: '👏'}, {type: 'heart', char: '❤️'}];
+    }
+
     if (item.type === 'activity') {
       var act = {};
       try { act = JSON.parse(item.body); } catch(e) {}
       athleteName = act.athlete_name || 'Participant';
       initials = (function(){var parts=(athleteName||'').trim().split(/\s+/);if(parts.length>=2)return(parts[0][0]+(parts[parts.length-1][0])).toUpperCase();return(parts[0]||'?')[0].toUpperCase();})();
       
-      var timeStr = '';
-      var dateTimeStr = '';
+      var timeStr = '', dateTimeStr = '';
       try {
         var adt = new Date(act.activity_date || item.created_at);
         if (!isNaN(adt.getTime())) {
@@ -1695,40 +1805,22 @@ function renderFeed() {
       } catch(e) {}
 
       var distKm = ((act.distance_meters || 0) / 1000).toFixed(2);
-      var durationMins = Math.round((act.moving_time_seconds || 0) / 60);
-      var paceStr = '—';
-      if (act.distance_meters > 0 && act.moving_time_seconds > 0) {
-        paceStr = fmtPS(act.distance_meters / act.moving_time_seconds, act.sport_type);
-      }
+      var paceStr = (act.distance_meters > 0 && act.moving_time_seconds > 0) ? fmtPS(act.distance_meters / act.moving_time_seconds, act.sport_type) : '—';
       var steps = Math.round((act.distance_meters / 1000) * 1350);
-      var calculatedStepsDisplay = steps.toLocaleString('en-IN');
-      if (act.steps && act.steps > 0) {
-        calculatedStepsDisplay = act.steps.toLocaleString('en-IN');
-      }
-
+      var calculatedStepsDisplay = (act.steps && act.steps > 0) ? act.steps.toLocaleString('en-IN') : steps.toLocaleString('en-IN');
       var deviceText = act.device_name ? ' via ' + act.device_name : '';
       var sportIcon = act.sport_type ? renderIcon(act.sport_type) : '🌱';
+      var descriptionHtml = act.description ? `<div class="feed-card-activity-desc">${esc(act.description)}</div>` : '';
       
-      var descriptionHtml = '';
-      if (act.description) {
-        descriptionHtml = `<div class="feed-card-activity-desc">${esc(act.description)}</div>`;
-      }
-
       var mapHtml = '';
       if (act.summary_polyline) {
         var mapContainerId = 'map-' + item.id;
         _feedPolylines[mapContainerId] = act.summary_polyline;
-        mapHtml = `
-          <div class="feed-card-map-wrap" onclick="event.stopPropagation();" style="position: relative; margin: 12px 0 16px 0; height: 160px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden; background: #0E1012;">
-            <div id="${mapContainerId}" class="feed-map-container" style="width: 100%; height: 100%;"></div>
-          </div>
-        `;
+        mapHtml = `<div class="feed-card-map-wrap" onclick="event.stopPropagation();" style="position: relative; margin: 12px 0 16px 0; height: 160px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden; background: #0E1012;"><div id="${mapContainerId}" class="feed-map-container" style="width: 100%; height: 100%;"></div></div>`;
       }
 
-      // Appreciations
       var appreciationHtml = '';
       var elevGain = parseFloat(act.elevation_gain || 0);
-      var isSpecialApp = false;
       if (act.sport_type === 'Walk' || act.sport_type === 'Run' || act.sport_type === 'VirtualRun' || act.sport_type === 'Hike') {
         var paceVal = (act.moving_time_seconds / 60) / (act.distance_meters / 1000);
         var customApps = [
@@ -1738,83 +1830,50 @@ function renderFeed() {
           { cond: function() { return act.distance_meters >= 10000; }, emoji: '🌟', text: 'Double digits! Outstanding distance effort!' },
           { cond: function() { return act.sport_type === 'Walk' && paceVal < 8.5; }, emoji: '🚶‍♂️💨', text: 'Power walking champion! Brisk pace!' }
         ];
-
         for (var cIdx = 0; cIdx < customApps.length; cIdx++) {
           if (customApps[cIdx].cond()) {
             appreciationHtml = `<div class="activity-appreciation-badge special"><span class="appreciation-icon">${customApps[cIdx].emoji}</span><span class="appreciation-text">${customApps[cIdx].text}</span></div>`;
-            isSpecialApp = true;
             break;
           }
         }
       }
 
-      if (!isSpecialApp && act.distance_meters > 0) {
-        var actIdStr = String(act.strava_activity_id || act.activity_id || act.activity_date_time_ist || 'act');
-        var appSeed = athleteName + '_' + (act.distance_meters/1000).toFixed(2) + '_' + actIdStr;
-        var appIcon = '🌱';
-        var appPool = ["Wonderful active minutes! Keep this beautiful rhythm going.", "Every single step counts! Great job staying active today."];
-        var appHash = 0;
-        for (var i = 0; i < appSeed.length; i++) {
-          appHash = appSeed.charCodeAt(i) + ((appHash << 5) - appHash);
-        }
-        var appIndex = Math.abs(appHash) % appPool.length;
-        appreciationHtml = `<div class="activity-appreciation-badge"><span class="appreciation-icon">${appIcon}</span><span class="appreciation-text">"${appPool[appIndex]}"</span></div>`;
-      }
-
-      var reactionButtonsHtml = '';
-      var emojis = [{type: 'like', char: '👏'}, {type: 'fire', char: '🔥'}, {type: 'heart', char: '❤️'}];
-      
-      emojis.forEach(function(emo) {
-        var count = (item.reaction_counts && item.reaction_counts[emo.type]) || 0;
-        var activeClass = (item.my_reactions && item.my_reactions.indexOf(emo.type) > -1) ? 'active' : '';
-        reactionButtonsHtml += `
-          <button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event)">
-            <span class="emoji">${emo.char}</span>
-            <span class="count">${count}</span>
-          </button>
-        `;
-      });
-
+      var targetAthleteId = String(act.athlete_id || item.tagged_athlete_id || '');
       var timeHour = new Date(act.activity_date || item.created_at).getHours();
       var timeClass = (timeHour >= 5 && timeHour < 12) ? 'time-morning' : (timeHour >= 12 && timeHour < 17) ? 'time-afternoon' : (timeHour >= 17 && timeHour < 20) ? 'time-evening' : 'time-night';
 
-      var targetAthleteId = item.tagged_athlete_id || act.athlete_id || '';
+      var reactionButtonsHtml = '';
+      emojis.forEach(function(emo) {
+        var count = (item.reaction_counts && item.reaction_counts[emo.type]) || 0;
+        var activeClass = (item.my_reactions && item.my_reactions.indexOf(emo.type) > -1) ? 'active' : '';
+        reactionButtonsHtml += `<button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event)"><span class="emoji">${emo.char}</span><span class="count">${count}</span></button>`;
+      });
+
       html += `
         <div class="feed-card type-activity ${timeClass}">
           <div class="feed-card-header">
             <div class="feed-card-avatar" style="${getAvatarStyle(athleteName)};">${initials}</div>
             <div class="feed-card-meta">
-              <div class="feed-card-athlete-name">${esc(athleteName)}</div>
+              <div class="feed-card-athlete-name">
+                <a href="#" onclick="openProfileDetail('${targetAthleteId}', event); event.stopPropagation(); return false;" class="athlete-profile-link">${esc(athleteName)}</a>
+              </div>
               <div class="feed-card-time">${timeStr}${dateTimeStr ? ' &middot; ' + dateTimeStr : ''}${deviceText}</div>
             </div>
           </div>
           <div class="feed-card-activity-info">
             <div class="feed-card-activity-title-row">
               <span class="sport-icon">${sportIcon}</span>
-              <span class="activity-title" onclick="openActivityDetail('${act.activity_id || act.strava_activity_id}', event, true); event.stopPropagation();" style="cursor: pointer;">${esc(act.activity_name || 'Activity')}</span>
+              <a href="#" onclick="openActivityDetail('${act.activity_id || act.strava_activity_id}', event, true); event.stopPropagation(); return false;" class="activity-detail-link">${esc(act.activity_name || 'Activity')}</a>
             </div>
             ${descriptionHtml}
             ${(function() {
               var statsCols = [];
               
               // 1. Distance (Always show)
-              statsCols.push(`
-                <div class="stat-item">
-                  <span class="stat-val">${distKm}</span>
-                  <span class="stat-unit">km</span>
-                </div>
-              `);
+              statsCols.push(`<div class="stat-item"><span class="stat-val">${distKm}</span><span class="stat-unit">km</span></div>`);
 
               // 2. Pace (if allowed from Feed-config)
-              var showPace = true;
-              if (CONFIG_LB && CONFIG_LB.feed_config && CONFIG_LB.feed_config.rules) {
-                if (CONFIG_LB.feed_config.rules.smart_pace_filter !== false) {
-                  var sportLower = (act.sport_type || '').toLowerCase();
-                  if (sportLower.indexOf('walk') > -1) {
-                    showPace = false;
-                  }
-                }
-              }
+              var showPace = rules.smart_pace_filter !== false;
               if (showPace) {
                 var paceVal = paceStr, paceUnit = 'pace';
                 if (paceStr.indexOf('/') > -1) {
@@ -1826,53 +1885,22 @@ function renderFeed() {
                   paceVal = parts[0];
                   paceUnit = parts[1];
                 }
-                statsCols.push(`
-                  <div class="stat-item">
-                    <span class="stat-val">${paceVal}</span>
-                    <span class="stat-unit">${paceUnit}</span>
-                  </div>
-                `);
+                statsCols.push(`<div class="stat-item"><span class="stat-val">${paceVal}</span><span class="stat-unit">${paceUnit}</span></div>`);
               }
 
               // 3. Moving Time (Always show)
-              var movingSec = act.moving_time_seconds || 0;
-              statsCols.push(`
-                <div class="stat-item">
-                  <span class="stat-val">${fmtDur(movingSec)}</span>
-                  <span class="stat-unit">Time</span>
-                </div>
-              `);
+              statsCols.push(`<div class="stat-item"><span class="stat-val">${fmtDur(act.moving_time_seconds || 0)}</span><span class="stat-unit">Time</span></div>`);
 
               // 4. Steps (Calculated - if allowed from Feed-config)
-              var showSteps = true;
-              if (CONFIG_LB && CONFIG_LB.feed_config && CONFIG_LB.feed_config.rules) {
-                if (CONFIG_LB.feed_config.rules.show_steps === false) {
-                  showSteps = false;
-                }
-              }
+              var showSteps = rules.show_steps !== false;
               if (showSteps) {
-                statsCols.push(`
-                  <div class="stat-item">
-                    <span class="stat-val">${calculatedStepsDisplay}</span>
-                    <span class="stat-unit">Steps</span>
-                  </div>
-                `);
+                statsCols.push(`<div class="stat-item"><span class="stat-val">${calculatedStepsDisplay}</span><span class="stat-unit">Steps</span></div>`);
               }
 
               // 5. Elevation (if allowed from Feed-config)
-              var showElevation = true;
-              if (CONFIG_LB && CONFIG_LB.feed_config && CONFIG_LB.feed_config.rules) {
-                if (CONFIG_LB.feed_config.rules.show_elevation === false) {
-                  showElevation = false;
-                }
-              }
+              var showElevation = rules.show_elevation !== false;
               if (showElevation && elevGain > 0) {
-                statsCols.push(`
-                  <div class="stat-item">
-                    <span class="stat-val">${Math.round(elevGain)}</span>
-                    <span class="stat-unit">m</span>
-                  </div>
-                `);
+                statsCols.push(`<div class="stat-item"><span class="stat-val">${Math.round(elevGain)}</span><span class="stat-unit">m</span></div>`);
               }
 
               var gridStyle = 'grid-template-columns: repeat(' + statsCols.length + ', 1fr);';
@@ -1881,44 +1909,21 @@ function renderFeed() {
             ${mapHtml}
             ${appreciationHtml}
           </div>
-          <div class="feed-card-actions" onclick="event.stopPropagation();">
-            ${reactionButtonsHtml}
-          </div>
+          <div class="feed-card-actions" onclick="event.stopPropagation();">${reactionButtonsHtml}</div>
         </div>
       `;
     } else {
-      var iconHtml = '';
-      if (item.type === 'milestone') {
-        var titleLower = (item.title || '').toLowerCase();
-        var medalColor = '#FFD000';
-        if (titleLower.indexOf('silver') > -1) medalColor = '#C8D8E8';
-        else if (titleLower.indexOf('bronze') > -1) medalColor = '#F4A84A';
-        iconHtml = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${medalColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 3px ${medalColor}40);"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`;
-      } else if (item.type === 'achievement') {
-        iconHtml = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 3px rgba(232, 98, 42, 0.25));"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/><path d="M12 2a6 6 0 0 1 6 6v3.5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"/></svg>`;
-      } else if (item.type === 'birthday') {
-        iconHtml = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 3px rgba(236, 72, 153, 0.25));"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`;
-      } else {
-        iconHtml = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 3px rgba(167, 139, 250, 0.25));"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
-      }
-
-      var bodyHtml = '';
-      if (item.body) {
-        bodyHtml = `<div class="feed-card-body">${formatMarkdown(item.body)}</div>`;
-      }
+      var iconHtml = (item.type === 'milestone') ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>' : '';
+      var bodyHtml = item.body ? `<div class="feed-card-body">${formatMarkdown(item.body)}</div>` : '';
+      var targetAthleteId = String(item.tagged_athlete_id || '');
+      var athleteReg = regMap[targetAthleteId];
+      var athleteName = athleteReg ? athleteReg.full_name : 'Participant';
 
       var reactionButtonsHtml = '';
-      var emojis = [{type: 'like', char: '👏'}, {type: 'fire', char: '🔥'}, {type: 'heart', char: '❤️'}];
-      
       emojis.forEach(function(emo) {
         var count = (item.reaction_counts && item.reaction_counts[emo.type]) || 0;
         var activeClass = (item.my_reactions && item.my_reactions.indexOf(emo.type) > -1) ? 'active' : '';
-        reactionButtonsHtml += `
-          <button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event)">
-            <span class="emoji">${emo.char}</span>
-            <span class="count">${count}</span>
-          </button>
-        `;
+        reactionButtonsHtml += `<button class="feed-react-btn ${activeClass}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event)"><span class="emoji">${emo.char}</span><span class="count">${count}</span></button>`;
       });
 
       html += `
@@ -1926,28 +1931,24 @@ function renderFeed() {
           <div class="feed-card-header">
             <div class="feed-card-icon">${iconHtml}</div>
             <div class="feed-card-meta">
-              <div class="feed-card-title">${esc(item.title)}</div>
+              <div class="feed-card-athlete-name">
+                <a href="#" onclick="openProfileDetail('${targetAthleteId}', event); event.stopPropagation(); return false;" class="athlete-profile-link">${esc(athleteName)}</a>
+              </div>
+              <div class="feed-card-title" style="font-size: 13px; font-weight: 700; color: var(--brand); margin-top: 2px;">${esc(item.title)}</div>
               <div class="feed-card-time">${dateLabel}</div>
             </div>
           </div>
           ${bodyHtml}
-          <div class="feed-card-actions" onclick="event.stopPropagation();">
-            ${reactionButtonsHtml}
-          </div>
+          <div class="feed-card-actions" onclick="event.stopPropagation();">${reactionButtonsHtml}</div>
         </div>
       `;
     }
   });
 
   if (filteredFeed.length > _feedVisibleCount) {
-    html += `
-      <div style="text-align:center; padding:8px 0 20px 0;">
-        <button class="show-more-btn" onclick="showMoreAnnouncements()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:20px; color:#fff; font-size:12px; font-weight:700; padding:8px 18px; cursor:pointer; font-family:var(--font); letter-spacing:0.3px; transition:all 0.15s ease;">Show More</button>
-      </div>
-    `;
+    html += '<div style="text-align:center; padding:8px 0 20px 0;"><button class="show-more-btn" onclick="showMoreAnnouncements()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-radius:20px; color:#fff; font-size:12px; font-weight:700; padding:8px 18px; cursor:pointer; font-family:var(--font); letter-spacing:0.3px; transition:all 0.15s ease;">Show More</button></div>';
   }
   list.innerHTML = html;
-
   initFeedMaps();
 }
 
@@ -1956,10 +1957,15 @@ function showMoreAnnouncements() {
   renderFeed();
 }
 
-function getEmojiCharForType(type) {
+function getEmojiCharForType(type, isMilestone) {
+  var config = (CONFIG_LB && CONFIG_LB.feed_config) ? CONFIG_LB.feed_config : defaultConfig;
+  var rules = config.rules || {};
+  var useSpecific = rules.post_specific_reactions !== false;
+  if (useSpecific && isMilestone && type === 'like') return '🎉';
   var map = { 'like': '👏', 'fire': '🔥', 'heart': '❤️' };
   return map[type] || '👏';
 }
+
 
 async function reactToAnnouncement(announcementId, reactionType, event) {
   if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
@@ -2011,7 +2017,8 @@ async function reactToAnnouncement(announcementId, reactionType, event) {
         }
       }
       if (clickX && clickY) {
-        triggerConfettiBurst(clickX, clickY, getEmojiCharForType(reactionType));
+        var isMilestone = item ? item.type !== 'activity' : false;
+        triggerConfettiBurst(clickX, clickY, getEmojiCharForType(reactionType, isMilestone));
       }
       item.my_reactions.push(reactionType);
       item.reaction_counts[reactionType] = (item.reaction_counts[reactionType] || 0) + 1;
