@@ -6,6 +6,7 @@
 var _feedLoaded = false;
 var _feedVisibleCount = 30;
 var _feedPollInterval = null;
+var _feedPolylines = {};
 
 var _highlightsData = {};
 var _activeInsight = null;
@@ -1521,6 +1522,76 @@ function triggerConfettiBurst() {
   }
 }
 
+function initFeedMaps() {
+  if (_currentTab !== 'feed') return;
+
+  var elements = document.querySelectorAll('.feed-map-container');
+  elements.forEach(function(el) {
+    if (el.classList.contains('leaflet-container')) {
+      try {
+        var mapInstance = el._leafletMap;
+        if (mapInstance) {
+          mapInstance.invalidateSize();
+          if (typeof mapInstance._refit === 'function') {
+            mapInstance._refit();
+          }
+        }
+      } catch(e) {}
+      return;
+    }
+
+    var polylineStr = _feedPolylines[el.id];
+    if (!polylineStr) return;
+
+    try {
+      var coordinates = decodePolyline(polylineStr);
+      if (coordinates && coordinates.length > 0) {
+        var map = L.map(el.id, {
+          zoomControl: false,
+          dragging: false,
+          touchZoom: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          boxZoom: false,
+          keyboard: false,
+          attributionControl: false
+        }).setView(coordinates[0], 14);
+
+        el._leafletMap = map;
+        window._feedMaps.push(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 20
+        }).addTo(map);
+
+        var poly = L.polyline(coordinates, {
+          color: 'var(--brand)',
+          weight: 3.5,
+          opacity: 0.85,
+          lineJoin: 'round'
+        }).addTo(map);
+
+        map._refit = function() {
+          try {
+            map.fitBounds(poly.getBounds(), { padding: [12, 12] });
+          } catch(e) {}
+        };
+
+        map._refit();
+
+        setTimeout(function() {
+          try {
+            map.invalidateSize();
+            map._refit();
+          } catch(e) {}
+        }, 100);
+      }
+    } catch (err) {
+      console.warn('Failed lazy initializing map for ' + el.id + ':', err);
+    }
+  });
+}
+
 function renderFeed() {
   var list = document.getElementById('feed-list');
   if (!list) return;
@@ -1619,9 +1690,10 @@ function renderFeed() {
       var mapHtml = '';
       if (act.summary_polyline) {
         var mapContainerId = 'map-' + item.id;
+        _feedPolylines[mapContainerId] = act.summary_polyline;
         mapHtml = `
           <div class="feed-card-map-wrap" onclick="event.stopPropagation();" style="position: relative; margin: 12px 0 16px 0; height: 160px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden; background: #0E1012;">
-            <div id="${mapContainerId}" style="width: 100%; height: 100%;"></div>
+            <div id="${mapContainerId}" class="feed-map-container" style="width: 100%; height: 100%;"></div>
           </div>
         `;
       }
@@ -1798,61 +1870,7 @@ function renderFeed() {
   }
   list.innerHTML = html;
 
-  visibleItems.forEach(function(item) {
-    if (item.type === 'activity' && item.summary_polyline) {
-      var mapContainerId = 'map-' + item.id;
-      var mapEl = document.getElementById(mapContainerId);
-      if (mapEl) {
-        try {
-          var act = JSON.parse(item.body);
-          var coordinates = decodePolyline(act.summary_polyline);
-          if (coordinates && coordinates.length > 0) {
-            var map = L.map(mapContainerId, {
-              zoomControl: false,
-              dragging: false,
-              touchZoom: false,
-              scrollWheelZoom: false,
-              doubleClickZoom: false,
-              boxZoom: false,
-              keyboard: false,
-              attributionControl: false
-            }).setView(coordinates[0], 14);
-            window._feedMaps.push(map);
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-              maxZoom: 20
-            }).addTo(map);
-
-            var poly = L.polyline(coordinates, {
-              color: 'var(--brand)',
-              weight: 3.5,
-              opacity: 0.85,
-              lineJoin: 'round'
-            }).addTo(map);
-
-            map._refit = function() {
-              try {
-                map.fitBounds(poly.getBounds(), {
-                  padding: [12, 12]
-                });
-              } catch(e) {}
-            };
-
-            // Run refit immediately and also schedule a deferred check
-            map._refit();
-            setTimeout(function() {
-              try {
-                map.invalidateSize();
-                map._refit();
-              } catch(e) {}
-            }, 150);
-          }
-        } catch (mapErr) {
-          console.warn('Failed to initialize map for card ' + mapContainerId + ':', mapErr);
-        }
-      }
-    }
-  });
+  initFeedMaps();
 }
 
 function showMoreAnnouncements() {
