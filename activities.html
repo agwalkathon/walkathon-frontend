@@ -624,6 +624,7 @@ td button.btn:last-child { margin-right: 0; }
             <button class="btn btn-primary" id="btn-bulk-review" style="background:#3b82f6; border-color:#3b82f6;" onclick="doBulkAction('review')">👁️ Review Selected</button>
             <button class="btn btn-danger" id="btn-bulk-delete" onclick="doBulkAction('delete')">🗑️ Delete Selected</button>
             <button class="btn btn-primary" id="btn-bulk-restore" style="display:none" onclick="doBulkAction('restore')">↩️ Restore Selected</button>
+            <button class="btn btn-danger" id="btn-bulk-perm-delete" style="display:none; background:#b91c1c; border-color:#b91c1c;" onclick="doBulkPermanentDelete()">🔥 Permanent Delete Selected</button>
           </div>
         </div>
 
@@ -1594,6 +1595,7 @@ function switchTab(t){
     document.getElementById('btn-bulk-review').style.display = t==='review'?'inline-flex':'none';
     document.getElementById('btn-bulk-delete').style.display = t==='review'?'inline-flex':'none';
     document.getElementById('btn-bulk-restore').style.display = t==='deleted'?'inline-flex':'none';
+    document.getElementById('btn-bulk-perm-delete').style.display = t==='deleted'?'inline-flex':'none';
 
     loadFlaggedData();
   }
@@ -1729,7 +1731,8 @@ function applyFlaggedFilters() {
         + reviewBtn
         + '<button class="btn btn-success" onclick="doAction(' + a.id + ',\'unflag\',\'\')">✅ Clear</button>'
         + '<button class="btn btn-danger" onclick="doAction(' + a.id + ',\'delete\',\'' + safeReason + '\')">🗑️ Delete</button>'
-      : '<button class="btn btn-primary" onclick="doAction(' + a.id + ',\'restore\',\'\')">↩️ Restore</button>';
+      : '<button class="btn btn-primary" onclick="doAction(' + a.id + ',\'restore\',\'\')">↩️ Restore</button>'
+        + '<button class="btn btn-danger" style="margin-left:6px; background:#b91c1c; border-color:#b91c1c;" onclick="doPermanentDelete(' + a.id + ')">🔥 Permanent Delete</button>';
       
     var isChecked = bulkSelected[a.id] ? ' checked' : '';
 
@@ -1874,6 +1877,83 @@ async function doBulkAction(action) {
     alert('Bulk review completed. Successful updates: ' + success);
     applyFlaggedFilters();
   }
+}
+
+async function doPermanentDelete(id) {
+  var act = allActivities.find(function(a) { return a.id === id; });
+  var stravaId = act ? act.strava_activity_id || '' : '';
+  
+  var msg = "⚠️ WARNING: This will permanently and physically delete this activity record from the database.\n\n" +
+            "If this activity STILL exists on the athlete's Strava account, it WILL be re-imported in the following situations:\n" +
+            "1. When the athlete logs in or re-connects their Strava account.\n" +
+            "2. When an admin runs a bulk re-sync.\n" +
+            "3. If the athlete updates this activity on Strava.\n\n" +
+            "To prevent it from ever coming back, the athlete must delete the activity from their Strava app/website first.\n\n" +
+            "Are you sure you want to permanently delete this activity?";
+            
+  if (!confirm(msg)) return;
+  
+  try {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/activities?id=eq.' + id, {
+      method: 'DELETE',
+      headers: Object.assign({}, HDR, { 'Prefer': 'return=minimal' })
+    });
+    if (res.ok) {
+      allActivities = allActivities.filter(function(a) { return a.id !== id; });
+      delete bulkSelected[id];
+      applyFlaggedFilters();
+      showToast("Activity permanently deleted", false);
+    } else {
+      throw new Error("HTTP " + res.status);
+    }
+  } catch(e) {
+    alert("Error deleting activity: " + e.message);
+  }
+}
+
+async function doBulkPermanentDelete() {
+  var ids = Object.keys(bulkSelected);
+  if (!ids.length) return;
+  
+  var msg = "⚠️ WARNING: This will permanently and physically delete the " + ids.length + " selected activity records from the database.\n\n" +
+            "If these activities STILL exist on the athletes' Strava accounts, they WILL be re-imported in the following situations:\n" +
+            "1. When the athlete logs in or re-connects their Strava account.\n" +
+            "2. When an admin runs a bulk re-sync.\n" +
+            "3. If the athlete updates the activity on Strava.\n\n" +
+            "To prevent them from ever coming back, the athlete must delete the activity from their Strava app/website first.\n\n" +
+            "Are you sure you want to permanently delete these " + ids.length + " activities?";
+            
+  if (!confirm(msg)) return;
+  
+  var bar = document.getElementById('bulk-actions-bar');
+  var origHtml = bar.innerHTML;
+  bar.innerHTML = '<span>⏳ Processing permanent delete... <span class="bulk-selected-count" id="bulk-prog">0</span> / ' + ids.length + '</span>';
+  
+  var success = 0, failed = 0;
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/activities?id=eq.' + id, {
+        method: 'DELETE',
+        headers: Object.assign({}, HDR, { 'Prefer': 'return=minimal' })
+      });
+      if (res.ok) {
+        allActivities = allActivities.filter(function(a) { return String(a.id) !== String(id); });
+        success++;
+      } else {
+        failed++;
+      }
+    } catch(e) {
+      failed++;
+    }
+    var prog = document.getElementById('bulk-prog');
+    if (prog) prog.textContent = i + 1;
+  }
+  
+  bar.innerHTML = origHtml;
+  bulkSelected = {};
+  alert('Bulk permanent delete completed.\nSuccessful deletions: ' + success + (failed ? '\nFailed deletions: ' + failed : ''));
+  loadFlaggedData();
 }
 
 async function recheckAll(){
