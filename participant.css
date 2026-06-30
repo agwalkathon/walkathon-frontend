@@ -2850,4 +2850,16 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
+  .push-icon-square {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(34, 197, 94, 0.12);
+    color: #22C55E;
+  }
+
 
