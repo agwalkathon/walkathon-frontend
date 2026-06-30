@@ -541,8 +541,10 @@
     .max-w{max-width:540px;margin:0 auto;}
 
     /* ── Section label ── */
-    .sec{font-size:12px;font-weight:800;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:1.5px;margin:24px 0 12px;}
+    .sec{font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin:24px 0 14px;}
     .sec:first-child{margin-top:4px;}
+    .card > .sec{padding:16px 16px 0;margin:0 0 14px;}
+    .medal-pred > .sec,.heatmap-wrap > .sec{margin:0 0 14px;}
 
     /* ── Card ── */
     .card{background:var(--surface);border-radius:16px;overflow:hidden;margin-bottom:12px;}
