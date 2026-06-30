@@ -1295,7 +1295,7 @@
     .lb-info-banner {
       margin-top: 10px;
       padding: 9px 12px;
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px dashed rgba(255, 255, 255, 0.08);
       border-radius: var(--radius-sm);
       font-size: 10.5px;
@@ -1313,7 +1313,7 @@
 
     /* ── Leaderboard row ── */
     .lb-row {
-      background: rgba(255, 255, 255, 0.015);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: var(--radius-sm);
       margin-bottom: 6px;
