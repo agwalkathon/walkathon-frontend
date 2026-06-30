@@ -475,14 +475,14 @@ function renderActivities(acts, dayBreakdown, actBreakdown, gender) {
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + daySteps.toLocaleString('en-IN') + '</span><span class="whoop-stat-lbl">STEPS</span></div>' +
           '<div class="whoop-stat-item"><span class="whoop-stat-val">' + rawKm.toFixed(1) + '</span><span class="whoop-stat-lbl">KM</span></div>' +
         '</div>' +
-        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--muted); margin-top:6px; justify-content:flex-start; align-self:flex-start; font-weight:600; font-family:var(--font);">' +
+        '<div class="whoop-points-box" style="display:flex; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--muted); margin-top:6px; justify-content:flex-end; align-self:flex-end; padding-right:8px; font-weight:600; font-family:var(--font);">' +
           '<span>Base: <strong style="color:#60A5FA;">' + db.distPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
           '<span>Bonus: <strong style="color:#FFD000;">' + db.bonusPts + '</strong></span>' +
           '<span style="color:rgba(255,255,255,0.15);">&middot;</span>' +
           '<span>Challenge: <strong style="color:#A78BFA;">' + chPts + '</strong></span>' +
         '</div>' +
-        '<div class="whoop-total-box" style="font-size:13px; font-weight:700; color:var(--muted); margin-top:4px; align-self:flex-start; font-family:var(--font);">' +
+        '<div class="whoop-total-box" style="font-size:13px; font-weight:700; color:var(--muted); margin-top:4px; align-self:flex-end; padding-right:8px; font-family:var(--font);">' +
           'Total: <strong style="color:var(--brand); font-size:14px; font-weight:800;">' + dayTotal + ' pts</strong>' +
         '</div>' +
       '</div>' +
