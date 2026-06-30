@@ -284,12 +284,12 @@ async function load(isBackgroundRefresh) {
       var btn = document.getElementById('btn-strava-connect');
       var msg = document.getElementById('strava-connect-msg');
       if (!btn) return;
-      btn.style.background = 'rgba(26, 29, 32, 0.65)';
+      btn.style.background = 'rgba(16, 185, 129, 0.12)';
       btn.style.backdropFilter = 'blur(16px)';
       btn.style.webkitBackdropFilter = 'blur(16px)';
-      btn.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+      btn.style.border = '1px solid rgba(16, 185, 129, 0.3)';
       btn.style.color = '#10b981';
-      btn.style.boxShadow = '0 4px 15px rgba(0,0,0,0.15)';
+      btn.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.15)';
       btn.style.pointerEvents = 'none';
       btn.style.cursor = 'not-allowed';
       btn.innerHTML = `
