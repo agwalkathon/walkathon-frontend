@@ -90,11 +90,23 @@ async function load(isBackgroundRefresh) {
       splashText.style.display = 'block';
     }
     
+    var session = {};
+    try {
+      session = JSON.parse(safeGetItem('wk_user') || '{}');
+    } catch(e) {}
+    var sessionEmpCode = session.empCode || '';
+    var sessionEmail = session.email || '';
+
     try {
       var res = await fetch(BACKEND + '/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: oauthCode, event_code: 'walkathon2026' })
+        body: JSON.stringify({ 
+          code: oauthCode, 
+          event_code: 'walkathon2026',
+          emp_code: sessionEmpCode,
+          email: sessionEmail
+        })
       });
       var d = await res.json();
       if (d.success) {
@@ -104,6 +116,8 @@ async function load(isBackgroundRefresh) {
           athleteId: d.athlete_id,
           name: d.name,
           profilePhoto: d.profile_photo || '',
+          empCode: sessionEmpCode || d.emp_code || '',
+          email: sessionEmail || d.email || '',
           expires: Date.now() + (8 * 60 * 60 * 1000)
         }));
         if (splashText) {
