@@ -1807,7 +1807,22 @@ function renderFeed() {
     var initials = '';
     var athleteName = 'Participant';
 
+    var reactionButtonsHtml = '';
+    var reactionsList = [
+      { type: 'like', iconReg: 'fa-regular fa-thumbs-up', iconActive: 'fa-solid fa-thumbs-up' },
+      { type: 'heart', iconReg: 'fa-regular fa-heart', iconActive: 'fa-solid fa-heart' }
+    ];
 
+    reactionsList.forEach(function(emo) {
+      var count = (item.reaction_counts && item.reaction_counts[emo.type]) || 0;
+      var displayCount = count > 0 ? count : '0';
+      var isActive = (item.my_reactions && item.my_reactions.indexOf(emo.type) > -1);
+      var activeClass = isActive ? 'active' : '';
+      var iconClass = isActive ? emo.iconActive : emo.iconReg;
+      reactionButtonsHtml += `<button class="feed-react-btn ${activeClass} type-${emo.type}" data-ann-id="${item.id}" data-react-type="${emo.type}" data-icon-reg="${emo.iconReg}" data-icon-active="${emo.iconActive}" onclick="reactToAnnouncement('${item.id}', '${emo.type}', event, this)"><i class="${iconClass} reaction-fa"></i><span class="count">${displayCount}</span></button>`;
+    });
+
+    var actionsHtml = `<div class="feed-card-actions" onclick="event.stopPropagation();">${reactionButtonsHtml}</div>`;
 
     if (item.type === 'activity') {
       var act = {};
@@ -1948,6 +1963,7 @@ function renderFeed() {
             ${mapHtml}
             ${kudosInsightsHtml}
           </div>
+          ${actionsHtml}
         </div>
       `;
     } else {
@@ -1970,6 +1986,7 @@ function renderFeed() {
             </div>
           </div>
           ${bodyHtml}
+          ${actionsHtml}
         </div>
       `;
     }
@@ -1985,6 +2002,140 @@ function renderFeed() {
 function showMoreAnnouncements() {
   _feedVisibleCount += 30;
   renderFeed();
+}
+
+async function reactToAnnouncement(announcementId, reactionType, event, btnElement) {
+  if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+  var athleteId = currentSession ? currentSession.athleteId : '';
+  if (!athleteId || athleteId === 'null' || athleteId === 'undefined') {
+    alert('⚠️ Please connect your Strava account first.');
+    return;
+  }
+
+  var item = _feedData.find(function(x) { return String(x.id) === String(announcementId); });
+  if (item) {
+    if (!Array.isArray(item.my_reactions)) item.my_reactions = [];
+    if (!item.reaction_counts || typeof item.reaction_counts !== 'object') item.reaction_counts = {};
+    
+    var idx = item.my_reactions.indexOf(reactionType);
+    var btn = btnElement || ((event && event.target) ? event.target.closest('button.feed-react-btn') : null);
+    if (!btn) btn = document.querySelector('button[data-ann-id="' + announcementId + '"][data-react-type="' + reactionType + '"]');
+    
+    var faIcon = btn ? btn.querySelector('.reaction-fa') : null;
+    var regClass = btn ? btn.getAttribute('data-icon-reg') : '';
+    var activeClass = btn ? btn.getAttribute('data-icon-active') : '';
+
+    if (idx > -1) {
+      item.my_reactions.splice(idx, 1);
+      if (item.reaction_counts[reactionType] > 0) item.reaction_counts[reactionType]--;
+      
+      // Update DOM directly (Optimistic)
+      if (btn) {
+        btn.classList.remove('active');
+        if (faIcon && regClass) faIcon.className = regClass + ' reaction-fa';
+        var cntEl = btn.querySelector('.count');
+        if (cntEl) {
+          var curr = parseInt(cntEl.textContent, 10) || 0;
+          var nextVal = Math.max(0, curr - 1);
+          cntEl.textContent = nextVal;
+        }
+      }
+    } else {
+      var clickX = 0, clickY = 0;
+      if (event) {
+        if (event.clientX && event.clientY) {
+          clickX = event.clientX;
+          clickY = event.clientY;
+        } else {
+          var target = event.currentTarget || event.target;
+          if (target && typeof target.getBoundingClientRect === 'function') {
+            var rect = target.getBoundingClientRect();
+            clickX = rect.left + rect.width / 2;
+            clickY = rect.top + rect.height / 2;
+          }
+        }
+      }
+      if (clickX && clickY) {
+        var emoji = (reactionType === 'heart') ? '❤️' : '👍';
+        triggerConfettiBurst(clickX, clickY, emoji);
+      }
+      
+      item.my_reactions.push(reactionType);
+      item.reaction_counts[reactionType] = (item.reaction_counts[reactionType] || 0) + 1;
+      
+      // Update DOM directly (Optimistic)
+      if (btn) {
+        btn.classList.add('active');
+        if (faIcon && activeClass) faIcon.className = activeClass + ' reaction-fa';
+        var cntEl = btn.querySelector('.count');
+        if (cntEl) {
+          var curr = parseInt(cntEl.textContent, 10) || 0;
+          cntEl.textContent = curr + 1;
+        }
+      }
+    }
+  }
+
+  try {
+    var res = await fetch(BACKEND + '/announcements/react', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        announcement_id: announcementId,
+        athlete_id: String(athleteId),
+        reaction_type: reactionType
+      })
+    });
+    var d = await res.json();
+    
+    // Sync local _feedData with database confirmed state
+    if (item) {
+      if (!item.my_reactions) item.my_reactions = [];
+      if (d.success) {
+        if (d.action === 'added') {
+          if (item.my_reactions.indexOf(reactionType) === -1) item.my_reactions.push(reactionType);
+        } else {
+          var rIdx = item.my_reactions.indexOf(reactionType);
+          if (rIdx > -1) item.my_reactions.splice(rIdx, 1);
+        }
+        if (!item.reaction_counts) item.reaction_counts = {};
+        item.reaction_counts[reactionType] = d.count;
+      }
+    }
+
+    if (d.success) {
+      var confirmedBtn = document.querySelector('button[data-ann-id="' + announcementId + '"][data-react-type="' + reactionType + '"]');
+      if (confirmedBtn) {
+        var cntEl = confirmedBtn.querySelector('.count');
+        if (cntEl) cntEl.textContent = d.count;
+        
+        var faIcon = confirmedBtn.querySelector('.reaction-fa');
+        var regClass = confirmedBtn.getAttribute('data-icon-reg');
+        var activeClass = confirmedBtn.getAttribute('data-icon-active');
+
+        if (d.action === 'added') {
+          confirmedBtn.classList.add('active');
+          if (faIcon && activeClass) faIcon.className = activeClass + ' reaction-fa';
+        } else {
+          confirmedBtn.classList.remove('active');
+          if (faIcon && regClass) faIcon.className = regClass + ' reaction-fa';
+        }
+      }
+    } else {
+      console.warn('React API unsuccessful:', d.error);
+      renderFeed();
+    }
+  } catch(err) {
+    console.warn('React API error — reverting:', err);
+    if (item) {
+      var revertIdx = item.my_reactions ? item.my_reactions.indexOf(reactionType) : -1;
+      if (revertIdx > -1) {
+        item.my_reactions.splice(revertIdx, 1);
+        if (item.reaction_counts) item.reaction_counts[reactionType] = Math.max(0, (item.reaction_counts[reactionType] || 1) - 1);
+      }
+    }
+    renderFeed();
+  }
 }
 
 
