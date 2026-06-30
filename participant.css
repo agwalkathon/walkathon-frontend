@@ -41,10 +41,10 @@
     /* ── Header ── */
     .header{
       position:sticky;top:0;z-index:200;
-      background:rgba(10, 12, 16, 0.85);
+      background:rgba(31, 38, 45, 0.97);
       backdrop-filter:blur(20px);
       -webkit-backdrop-filter:blur(20px);
-      border-bottom:1px solid rgba(255,255,255,0.07);
+      border-bottom:1px solid rgba(255,255,255,0.04);
       padding:max(14px,env(safe-area-inset-top)) 16px 14px;
       display:flex;align-items:center;
       justify-content:space-between;
