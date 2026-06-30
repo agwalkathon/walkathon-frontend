@@ -17,7 +17,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="participant.css?v=20260630_v26">
+  <link rel="stylesheet" href="participant.css?v=20260630_v28">
 </head>
 </head>
 <body>
@@ -52,6 +52,12 @@
 <header class="header">
   <div class="hdr-left" style="display: flex; align-items: center; gap: 8px;">
     <div class="hdr-avatar" id="hdr-avatar" onclick="showTab('you');return false;">PM</div>
+    <!-- Live Streak Badge -->
+    <div id="hdr-streak-badge" style="display: none; align-items: center; gap: 3px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 3px 8px; font-size: 10.5px; font-weight: 800; color: #fff; cursor: pointer;" onclick="showTab('you');return false;">
+      <span style="font-size: 12px;">🔥</span>
+      <span id="hdr-streak-val">0</span>
+    </div>
+    
     <div style="position: relative; display: inline-block;">
       <button class="hdr-btn" id="notification-btn" onclick="toggleNotificationDropdown(event)" title="Notifications" style="position: relative;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -76,7 +82,15 @@
       </div>
     </div>
   </div>
-  <div class="hdr-center" id="hdr-today-date">—</div>
+  
+  <div class="hdr-center">
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">
+      <span style="opacity: 0.25; font-size: 9px; cursor: default; user-select: none;">◀</span>
+      <span id="hdr-today-date" style="color: #fff;">—</span>
+      <span style="opacity: 0.25; font-size: 9px; cursor: default; user-select: none;">▶</span>
+    </div>
+  </div>
+  
   <div class="hdr-right">
     <button class="hdr-btn" onclick="clearPWACache(this)" title="Clear cache">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -241,50 +255,58 @@
   <div class="pb-grid">
     <!-- Longest Activity -->
     <div class="pb-card">
-      <div class="pb-card-header">
-        <div class="pb-card-icon" style="background: rgba(255, 174, 0, 0.12); color: #ffae00;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-8 4 4 4-8 4 8"/></svg>
+      <div class="pb-card-left">
+        <div class="pb-card-header">
+          <div class="pb-card-icon" style="background: rgba(255, 174, 0, 0.12); color: #ffae00;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-8 4 4 4-8 4 8"/></svg>
+          </div>
+          <div class="pb-card-label">Longest Activity</div>
         </div>
-        <div class="pb-card-label">Longest Activity</div>
+        <div class="pb-card-sub">single session max</div>
       </div>
       <div class="pb-card-val" id="pb-longest" style="color: #ffae00;">—</div>
-      <div class="pb-card-sub">single session max</div>
     </div>
 
     <!-- Best Pace -->
     <div class="pb-card">
-      <div class="pb-card-header">
-        <div class="pb-card-icon" style="background: rgba(232, 98, 42, 0.12); color: var(--brand);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div class="pb-card-left">
+        <div class="pb-card-header">
+          <div class="pb-card-icon" style="background: rgba(232, 98, 42, 0.12); color: var(--brand);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="pb-card-label">Best Pace</div>
         </div>
-        <div class="pb-card-label">Best Pace</div>
+        <div class="pb-card-sub">min/km &middot; walk/run</div>
       </div>
       <div class="pb-card-val" id="pb-pace" style="color: var(--brand);">—</div>
-      <div class="pb-card-sub">min/km &middot; walk/run</div>
     </div>
 
     <!-- Longest Session -->
     <div class="pb-card">
-      <div class="pb-card-header">
-        <div class="pb-card-icon" style="background: rgba(96, 165, 250, 0.12); color: var(--blue);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <div class="pb-card-left">
+        <div class="pb-card-header">
+          <div class="pb-card-icon" style="background: rgba(96, 165, 250, 0.12); color: var(--blue);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div class="pb-card-label">Longest Session</div>
         </div>
-        <div class="pb-card-label">Longest Session</div>
+        <div class="pb-card-sub">longest moving duration</div>
       </div>
       <div class="pb-card-val" id="pb-time" style="color: var(--blue);">—</div>
-      <div class="pb-card-sub">longest moving duration</div>
     </div>
 
     <!-- Best Day -->
     <div class="pb-card">
-      <div class="pb-card-header">
-        <div class="pb-card-icon" style="background: rgba(34, 197, 94, 0.12); color: var(--green);">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div class="pb-card-left">
+        <div class="pb-card-header">
+          <div class="pb-card-icon" style="background: rgba(34, 197, 94, 0.12); color: var(--green);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="pb-card-label">Best Day</div>
         </div>
-        <div class="pb-card-label">Best Day</div>
+        <div class="pb-card-sub">daily max &middot; <span id="pb-bestday-date">—</span></div>
       </div>
       <div class="pb-card-val" id="pb-bestday" style="color: var(--green);">—</div>
-      <div class="pb-card-sub">daily max &middot; <span id="pb-bestday-date">—</span></div>
     </div>
   </div>
 
@@ -619,10 +641,10 @@
 
   <!-- Modular App Assets -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="participant-config.js?v=20260630_v26"></script>
-  <script src="participant-api.js?v=20260630_v26"></script>
-  <script src="participant-drawers.js?v=20260630_v26"></script>
-  <script src="participant-tabs.js?v=20260630_v26"></script>
+  <script src="participant-config.js?v=20260630_v28"></script>
+  <script src="participant-api.js?v=20260630_v28"></script>
+  <script src="participant-drawers.js?v=20260630_v28"></script>
+  <script src="participant-tabs.js?v=20260630_v28"></script>
 
 
 
