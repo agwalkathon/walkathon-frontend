@@ -122,7 +122,7 @@ function safeSetStyle(id, prop, val) {
 function userGuard() {
   try {
     var s = JSON.parse(safeGetItem('wk_user') || '{}');
-    if (!s.loggedIn || !s.athleteId) { window.location.href = 'index.html'; return null; }
+    if (!s.loggedIn || !s.athleteId || s.athleteId === 'null' || s.athleteId === 'undefined') { window.location.href = 'index.html'; return null; }
     return s;
   } catch(e) {
     window.location.href = 'index.html';
