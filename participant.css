@@ -546,29 +546,38 @@
     .pb-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 16px;
     }
     .pb-card {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      padding: 10px 12px;
+      border-radius: 12px;
+      padding: 12px 16px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       position: relative;
       overflow: hidden;
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.25s ease;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+      min-height: 64px;
     }
     .pb-card:hover {
       transform: translateY(-2px);
       border-color: rgba(255, 255, 255, 0.15);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
       background: rgba(255, 255, 255, 0.04);
+    }
+    .pb-card-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
     .pb-card-header {
       display: flex;
@@ -595,20 +604,17 @@
       letter-spacing: 0.6px;
       text-transform: uppercase;
     }
-    .pb-card-body {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      min-height: 36px;
-    }
     .pb-card-val {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.5px;
+      text-align: right;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .pb-card-sub {
-      font-size: 9.5px;
-      color: var(--label);
+      font-size: 10px;
+      color: var(--muted);
       margin-top: 1px;
     }
     
