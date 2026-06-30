@@ -882,7 +882,7 @@ function renderRows(rows, prevRanks) {
       '<div class="row-body">' +
         '<div class="row-left">' +
           '<span class="row-name">' + esc(r.p.full_name || '—') + (isMe ? '<span class="you-chip">You</span>' : '') + '</span>' +
-          (teamName ? '<span style="font-size:11px;color:var(--label);margin-top:2px;display:block;">' + esc(teamName) + '</span>' : '') +
+          (teamName ? '<span style="font-size:12px;color:var(--label);margin-top:2px;display:block;">' + esc(teamName) + '</span>' : '') +
         '</div>' +
         '<div class="row-right" style="display:flex;align-items:center;gap:6px;">' +
           '<div class="row-pts">' +
