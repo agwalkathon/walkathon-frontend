@@ -2020,13 +2020,16 @@ function renderFeed() {
       var athleteName = athleteReg ? athleteReg.full_name : 'Participant';
       
       var nameHtml = '';
+      var titleHtml = '';
       var cardOnclick = '';
       if (item.type === 'broadcast') {
-        athleteName = 'Announcement';
-        nameHtml = `<span class="athlete-profile-static" style="color:#fff; font-weight:700; font-size:14px;">${esc(athleteName)}</span>`;
+        athleteName = item.title;
+        nameHtml = `<span class="athlete-profile-static" style="color:#fff; font-weight:700; font-size:15px; line-height:1.3; display:block;">${esc(athleteName)}</span>`;
+        titleHtml = '';
         cardOnclick = 'event.stopPropagation();';
       } else {
         nameHtml = `<a href="#" onclick="openProfileDetail('${targetAthleteId}', event); event.stopPropagation(); return false;" class="athlete-profile-link">${esc(athleteName)}</a>`;
+        titleHtml = `<div class="feed-card-title" style="font-size: 13px; font-weight: 700; color: var(--brand); margin-top: 2px;">${esc(item.title)}</div>`;
         cardOnclick = `openProfileDetail('${targetAthleteId}', event)`;
       }
 
@@ -2038,7 +2041,7 @@ function renderFeed() {
               <div class="feed-card-athlete-name">
                 ${nameHtml}
               </div>
-              <div class="feed-card-title" style="font-size: 13px; font-weight: 700; color: var(--brand); margin-top: 2px;">${esc(item.title)}</div>
+              ${titleHtml}
               <div class="feed-card-time">${dateLabel}</div>
             </div>
           </div>
