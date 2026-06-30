@@ -432,6 +432,9 @@
     }
     .banner-card.type-warning {
       border-left-color: #FC6100;
+      background: #050607;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .banner-icon {
       width: 36px;
