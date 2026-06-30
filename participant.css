@@ -2055,54 +2055,6 @@
     color: #fff;
     font-weight: 600;
   }
-  .feed-card-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    padding-top: 12px;
-  }
-  .feed-react-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 100px;
-    padding: 6px 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--muted);
-    font-size: var(--fs-sm);
-    font-weight: 600;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    user-select: none;
-  }
-  .feed-react-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #fff;
-  }
-  .feed-react-btn:hover .emoji {
-    transform: scale(1.2) rotate(8deg);
-  }
-  .feed-react-btn .emoji {
-    font-size: 14px;
-    display: inline-block;
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  .feed-react-btn:active {
-    transform: scale(0.92);
-  }
-  .feed-react-btn.active {
-    background: rgba(232, 98, 42, 0.1);
-    border-color: rgba(232, 98, 42, 0.35);
-    color: var(--brand);
-    box-shadow: 0 0 10px rgba(232, 98, 42, 0.12);
-  }
-  .feed-react-btn .count {
-    font-variant-numeric: tabular-nums;
-  }
 
   /* Activity Feed Styles */
   .feed-card-avatar {
