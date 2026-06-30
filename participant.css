@@ -1091,15 +1091,15 @@
     /* ── Bottom nav ── */
     .bottom-nav {
       position: fixed;
-      bottom: calc(10px + env(safe-area-inset-bottom));
+      bottom: calc(6px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
       width: 92%;
       max-width: 480px;
-      background: rgba(18, 22, 28, 0.5);
+      background: rgba(18, 22, 28, 0.55);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       border-radius: 28px;
       display: flex;
       justify-content: space-around;
@@ -1137,7 +1137,7 @@
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .bnav-item.active {
-      color: #fff;
+      color: var(--brand);
     }
     .bnav-item.active svg {
       transform: scale(1.12);
@@ -1148,8 +1148,8 @@
       bottom: 6px;
       left: 0;
       width: 0;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(135deg, rgba(232, 98, 42, 0.14) 0%, rgba(252, 97, 0, 0.05) 100%);
+      border: 1.5px solid rgba(232, 98, 42, 0.2);
       border-radius: 22px;
       z-index: 1;
       transition: all 0.38s cubic-bezier(0.25, 1, 0.25, 1.12);
@@ -2215,7 +2215,7 @@
     left: 0;
     width: 100vw;
     height: 100%;
-    background: rgba(14, 16, 18, 0.85);
+    background: linear-gradient(180deg, #0e1115 0%, #171c24 100%);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     z-index: 10000;
