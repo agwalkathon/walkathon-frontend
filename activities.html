@@ -1649,7 +1649,7 @@ async function loadActivities(){
         
       var chkHtml = '<td data-label="Select" style="text-align:center"><input type="checkbox" class="row-chk-all" data-id="'+a.id+'" onchange="toggleRowAll('+a.id+', this.checked)" '+(bulkSelected[a.id]?'checked':'')+' style="cursor:pointer; width:15px; height:15px"></td>';
       
-      return'<tr class="activity-row" data-strava-id="'+a.strava_activity_id+'" data-device="'+esc(a.device_name||'—')+'" data-elapsed="'+(a.elapsed_time_seconds?fmtDur(a.elapsed_time_seconds):'—')+'" data-avg-hr="'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'" data-max-hr="'+(a.max_heart_rate?a.max_heart_rate.toFixed(0)+' bpm':'—')+'" data-calories="'+(a.calories?a.calories.toFixed(0)+' kcal':'—')+'" data-steps="'+(a.steps||'—')+'" data-flagged="'+(a.is_flagged?'Yes':'No')+'" data-flag-reason="'+esc(a.flag_reason||'—')+'" data-deleted="'+(a.is_deleted?'Yes':'No')+'" data-bonus="'+(a.manual_bonus||0)+' points">'
+      return'<tr class="activity-row" id="activity-row-'+a.id+'" data-strava-id="'+a.strava_activity_id+'" data-device="'+esc(a.device_name||'—')+'" data-elapsed="'+(a.elapsed_time_seconds?fmtDur(a.elapsed_time_seconds):'—')+'" data-avg-hr="'+(a.avg_heart_rate?a.avg_heart_rate.toFixed(0)+' bpm':'—')+'" data-max-hr="'+(a.max_heart_rate?a.max_heart_rate.toFixed(0)+' bpm':'—')+'" data-calories="'+(a.calories?a.calories.toFixed(0)+' kcal':'—')+'" data-steps="'+(a.steps||'—')+'" data-flagged="'+(a.is_flagged?'Yes':'No')+'" data-flag-reason="'+esc(a.flag_reason||'—')+'" data-deleted="'+(a.is_deleted?'Yes':'No')+'" data-bonus="'+(a.manual_bonus||0)+' points">'
         + chkHtml
         + '<td data-label="Status" id="status-cell-'+a.id+'" data-reason="'+esc(a.flag_reason||'')+'">'+statusBadge+'</td>'
         + '<td data-label="IST Time">'+fmtActivityIST(a)+'</td>'
@@ -3628,7 +3628,7 @@ async function doActionAll(id, action, reason) {
     });
     if (bulkSelected[id]) delete bulkSelected[id];
     showToast('Action completed successfully!', false);
-    loadActivities();
+    updateRowStatusLocally(id, action);
   } catch (e) {
     alert('Action failed: ' + e.message);
   }
@@ -3698,6 +3698,8 @@ async function doBulkActionAll(action) {
       success++;
       var progEl = document.getElementById('bulk-prog-all');
       if (progEl) progEl.textContent = success;
+      
+      updateRowStatusLocally(parseInt(id), action);
     } catch(e) {
       console.error('Bulk action failed for ID ' + id, e);
     }
@@ -3706,7 +3708,102 @@ async function doBulkActionAll(action) {
   bulkSelected = {};
   updateBulkBarAll();
   alert('Bulk action completed successfully.');
-  loadActivities();
+}
+
+function updateRowStatusLocally(id, action) {
+  var row = document.getElementById('activity-row-' + id);
+  if (!row) return;
+
+  var stFilter = document.getElementById('status-filter') ? document.getElementById('status-filter').value : '';
+  var revFilter = document.getElementById('review-filter') ? document.getElementById('review-filter').value : '';
+  
+  var mustRemove = false;
+  
+  if (action === 'delete') {
+    mustRemove = true;
+  } else if (action === 'unflag') {
+    mustRemove = (stFilter === 'invalid') || (revFilter === 'pending');
+  } else if (action === 'review') {
+    mustRemove = (revFilter === 'pending');
+  } else if (action === 'unreview') {
+    mustRemove = (revFilter === 'reviewed');
+  }
+  
+  if (mustRemove) {
+    row.remove();
+    if (bulkSelected[id]) {
+      delete bulkSelected[id];
+      updateBulkBarAll();
+    }
+    if (window._exportActs) {
+      window._exportActs = window._exportActs.filter(function(a) { return a.id !== id; });
+      document.getElementById('total-activities').textContent = window._exportActs.length;
+      document.getElementById('result-count').textContent = window._exportActs.length + ' activit' + (window._exportActs.length === 1 ? 'y' : 'ies') + ' found';
+      
+      var validCnt = window._exportActs.filter(function(a){return !a.is_flagged}).length;
+      var flagCnt = window._exportActs.filter(function(a){return a.is_flagged}).length;
+      document.getElementById('total-valid').textContent = validCnt;
+      document.getElementById('total-flagged').textContent = flagCnt;
+    }
+  } else {
+    // Update local data state
+    if (window._exportActs) {
+      var act = window._exportActs.find(function(x) { return x.id === id; });
+      if (act) {
+        if (action === 'unflag') {
+          act.is_flagged = false;
+          act.flag_reason = '';
+          act.is_reviewed = false;
+        } else if (action === 'review') {
+          act.is_reviewed = true;
+        } else if (action === 'unreview') {
+          act.is_reviewed = false;
+        }
+        
+        // Update stats
+        var validCnt = window._exportActs.filter(function(a){return !a.is_flagged}).length;
+        var flagCnt = window._exportActs.filter(function(a){return a.is_flagged}).length;
+        document.getElementById('total-valid').textContent = validCnt;
+        document.getElementById('total-flagged').textContent = flagCnt;
+        
+        // Update DOM status badge and actions column
+        var statusCell = document.getElementById('status-cell-' + id);
+        if (statusCell) {
+          if (!act.is_flagged) {
+            statusCell.innerHTML = '<span class="badge badge-valid" style="cursor:pointer" title="Activity is Valid" onclick="openCustomEditModal(' + id + ')">✅ Valid</span>';
+            statusCell.setAttribute('data-reason', '');
+          } else {
+            var rawReason = act.flag_reason || 'Flagged';
+            var displayReason = rawReason.length > 27 ? rawReason.substring(0, 27) + '...' : rawReason;
+            statusCell.innerHTML = '<span class="badge badge-invalid" style="cursor:pointer; background:' + (act.is_reviewed ? '#F3F4F6; color:#4B5563; border-color:#D1D5DB;' : '#FFE4E6; color:#E11D48; border-color:#FDA4AF;') + '" title="' + esc(act.flag_reason || 'Flagged') + (act.is_reviewed ? ' (Reviewed)' : ' (Pending)') + '" onclick="openCustomEditModal(' + id + ')">🚩 ' + esc(displayReason) + (act.is_reviewed ? ' (Reviewed)' : ' (Pending)') + '</span>';
+            statusCell.setAttribute('data-reason', act.flag_reason || '');
+          }
+        }
+        
+        var actionsCell = row.querySelector('td[data-label="Actions"]');
+        if (actionsCell) {
+          var reviewBtnHtml = '';
+          var clearBtnHtml = '';
+          if (act.is_flagged) {
+            reviewBtnHtml = act.is_reviewed
+              ? '<button class="btn btn-sm" style="background:#e5e7eb; color:#374151; border:1px solid #d1d5db; padding: 4px 8px; font-size:11px;" onclick="toggleReviewStatusAll(' + id + ', false)">Unreview</button>'
+              : '<button class="btn btn-primary btn-sm" style="background:#3b82f6; border-color:#3b82f6; padding: 4px 8px; font-size:11px;" onclick="toggleReviewStatusAll(' + id + ', true)">Reviewed</button>';
+            clearBtnHtml = '<button class="btn btn-success btn-sm" style="padding: 4px 8px; font-size:11px;" onclick="doActionAll(' + id + ',\'unflag\',\'\')">Clear</button>';
+          } else {
+            reviewBtnHtml = '<button class="btn btn-sm" disabled style="opacity:0.4; cursor:not-allowed; padding: 4px 8px; font-size:11px;">Reviewed</button>';
+            clearBtnHtml = '<button class="btn btn-sm" disabled style="opacity:0.4; cursor:not-allowed; padding: 4px 8px; font-size:11px;">Clear</button>';
+          }
+          
+          actionsCell.innerHTML = '<div style="display:flex; gap:4px; align-items:center;">'
+            + '<button class="btn btn-orange btn-sm" style="padding: 4px 8px; font-size:11px;" onclick="openCustomEditModal(' + id + ')">Edit</button>'
+            + reviewBtnHtml
+            + clearBtnHtml
+            + '<button class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size:11px;" onclick="doActionAll(' + id + ',\'delete\',\'\')">Delete</button>'
+            + '</div>';
+        }
+      }
+    }
+  }
 }
 </script>
 </body>
