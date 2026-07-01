@@ -1119,9 +1119,8 @@ async function load(isBackgroundRefresh) {
             <div class="ch-dot ${statusCls}">${statusIcon}</div>
             <div class="ch-card-title-wrap">
               <div class="ch-title">${esc(displayName)}</div>
-              <div class="ch-sub">${ch.start_date === ch.end_date ? ch.start_date : ch.start_date + ' \u2013 ' + ch.end_date}</div>
+              <div class="ch-sub">${ch.start_date === ch.end_date ? ch.start_date : ch.start_date + ' \u2013 ' + ch.end_date} &middot; <span class="ch-pts ${statusCls}">+${Math.round(earned ? displayPts : ch.bonus_points)} pts</span></div>
             </div>
-            <div class="ch-pts ${statusCls}">+${Math.round(earned ? displayPts : ch.bonus_points)} pts</div>
           </div>
           <div class="ch-status-bar ${statusCls}">${statusBarHtml}</div>
         `;
