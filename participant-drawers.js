@@ -46,6 +46,7 @@ function openActivityDetail(id, event, isStravaId) {
     return;
   }
   try {
+    window._currentStravaActivityId = id;
     if (event && event.target && (event.target.closest('button') || event.target.closest('.feed-react-btn'))) {
       return;
     }
@@ -858,6 +859,23 @@ function onReportReasonChange() {
 async function submitActivityReport() {
   var activityId = window._currentReportActivityId;
   var ownerId = window._currentReportOwnerId;
+  
+  if ((!activityId || !ownerId) && window._currentStravaActivityId) {
+    try {
+      var r = await fetch(SUPABASE_URL + '/rest/v1/activities?strava_activity_id=eq.' + window._currentStravaActivityId, {
+        headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+      });
+      var data = await r.json();
+      if (data && data.length > 0) {
+        activityId = data[0].id;
+        ownerId = data[0].strava_athlete_id || data[0].athlete_id;
+        window._currentReportActivityId = activityId;
+        window._currentReportOwnerId = ownerId;
+      }
+    } catch(e) {
+      console.warn('Failed to resolve activity details dynamically:', e);
+    }
+  }
   
   if (!activityId || !ownerId) {
     alert('Failed to report activity: Activity details not loaded.');
