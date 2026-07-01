@@ -2496,6 +2496,17 @@ function renderNotifications() {
   });
 }
 
+function switchYouTab(tab) {
+  var info = document.getElementById('you-panel-info');
+  var chal = document.getElementById('you-panel-challenges');
+  var btnInfo = document.getElementById('you-tab-info');
+  var btnChal = document.getElementById('you-tab-challenges');
+  if (info) info.style.display = (tab === 'info') ? 'block' : 'none';
+  if (chal) chal.style.display = (tab === 'challenges') ? 'block' : 'none';
+  if (btnInfo) btnInfo.classList.toggle('active', tab === 'info');
+  if (btnChal) btnChal.classList.toggle('active', tab === 'challenges');
+}
+
 function clearPWACache(btn) {
   if (btn) {
     btn.style.color = '#10b981';
