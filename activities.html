@@ -586,7 +586,7 @@ td button.btn:last-child { margin-right: 0; }
         <div class="filter-grid" style="margin-bottom: 12px;">
           <div class="filter-group"><label>From date</label><input type="date" id="date-from"></div>
           <div class="filter-group"><label>To date</label><input type="date" id="date-to"></div>
-          <div class="filter-group"><label>Status</label><select id="status-filter"><option value="">All statuses</option><option value="valid">✅ Valid</option><option value="invalid">🚩 Invalid / Flagged</option></select></div>
+          <div class="filter-group"><label>Status</label><select id="status-filter"><option value="">All statuses</option><option value="valid">✅ Valid</option><option value="invalid">🚩 Invalid / Flagged</option><option value="deleted">🗑️ Deleted</option></select></div>
           <div class="filter-group"><label>Review State</label><select id="review-filter"><option value="">All</option><option value="pending">⏳ Pending Review</option><option value="reviewed">✓ Reviewed</option></select></div>
           <div class="filter-group"><label>Flag reason</label><select id="flag-reason-filter"><option value="">All reasons</option><optgroup label="── Manual Review ──"><option>Manual Review - Distance Issue</option><option>Manual Review - Pace Issue</option></optgroup><optgroup label="── Auto Flags ──"><option>Distance below min limit</option><option>Distance above max limit</option><option>Pace too fast</option><option>Pace too slow</option><option>Steps Count Issue</option><option>Speed too high</option><option>Elapsed gap too high</option><option>Pace Deviation Issue</option><option>Shared Activity (auto-detected)</option></optgroup><optgroup label="── Manual Flags ──"><option>Not Our Participant</option><option>Less than 1 km</option><option>Treadmill</option><option>Workout</option><option>Elapsed Time Issue</option><option>Pace Issue (Bike/Cycle)</option><option>Shared (no proof)</option><option>Indoor Run/Walk</option><option>More than 2 Activities</option><option>Suspicious Activity</option><option>Ride / Cycling</option><option>Distance Cropped - GPS Glitch</option><option>Distance Issue</option><option>GPS Glitch</option></optgroup></select></div>
           <div class="filter-group"><label>Activity type</label><select id="sport-filter"><option value="">All types</option><option value="Walk">Walk</option><option value="Run">Run</option><option value="Ride">Ride</option><option value="Hike">Hike</option><option value="VirtualRun">Virtual Run</option><option value="VirtualRide">Virtual Ride</option><option value="MountainBikeRide">Mountain Bike Ride</option></select></div>
@@ -618,7 +618,7 @@ td button.btn:last-child { margin-right: 0; }
         </div>
       </div>
 
-      <div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Use filters above and click <strong>Search</strong> to load activities.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th style="width:38px; text-align:center"><input type="checkbox" id="chk-all-rows-all" onchange="toggleAllRowsAll(this.checked)" style="cursor:pointer; width:15px; height:15px"></th><th style="min-width: 180px; width: 180px;">Status</th><th>IST Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Actions</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
+      <div class="card"><div id="placeholder" class="empty"><div class="icon">🔍</div><p>Use filters above and click <strong>Search</strong> to load activities.</p></div><div id="results" style="display:none"><div class="result-count"><span id="result-count"></span></div><div class="scroll-top" id="scroll-top"><div class="scroll-top-inner" id="scroll-top-inner"></div></div><div class="table-wrap" id="table-wrap"><table id="main-table"><thead><tr><th style="width:38px; text-align:center"><input type="checkbox" id="chk-all-rows-all" onchange="toggleAllRowsAll(this.checked)" style="cursor:pointer; width:15px; height:15px"></th><th style="min-width: 180px; width: 180px;">Status</th><th>IST Time</th><th>Participant Name</th><th>Activity Name</th><th>Type</th><th>Distance</th><th>Moving Time</th><th>Pace/Speed</th><th>Deleted</th><th>Actions</th></tr></thead><tbody id="activities-body"></tbody></table></div></div></div>
     </div>
 
     <!-- Tab 2 & 4: Under Review / Deleted Workouts -->
@@ -1520,7 +1520,7 @@ async function loadActivities(){
   document.getElementById('results').style.display='block';
   document.getElementById('stats-row').style.display='none';
   document.getElementById('searching-indicator').style.display='flex';
-  document.getElementById('activities-body').innerHTML='<tr><td colspan="9"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px"><div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:#888;font-size:14px">Searching activities...</span></div></td></tr>';
+  document.getElementById('activities-body').innerHTML='<tr><td colspan="11"><div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:48px"><div style="width:28px;height:28px;border:3px solid #f0f0f0;border-top-color:#E8622A;border-radius:50%;animation:spin .8s linear infinite"></div><span style="color:#888;font-size:14px">Searching activities...</span></div></td></tr>';
   
   var df=document.getElementById('date-from').value;
   var dt=document.getElementById('date-to').value;
@@ -1532,7 +1532,7 @@ async function loadActivities(){
   var actIdVal=document.getElementById('activity-id-filter').value.trim();
   var athIdVal=document.getElementById('athlete-id-filter').value.trim();
   
-  var url=SUPABASE_URL+'/rest/v1/activities?is_deleted=eq.false&order=activity_date_time_ist.desc.nullslast,activity_date.desc';
+  var url=SUPABASE_URL+'/rest/v1/activities?order=activity_date_time_ist.desc.nullslast,activity_date.desc';
   if(actIdVal) {
     url+='&strava_activity_id=eq.'+encodeURIComponent(actIdVal);
   } else {
@@ -1541,8 +1541,16 @@ async function loadActivities(){
   }
   if(athIdVal) url+='&strava_athlete_id=eq.'+encodeURIComponent(athIdVal);
   if(sp)url+='&sport_type=eq.'+sp;
-  if(st==='valid')url+='&is_flagged=is.false';
-  if(st==='invalid')url+='&is_flagged=is.true';
+  
+  if(st==='valid') {
+    url+='&is_flagged=is.false&is_deleted=eq.false';
+  } else if(st==='invalid') {
+    url+='&is_flagged=is.true';
+  } else if(st==='deleted') {
+    url+='&is_deleted=eq.true';
+  } else {
+    url+='&is_deleted=eq.false';
+  }
   if(fr)url+='&flag_reason=ilike.%25'+encodeURIComponent(fr)+'%25';
   
   try{
@@ -1659,13 +1667,14 @@ async function loadActivities(){
         + '<td data-label="Distance" class="editable" data-edit="dist" data-id="'+a.id+'" data-val="'+(a.distance_meters||0)+'" title="Double-click to edit">'+(a.distance_meters?(a.distance_meters/1000).toFixed(2)+' km':'—')+'</td>'
         + '<td data-label="Moving Time">'+(a.moving_time_seconds?fmtDur(a.moving_time_seconds):'—')+'</td>'
         + '<td data-label="Pace/Speed">'+fmtPS(a.avg_speed,a.sport_type)+'</td>'
+        + '<td data-label="Deleted">' + ((a.is_deleted === true || a.is_deleted === 'true') ? '<span class="badge badge-invalid" style="background:#FFE4E6; color:#E11D48; border-color:#FDA4AF;">Yes</span>' : '<span class="badge badge-valid">No</span>') + '</td>'
         + '<td data-label="Actions">' + actionsCellHtml + '</td>'
         + '</tr>';
     }).join('');
     setTimeout(initScrollSync,100);
   }catch(e){
     console.error(e);
-    document.getElementById('activities-body').innerHTML='<tr><td colspan="10" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>';
+    document.getElementById('activities-body').innerHTML='<tr><td colspan="11" style="text-align:center;padding:48px;color:#c62828">Error loading data. Please try again.</td></tr>';
   }
   document.getElementById('searching-indicator').style.display='none';
 }
@@ -3720,7 +3729,7 @@ function updateRowStatusLocally(id, action) {
   var mustRemove = false;
   
   if (action === 'delete') {
-    mustRemove = true;
+    mustRemove = (stFilter !== 'deleted');
   } else if (action === 'unflag') {
     mustRemove = (stFilter === 'invalid') || (revFilter === 'pending');
   } else if (action === 'review') {
@@ -3758,6 +3767,8 @@ function updateRowStatusLocally(id, action) {
           act.is_reviewed = true;
         } else if (action === 'unreview') {
           act.is_reviewed = false;
+        } else if (action === 'delete') {
+          act.is_deleted = true;
         }
         
         // Update stats
@@ -3778,6 +3789,13 @@ function updateRowStatusLocally(id, action) {
             statusCell.innerHTML = '<span class="badge badge-invalid" style="cursor:pointer; background:' + (act.is_reviewed ? '#F3F4F6; color:#4B5563; border-color:#D1D5DB;' : '#FFE4E6; color:#E11D48; border-color:#FDA4AF;') + '" title="' + esc(act.flag_reason || 'Flagged') + (act.is_reviewed ? ' (Reviewed)' : ' (Pending)') + '" onclick="openCustomEditModal(' + id + ')">🚩 ' + esc(displayReason) + (act.is_reviewed ? ' (Reviewed)' : ' (Pending)') + '</span>';
             statusCell.setAttribute('data-reason', act.flag_reason || '');
           }
+        }
+        
+        var deletedCell = row.querySelector('td[data-label="Deleted"]');
+        if (deletedCell) {
+          deletedCell.innerHTML = ((act.is_deleted === true || act.is_deleted === 'true') 
+            ? '<span class="badge badge-invalid" style="background:#FFE4E6; color:#E11D48; border-color:#FDA4AF;">Yes</span>' 
+            : '<span class="badge badge-valid">No</span>');
         }
         
         var actionsCell = row.querySelector('td[data-label="Actions"]');
