@@ -585,7 +585,7 @@ function openProfileDetail(athleteId, event) {
 
     var _profileAthleteId = athleteId;
     var _profileTimeframe = document.getElementById('prof-timeframe-select') ? (document.getElementById('prof-timeframe-select').value || 'month') : 'month';
-    var url = SUPABASE_URL + '/rest/v1/activities?strava_athlete_id=eq.' + athleteId + '&is_deleted=is.false&activity_date=gte.2026-06-01&activity_date=lte.2026-06-30T23:59:59&order=activity_date.desc';
+    var url = SUPABASE_URL + '/rest/v1/activities?strava_athlete_id=eq.' + athleteId + '&is_deleted=is.false&activity_date=gte.2026-06-01&activity_date=lte.2026-07-01T15:00:00&order=activity_date.desc';
     fetch(url, { headers: HDR })
       .then(function(res) { return res.json(); })
       .then(function(acts) {
