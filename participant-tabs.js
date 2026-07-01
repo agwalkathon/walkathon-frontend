@@ -1628,8 +1628,9 @@ function initFeedMaps() {
         el._leafletMap = map;
         window._feedMaps.push(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          maxZoom: 20
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 20,
+          attribution: 'Tiles &copy; Esri'
         }).addTo(map);
 
         var poly = L.polyline(coordinates, {
