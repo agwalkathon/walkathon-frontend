@@ -939,6 +939,29 @@ async function submitActivityReport() {
   
   var btnSubmit = document.getElementById('btn-submit-report');
   btnSubmit.disabled = true;
+  btnSubmit.textContent = 'Checking limits...';
+  
+  try {
+    var now = new Date();
+    var todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
+    
+    var limitResp = await fetch(SUPABASE_URL + '/rest/v1/activity_reports?select=id&reported_by=eq.' + reporterId + '&created_at=gte.' + todayStart, {
+      headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }
+    });
+    if (limitResp.ok) {
+      var userTodayReports = await limitResp.json();
+      if (userTodayReports && userTodayReports.length >= 5) {
+        alert('You have reached the daily limit of 5 reports. You are abusing this feature.');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Submit Report';
+        return;
+      }
+    }
+  } catch(e) {
+    console.warn('Failed to verify user reporting limits:', e);
+  }
+  
+  btnSubmit.disabled = true;
   btnSubmit.textContent = 'Submitting...';
   
   var payload = {
