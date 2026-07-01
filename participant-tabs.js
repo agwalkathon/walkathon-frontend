@@ -767,7 +767,7 @@ function precomputeLBScores() {
 (function() {
   try {
     var cachedReg = JSON.parse(safeGetItem('agwalk_ranking_reg') || 'null');
-    var cachedActs = JSON.parse(safeGetItem('agwalk_ranking_acts_v2') || 'null');
+    var cachedActs = JSON.parse(safeGetItem('agwalk_ranking_acts_v3') || 'null');
     if (cachedReg && cachedReg.data && cachedActs && cachedActs.data) {
       LB_REG = cachedReg.data;
       LB_ACTS = cachedActs.data;
