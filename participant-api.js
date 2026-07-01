@@ -167,6 +167,11 @@ async function load(isBackgroundRefresh) {
   }
   currentSession = s;
   var athleteId = s.athleteId;
+
+  // ── Maintenance mode gate — block immediately if enabled ────────────────
+  var _maintBlocked = await checkMaintenanceGate(athleteId);
+  if (_maintBlocked) return;
+
   loadNotifications();
   try {
     // ── Phase 1: Load personal data with cache ────────────────────────────────
