@@ -185,21 +185,21 @@
     <!-- Metrics -->
   <div class="sec">My Stats</div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-    <div class="stat-card-item">
+    <div class="stat-card-item" onclick="openStatsDetail('activities')" style="cursor:pointer;">
       <div class="stat-card-icon" style="background:rgba(232,98,42,0.12);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       </div>
       <div class="stat-card-val" id="s-acts">—</div>
       <div class="stat-card-label">Activities</div>
     </div>
-    <div class="stat-card-item">
+    <div class="stat-card-item" onclick="openStatsDetail('distance')" style="cursor:pointer;">
       <div class="stat-card-icon" style="background:rgba(34,197,94,0.12);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
       </div>
       <div class="stat-card-val" id="s-dist">—</div>
       <div class="stat-card-label">km Distance</div>
     </div>
-    <div class="stat-card-item">
+    <div class="stat-card-item" onclick="openStatsDetail('time')" style="cursor:pointer;">
       <div class="stat-card-icon" style="background:rgba(96,165,250,0.12);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
       </div>
@@ -635,6 +635,7 @@
 
 
   <!-- Modular App Assets -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script src="participant-config.js?v=20260701_v33"></script>
   <script src="participant-api.js?v=20260701_v33"></script>
@@ -924,6 +925,27 @@
     <div class="detail-content" style="padding-top:20px;">
       <div id="reactions-detail-list" style="display:flex; flex-direction:column; gap:12px;">
         <!-- List of participants who reacted -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Detail Modal Drawer -->
+  <div id="stats-detail-modal" class="detail-modal">
+    <!-- Top Nav Bar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px; padding-top:calc(16px + env(safe-area-inset-top)); border-bottom:1px solid rgba(255,255,255,0.08); position:sticky; top:0; background:rgba(14,16,18,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); z-index:10002;">
+      <button class="btn-back" onclick="closeStatsDetail()" style="background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </button>
+      <div id="stats-detail-title" style="font-size:16px; font-weight:800; color:#fff; text-align:center;">Stats Breakdown</div>
+      <div style="width:50px;"></div>
+    </div>
+
+    <!-- Stats content -->
+    <div class="detail-content" style="padding: 24px 20px;">
+      <div id="stats-detail-summary" style="margin-bottom: 24px; font-size: 14px; color: var(--muted); line-height: 1.5; text-align: center;"></div>
+      <div style="position: relative; width: 100%; height: 280px; margin: 0 auto;">
+        <canvas id="stats-detail-chart"></canvas>
       </div>
     </div>
   </div>
