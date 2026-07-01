@@ -1092,7 +1092,7 @@
     /* ── Bottom nav ── */
     .bottom-nav {
       position: fixed;
-      bottom: calc(6px + env(safe-area-inset-bottom));
+      bottom: calc(2px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
       width: 92%;
