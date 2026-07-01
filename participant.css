@@ -2213,7 +2213,7 @@
     outline: none;
   }
   .feed-card-map-wrap .leaflet-tile-pane {
-    filter: brightness(0.82) contrast(1.05) saturate(0.45) hue-rotate(12deg);
+    filter: brightness(1.35) contrast(0.92) saturate(0.4) hue-rotate(12deg);
   }
   
   /* Activity Detail Modal Slide-up Overlay */
