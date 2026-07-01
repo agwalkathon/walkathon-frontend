@@ -1628,12 +1628,12 @@ function initFeedMaps() {
         el._leafletMap = map;
         window._feedMaps.push(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
           maxZoom: 20
         }).addTo(map);
 
         var poly = L.polyline(coordinates, {
-          color: '#00E676', // Glowing neon green (Google Map / fitness style)
+          color: '#E8622A', // Brand orange matching detail map
           weight: 4,
           opacity: 0.9,
           lineJoin: 'round'
