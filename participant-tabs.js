@@ -3016,7 +3016,7 @@ function closeReactionsDetail() {
     if (!canvas) return;
 
     // Show modal
-    modal.classList.add('show');
+    modal.classList.add('open');
 
     // Destroy existing chart instance if any
     if (statsChartInstance) {
@@ -3216,7 +3216,7 @@ function closeReactionsDetail() {
 
   function closeStatsDetail() {
     var modal = document.getElementById('stats-detail-modal');
-    if (modal) modal.classList.remove('show');
+    if (modal) modal.classList.remove('open');
     if (statsChartInstance) {
       statsChartInstance.destroy();
       statsChartInstance = null;
