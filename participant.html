@@ -17,7 +17,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="participant.css?v=20260630_v67">
+  <link rel="stylesheet" href="participant.css?v=20260630_v68">
 </head>
 </head>
 <body>
@@ -405,20 +405,20 @@
 <!-- You tab -->
 <div class="content" id="tab-you">
 <div class="max-w">
+  <!-- Profile sub-tabs -->
+  <div class="lb-tabs" style="margin-bottom:14px;">
+    <button class="lb-tab" id="you-tab-info" onclick="switchYouTab('info')">Profile</button>
+    <button class="lb-tab active" id="you-tab-challenges" onclick="switchYouTab('challenges')">&#127919; Challenges</button>
+  </div>
+
   <div class="tab-you-profile">
     <div class="tab-you-avatar" id="you-avatar">PM</div>
     <div class="tab-you-name" id="you-name">—</div>
     <div class="tab-you-tags" id="you-tags"></div>
   </div>
 
-  <!-- Profile sub-tabs -->
-  <div class="lb-tabs" style="margin-bottom:14px;">
-    <button class="lb-tab active" id="you-tab-info" onclick="switchYouTab('info')">Profile</button>
-    <button class="lb-tab" id="you-tab-challenges" onclick="switchYouTab('challenges')">&#127919; Challenges</button>
-  </div>
-
   <!-- Info panel -->
-  <div id="you-panel-info">
+  <div id="you-panel-info" style="display:none;">
 
   <!-- Push Notifications Subscription Card -->
   <div class="card" id="push-notifications-card" style="margin-top:10px;padding:16px 20px;background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:transform 0.2s ease,border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';this.style.borderColor='rgba(255,255,255,0.15)';" onmouseout="this.style.transform='';this.style.borderColor='';">
@@ -604,10 +604,9 @@
   </div>
 </div>
 </div>
-  </div>
 
   <!-- Challenges panel -->
-  <div id="you-panel-challenges" style="display:none; padding-top:4px;">
+  <div id="you-panel-challenges" style="display:block; padding-top:4px;">
     <div id="challenges-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
       <div class="card" style="margin-bottom:0;"><div class="empty-state" style="padding:18px"><p>Loading challenges...</p></div></div>
     </div>
