@@ -488,7 +488,12 @@ function renderActivities(acts, dayBreakdown, actBreakdown, gender) {
       '</div>' +
       '<div class="date-chevron">❯</div>';
     
-    dateRow.addEventListener('click', (function(d){return function(){showDateDetails(d);}})(date));
+    if (dayActs.length === 1) {
+      var _sid = dayActs[0].strava_activity_id;
+      dateRow.addEventListener('click', (function(id){return function(e){openActivityDetail(id, e, true);}})(_sid));
+    } else {
+      dateRow.addEventListener('click', (function(d){return function(){showDateDetails(d);}})(date));
+    }
     group.appendChild(dateRow);
     list.appendChild(group);
   });
@@ -544,7 +549,6 @@ function showDateDetails(dateStr) {
 
     var isFlag = a.is_flagged;
     var cardId = 'dac-' + a.strava_activity_id;
-    var expandByDefault = (dayActs.length === 1);
 
     var gridItems = [];
     if (km && parseFloat(km) > 0) gridItems.push({ label: 'Distance', val: km + ' km' });
@@ -570,8 +574,8 @@ function showDateDetails(dateStr) {
     });
 
     html +=
-      '<div class="detail-act-card' + (isFlag ? ' flagged' : '') + (expandByDefault ? ' open' : '') + '" id="' + cardId + '">' +
-        '<div class="detail-act-hdr" onclick="toggleActCard(\'' + a.strava_activity_id + '\')">' +
+      '<div class="detail-act-card' + (isFlag ? ' flagged' : '') + '" id="' + cardId + '">' +
+        '<div class="detail-act-hdr" onclick="openActivityDetail(\'' + a.strava_activity_id + '\', event, true)">' +
           '<div class="detail-act-hdr-left">' +
             '<div class="detail-act-icon ' + tc + '">' + renderIcon(a.sport_type) + '</div>' +
             '<div class="detail-act-title-wrap">' +
@@ -580,7 +584,7 @@ function showDateDetails(dateStr) {
             '</div>' +
           '</div>' +
           '<div class="detail-act-hdr-right">' +
-            '<div class="detail-act-chevron">▼</div>' +
+            '<div class="detail-act-chevron">›</div>' +
           '</div>' +
         '</div>' +
         '<div class="detail-act-body">' +
