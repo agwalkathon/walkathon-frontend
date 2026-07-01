@@ -302,7 +302,7 @@ function openActivityDetail(id, event, isStravaId) {
                 zoomControl: true,
                 attributionControl: false
               }).setView(coordinates[0], 14);
-              L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, attribution: 'Tiles &copy; Esri' }).addTo(_activeDetailMap);
+              L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(_activeDetailMap);
               var poly = L.polyline(coordinates, { color: 'var(--brand)', weight: 4, opacity: 0.9, lineJoin: 'round' }).addTo(_activeDetailMap);
               _activeDetailMap.fitBounds(poly.getBounds(), { padding: [20, 20] });
             }
