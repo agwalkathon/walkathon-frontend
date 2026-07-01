@@ -1249,12 +1249,14 @@
       text-overflow: ellipsis;
     }
     .lb-tab.active {
-      color: #111;
-      background: #fff;
+      color: #fff;
+      background: var(--surface2);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     }
 
     /* ── Info Banner (replacing Legend) ── */
+    .card .standing-card { background: var(--surface2); }
+
     .lb-info-banner {
       margin-top: 10px;
       padding: 9px 12px;
@@ -1276,13 +1278,12 @@
 
     /* ── Leaderboard row ── */
     .lb-row {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--surface);
       border-radius: var(--radius-sm);
       margin-bottom: 6px;
       overflow: hidden;
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.25s ease, box-shadow 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
     }
     .lb-row:hover {
       transform: translateY(-1.5px);
@@ -1425,9 +1426,7 @@
       padding: 0 4px;
     }
     .podium-card {
-      background: rgba(40, 46, 54, 0.65);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--surface);
       border-radius: var(--radius);
       padding: 18px 10px 14px;
       display: flex;
@@ -1451,22 +1450,22 @@
       height: 160px;
       z-index: 3;
       border-color: rgba(255, 208, 0, 0.25);
-      background: linear-gradient(180deg, rgba(255, 208, 0, 0.06) 0%, rgba(40, 46, 54, 0.7) 100%);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 208, 0, 0.08);
+      background: linear-gradient(180deg, rgba(255, 208, 0, 0.08) 0%, var(--surface) 100%);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
     .podium-card.rank-2 {
       height: 142px;
       z-index: 2;
       border-color: rgba(200, 216, 232, 0.2);
-      background: linear-gradient(180deg, rgba(200, 216, 232, 0.04) 0%, rgba(40, 46, 54, 0.7) 100%);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), 0 0 15px rgba(200, 216, 232, 0.06);
+      background: linear-gradient(180deg, rgba(200, 216, 232, 0.05) 0%, var(--surface) 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
     }
     .podium-card.rank-3 {
       height: 137px;
       z-index: 1;
       border-color: rgba(244, 168, 74, 0.2);
-      background: linear-gradient(180deg, rgba(244, 168, 74, 0.04) 0%, rgba(40, 46, 54, 0.7) 100%);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 0 15px rgba(244, 168, 74, 0.06);
+      background: linear-gradient(180deg, rgba(244, 168, 74, 0.05) 0%, var(--surface) 100%);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
     }
     /* Active highlighted state on tap */
     .podium-card.active.rank-1 {
