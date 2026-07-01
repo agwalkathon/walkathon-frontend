@@ -17,7 +17,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="participant.css?v=20260630_v59">
+  <link rel="stylesheet" href="participant.css?v=20260701_v33">
 </head>
 </head>
 <body>
@@ -52,17 +52,7 @@
 <header class="header">
   <div class="hdr-left" style="display: flex; align-items: center; gap: 8px;">
     <div class="hdr-avatar" id="hdr-avatar" onclick="showTab('you');return false;">PM</div>
-  </div>
-
-  <div class="hdr-center">
-    <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
-      <span style="color: rgba(255,255,255,0.4); font-size: 16px; cursor: default; user-select: none; line-height: 1;">‹</span>
-      <span id="hdr-today-date" style="color: #fff;">—</span>
-      <span style="color: rgba(255,255,255,0.4); font-size: 16px; cursor: default; user-select: none; line-height: 1;">›</span>
-    </div>
-  </div>
-
-  <div class="hdr-right">
+    
     <div style="position: relative; display: inline-block;">
       <button class="hdr-btn" id="notification-btn" onclick="toggleNotificationDropdown(event)" title="Notifications" style="position: relative;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -71,9 +61,9 @@
         </svg>
         <span class="notification-badge" id="notification-badge" style="position: absolute; top: 2px; right: 2px; background: #FC6100; color: white; border-radius: 50%; width: 10px; height: 10px; display: none; border: 1.5px solid var(--surface);"></span>
       </button>
-
+      
       <!-- Notification Dropdown -->
-      <div id="notification-dropdown" class="notification-dropdown" style="display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 280px; background: rgba(30, 30, 30, 0.95); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); z-index: 1000; padding: 12px 14px; font-family: var(--font); color: var(--text);">
+      <div id="notification-dropdown" class="notification-dropdown" style="display: none; position: absolute; top: calc(100% + 8px); left: 0; width: 280px; background: rgba(30, 30, 30, 0.95); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); z-index: 1000; padding: 12px 14px; font-family: var(--font); color: var(--text);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
           <span style="font-size: 13px; font-weight: 700; color: #fff;">Notifications</span>
           <span id="notif-clear-all" onclick="clearNotifications(event)" style="font-size: 11px; color: var(--brand); cursor: pointer; font-weight: 600;">Clear all</span>
@@ -86,6 +76,17 @@
         </div>
       </div>
     </div>
+  </div>
+  
+  <div class="hdr-center">
+    <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 5px 12px; display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">
+      <span style="opacity: 0.25; font-size: 9px; cursor: default; user-select: none;">◀</span>
+      <span id="hdr-today-date" style="color: #fff;">—</span>
+      <span style="opacity: 0.25; font-size: 9px; cursor: default; user-select: none;">▶</span>
+    </div>
+  </div>
+  
+  <div class="hdr-right">
     <button class="hdr-btn" onclick="clearPWACache(this)" title="Clear cache">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 6h18"/>
@@ -98,14 +99,6 @@
 
 <!-- Tab Viewport for Swipe Transitions -->
 <div class="swipe-container-viewport">
-  <!-- Pull to Refresh Indicator -->
-  <div id="pull-refresh-indicator" class="pull-refresh-indicator">
-    <div class="pull-refresh-circle">
-      <svg class="pull-refresh-spinner" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="62.8" stroke-dashoffset="62.8"></circle>
-      </svg>
-    </div>
-  </div>
   <div class="swipe-container-track" id="tab-track">
 
     <!-- Dashboard tab -->
@@ -190,9 +183,8 @@
     -->
 
     <!-- Metrics -->
-  <div class="card" style="margin-bottom:12px;">
   <div class="sec">My Stats</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:0 14px 14px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
     <div class="stat-card-item">
       <div class="stat-card-icon" style="background:rgba(232,98,42,0.12);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -215,19 +207,16 @@
       <div class="stat-card-label">Moving Time</div>
     </div>
   </div>
-  </div>
 
-  <div class="card">
   <div class="sec">Pace Goals</div>
-  <div id="pace-card">
+  <div class="card" id="pace-card">
     <!-- dynamically rendered by JS -->
   </div>
-  </div>
 
 
 
-  <div class="card">
   <div class="sec">Activity Streak</div>
+  <div class="card">
     <div class="streak-top">
       <div>
         <div class="streak-num" id="streak-num">0</div>
@@ -257,11 +246,10 @@
   <div class="flagged-info" id="flagged-banner">
     <strong>⚑ Flagged activities</strong> — Some activities were flagged for admin review. They're excluded from your score until reviewed.
   </div>
-  <div class="card" style="margin-bottom:12px;">
   <div class="sec">PERSONAL BESTS</div>
-  <div class="pb-grid" style="padding:0 14px 14px;">
+  <div class="pb-grid">
     <!-- Longest Activity -->
-    <div class="pb-card" style="--card-accent:#ffae00;">
+    <div class="pb-card">
       <div class="pb-card-left">
         <div class="pb-card-header">
           <div class="pb-card-icon" style="background: rgba(255, 174, 0, 0.12); color: #ffae00;">
@@ -271,11 +259,11 @@
         </div>
         <div class="pb-card-sub">single session max</div>
       </div>
-      <div class="pb-card-val" id="pb-longest">—</div>
+      <div class="pb-card-val" id="pb-longest" style="color: #ffae00;">—</div>
     </div>
 
     <!-- Best Pace -->
-    <div class="pb-card" style="--card-accent:#E8622A;">
+    <div class="pb-card">
       <div class="pb-card-left">
         <div class="pb-card-header">
           <div class="pb-card-icon" style="background: rgba(232, 98, 42, 0.12); color: var(--brand);">
@@ -285,11 +273,11 @@
         </div>
         <div class="pb-card-sub">min/km &middot; walk/run</div>
       </div>
-      <div class="pb-card-val" id="pb-pace">—</div>
+      <div class="pb-card-val" id="pb-pace" style="color: var(--brand);">—</div>
     </div>
 
     <!-- Longest Session -->
-    <div class="pb-card" style="--card-accent:#60A5FA;">
+    <div class="pb-card">
       <div class="pb-card-left">
         <div class="pb-card-header">
           <div class="pb-card-icon" style="background: rgba(96, 165, 250, 0.12); color: var(--blue);">
@@ -299,11 +287,11 @@
         </div>
         <div class="pb-card-sub">longest moving duration</div>
       </div>
-      <div class="pb-card-val" id="pb-time">—</div>
+      <div class="pb-card-val" id="pb-time" style="color: var(--blue);">—</div>
     </div>
 
     <!-- Best Day -->
-    <div class="pb-card" style="--card-accent:#22C55E;">
+    <div class="pb-card">
       <div class="pb-card-left">
         <div class="pb-card-header">
           <div class="pb-card-icon" style="background: rgba(34, 197, 94, 0.12); color: var(--green);">
@@ -313,9 +301,8 @@
         </div>
         <div class="pb-card-sub">daily max &middot; <span id="pb-bestday-date">—</span></div>
       </div>
-      <div class="pb-card-val" id="pb-bestday">—</div>
+      <div class="pb-card-val" id="pb-bestday" style="color: var(--green);">—</div>
     </div>
-  </div>
   </div>
 
   <div class="sec" id="act-section-title">My Activities</div>
@@ -328,23 +315,19 @@
 </div>
 
 <!-- Leaderboard tab -->
-<div class="content" id="tab-leaderboard" style="padding:0;background:transparent;">
+<div class="content" id="tab-leaderboard" style="padding:0;background:var(--bg);">
   <!-- hidden els for JS compat -->
   <span id="lb-my-name" style="display:none"></span>
   <span id="lb-my-tags" style="display:none"></span>
   <span id="lb-my-pts" style="display:none"></span>
   <span id="lb-my-rank" style="display:none"></span>
-  <div class="max-w">
   <div class="lb-tabs">
     <button class="lb-tab active" id="lb-tab-shift" onclick="switchTab('shift')">My Category</button>
     <button class="lb-tab" id="lb-tab-team" onclick="switchTab('team')">My Team</button>
     <button class="lb-tab" id="lb-tab-hof" onclick="switchTab('hof')">🏆 HOF</button>
   </div>
   <!-- My Standing + Rank Movement -->
-  <div style="padding:0 20px; margin-bottom:12px;">
-  <div class="card">
-  <div class="sec">My Standing</div>
-  <div style="padding:0 14px 14px;">
+  <div style="padding:12px 20px 0;">
     <div class="standing-grid">
       <div class="standing-card">
         <div class="standing-rank-big" id="standing-shift-rank">—</div>
@@ -365,7 +348,7 @@
       </div>
       <div class="standing-card" style="text-align:left;padding:12px 14px;">
         <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">Next Rank</div>
-        <div style="font-size:14px;font-weight:800;color:#fff;" id="lb-next-gap">—</div>
+        <div style="font-size:14px;font-weight:800;color:var(--blue);" id="lb-next-gap">—</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="lb-next-name"></div>
       </div>
     </div>
@@ -373,15 +356,12 @@
       <span>ℹ️ Tap any row or podium card to view points breakdown</span>
     </div>
   </div>
-  </div>
-  </div>
   <div class="lb-content">
     <div id="lb-list">
       <div class="skel-row"><div class="skeleton skel-c"></div><div class="skel-lines"><div class="skeleton skel-l m"></div><div class="skeleton skel-l s"></div></div></div>
       <div class="skel-row"><div class="skeleton skel-c"></div><div class="skel-lines"><div class="skeleton skel-l m"></div><div class="skeleton skel-l s"></div></div></div>
       <div class="skel-row"><div class="skeleton skel-c"></div><div class="skel-lines"><div class="skeleton skel-l m"></div><div class="skeleton skel-l s"></div></div></div>
     </div>
-  </div>
   </div>
 </div>
 
@@ -426,17 +406,15 @@
   </div>
 
   <!-- Push Notifications Subscription Card -->
-  <div class="card" id="push-notifications-card" style="margin-top: 10px; display: none; align-items: center; justify-content: space-between; gap: 12px; transition: transform 0.2s ease, border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';" onmouseout="this.style.transform='';">
-    <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
-      <div class="push-icon-square">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </div>
+  <div class="card" id="push-notifications-card" style="margin-top:10px;padding:16px 20px;background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-sm);display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:transform 0.2s ease,border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';this.style.borderColor='rgba(255,255,255,0.15)';" onmouseout="this.style.transform='';this.style.borderColor='';">
+    <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+      <span style="font-size:18px;flex-shrink:0;">🔔</span>
       <div style="display:flex;flex-direction:column;min-width:0;">
-        <span style="font-size:12px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.8px;">Mobile Push Alerts</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="push-status-desc">Tap Enable to get real-time updates</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;">Mobile Push Alerts</span>
+        <span style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="push-status-desc">Tap Enable to get real-time updates</span>
       </div>
     </div>
-    <button class="btn btn-sm" id="btn-enable-push" onclick="enablePushNotifications()" style="font-size:10.5px;font-weight:800;padding:6px 14px;border:none;border-radius:14px;cursor:pointer;background:var(--brand);color:#fff;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;transition:all 0.15s ease;">Enable</button>
+    <button class="btn btn-sm" id="btn-enable-push" onclick="enablePushNotifications()" style="font-size:11px;font-weight:700;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:var(--brand);color:#fff;text-transform:uppercase;letter-spacing:0.5px;flex-shrink:0;">Enable</button>
   </div>
 
   <!-- Connect with Strava Button (Moved here) -->
@@ -451,9 +429,8 @@
   </div>
 
   <!-- Card 1: Event Progress -->
-  <div class="card" style="margin-bottom:12px;">
   <div class="sec">Event Progress</div>
-  <div class="you-cards" style="padding:0 14px 14px;">
+  <div class="you-cards">
     <div class="you-card">
       <div class="you-card-icon" style="background:rgba(232,98,42,0.12);">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -472,11 +449,10 @@
       <div class="you-consist-bar"><div class="you-consist-fill" id="you-consist-fill" style="width:0%"></div></div>
     </div>
   </div>
-  </div>
 
   <!-- Card 2: Streak comparison -->
-  <div class="card" style="background:var(--surface);border-radius:var(--radius-sm);margin-bottom:12px;">
   <div class="sec">Streaks</div>
+  <div class="card" style="background:rgba(26,29,32,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 15px rgba(0,0,0,0.15);border-radius:var(--radius-sm);transition:transform 0.2s ease,border-color 0.2s ease;" onmouseover="this.style.transform='translateY(-1.5px)';this.style.borderColor='rgba(255,255,255,0.15)';" onmouseout="this.style.transform='';this.style.borderColor='';">
     <div class="you-streak-row">
       <span class="you-streak-lbl">🔥 Current Streak</span>
       <span class="you-streak-val" id="you-cur-streak">—</span>
@@ -488,8 +464,8 @@
   </div>
 
   <!-- Card 3: Medal Prediction -->
-  <div class="medal-pred" id="you-medal-pred">
   <div class="sec">Medal Prediction</div>
+  <div class="medal-pred" id="you-medal-pred">
     <div class="medal-pred-icon" id="you-medal-pred-ico">🏅</div>
     <div>
       <div class="medal-pred-title" id="you-medal-pred-title">Calculating...</div>
@@ -498,8 +474,8 @@
   </div>
 
   <!-- June Heatmap -->
-  <div class="heatmap-wrap">
   <div class="sec">Activity Heatmap</div>
+  <div class="heatmap-wrap">
     <div id="heatmap-days-label" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:2px;">
       <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:600;">M</div>
       <div style="text-align:center;font-size:9px;color:var(--muted);font-weight:600;">T</div>
@@ -520,9 +496,8 @@
   </div>
 
   <!-- Card 4: Strava Sync -->
-  <div class="card" style="margin-bottom:12px;">
   <div class="sec">Strava Sync</div>
-  <div class="you-cards" style="padding:0 14px 14px;">
+  <div class="you-cards">
     <div class="you-card">
       <div class="you-card-icon" style="background:rgba(232,98,42,0.12);">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -539,7 +514,6 @@
       <div class="you-card-lbl">Last Activity</div>
       <div class="you-card-sub" id="you-last-sync-date"></div>
     </div>
-  </div>
   </div>
 
 
@@ -662,10 +636,10 @@
 
   <!-- Modular App Assets -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="participant-config.js?v=20260630_v28"></script>
-  <script src="participant-api.js?v=20260630_v28"></script>
-  <script src="participant-drawers.js?v=20260630_v28"></script>
-  <script src="participant-tabs.js?v=20260630_v28"></script>
+  <script src="participant-config.js?v=20260701_v33"></script>
+  <script src="participant-api.js?v=20260701_v33"></script>
+  <script src="participant-drawers.js?v=20260701_v33"></script>
+  <script src="participant-tabs.js?v=20260701_v33"></script>
 
 
 
@@ -705,7 +679,7 @@
       </div>
       
       <!-- Activity Status Row -->
-      <div id="detail-status-row" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.015); border:1px solid rgba(255,255,255,0.05); border-radius:12px; margin-bottom:16px;">
+      <div id="detail-status-row" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:rgba(255,255,255,0.03); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.08); border-radius:12px; margin-bottom:16px;">
         <div style="font-size:10.5px; font-weight:700; color:var(--label); text-transform:uppercase; letter-spacing:0.8px;">Activity Status</div>
         <div id="detail-status-badge" style="font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; background:rgba(34,197,94,0.12); color:var(--green); border:1px solid rgba(34,197,94,0.25);">✓ Valid</div>
       </div>
@@ -792,39 +766,6 @@
         <div id="detail-appreciation-box"></div>
       </div>
       
-      <!-- Suspicious Activity Report Section -->
-      <div id="detail-report-section" style="margin-top:24px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08);">
-        <button id="btn-report-activity" onclick="toggleReportForm()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); color:#ef4444; padding:12px; border-radius:10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s ease; outline:none;" onmouseover="this.style.background='rgba(239,68,68,0.16)'; this.style.borderColor='rgba(239,68,68,0.45)';" onmouseout="this.style.background='rgba(239,68,68,0.08)'; this.style.borderColor='rgba(239,68,68,0.25)';">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#ef4444;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Report Suspicious Activity
-        </button>
-        
-        <div id="report-form-container" style="display:none; margin-top:16px; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px;">
-          <h4 style="font-size:14px; font-weight:700; color:#fff; margin-bottom:12px;">Report Suspicious Activity</h4>
-          
-          <div style="margin-bottom:12px;">
-            <label style="display:block; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Reason for reporting</label>
-            <select id="report-reason-select" onchange="onReportReasonChange()" style="width:100%; background:#16181e; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:10px; border-radius:8px; outline:none; font-family:inherit; font-size:13px;">
-              <option value="">-- Select a reason --</option>
-              <option value="Distance is physically impossible">Distance is physically impossible</option>
-              <option value="Pace is unrealistic">Pace is unrealistic</option>
-              <option value="Vehicle used (Cycling, Driving, etc.)">Vehicle used (Cycling, Driving, etc.)</option>
-              <option value="Duplicate/Fake activity">Duplicate/Fake activity</option>
-              <option value="custom">Other (specify in comments)</option>
-            </select>
-          </div>
-          
-          <div style="margin-bottom:16px;">
-            <label style="display:block; font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; margin-bottom:6px;">Additional Comments</label>
-            <textarea id="report-comments" placeholder="Describe why this activity is suspicious..." style="width:100%; height:80px; background:#16181e; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:10px; border-radius:8px; outline:none; resize:none; font-family:inherit; font-size:13px;"></textarea>
-          </div>
-          
-          <div style="display:flex; gap:8px;">
-            <button onclick="toggleReportForm()" style="flex:1; justify-content:center; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px; border-radius:10px; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)';" onmouseout="this.style.background='rgba(255,255,255,0.06)';">Cancel</button>
-            <button id="btn-submit-report" onclick="submitActivityReport()" style="flex:1; justify-content:center; background:#dc2626; border:none; color:#fff; padding:10px; border-radius:10px; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='#b91c1c';" onmouseout="this.style.background='#dc2626';">Submit Report</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
