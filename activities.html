@@ -2899,13 +2899,26 @@ async function fetchFlagCandidates() {
     var avgSpeed = a.avg_speed || 0; 
     var pace = avgSpeed ? (1000 / avgSpeed) / 60 : 999999; 
 
-    // 1. Distance filter (Inclusive)
-    var matchesDist = (km >= distMin && km <= distMax);
+    // 1. Distance filter (Violation: matches if distance is below min or above max limit)
+    var matchesDist = false;
+    var hasDistMin = document.getElementById('fr-dist-min').value !== '';
+    var hasDistMax = document.getElementById('fr-dist-max').value !== '';
+    if (hasDistMin || hasDistMax) {
+      if (hasDistMin && km < distMin) matchesDist = true;
+      if (hasDistMax && km > distMax) matchesDist = true;
+    } else {
+      matchesDist = true;
+    }
 
-    // 2. Pace filter (Inclusive)
-    var matchesPace = true;
-    if (document.getElementById('fr-pace-min').value || document.getElementById('fr-pace-max').value) {
-      matchesPace = (pace >= paceMin && pace <= paceMax);
+    // 2. Pace filter (Violation: matches if pace is below min (too fast) or above max (too slow))
+    var matchesPace = false;
+    var hasPaceMin = document.getElementById('fr-pace-min').value !== '';
+    var hasPaceMax = document.getElementById('fr-pace-max').value !== '';
+    if (hasPaceMin || hasPaceMax) {
+      if (hasPaceMin && pace < paceMin) matchesPace = true;
+      if (hasPaceMax && pace > paceMax) matchesPace = true;
+    } else {
+      matchesPace = true;
     }
 
     // 3. Steps filter (Matches if steps/km is below minimum threshold)
@@ -2950,12 +2963,16 @@ async function fetchFlagCandidates() {
       // Build descriptive flag reasons based on the matched criteria
       if (km < 1.0) {
         reasons.push('Distance below 1 km (' + km.toFixed(2) + ' km)');
-      } else if (document.getElementById('fr-dist-min').value || document.getElementById('fr-dist-max').value) {
-        reasons.push('Distance Filter Match (' + km.toFixed(2) + ' km)');
+      } else if (hasDistMin && km < distMin) {
+        reasons.push('Distance below min limit (' + km.toFixed(2) + ' < ' + distMin + ' km)');
+      } else if (hasDistMax && km > distMax) {
+        reasons.push('Distance above max limit (' + km.toFixed(2) + ' > ' + distMax + ' km)');
       }
       
-      if (document.getElementById('fr-pace-min').value || document.getElementById('fr-pace-max').value) {
-        reasons.push('Pace Filter Match (' + pace.toFixed(2) + ' min/km)');
+      if (hasPaceMin && pace < paceMin) {
+        reasons.push('Pace too fast (' + pace.toFixed(2) + ' < ' + paceMin + ' min/km)');
+      } else if (hasPaceMax && pace > paceMax) {
+        reasons.push('Pace too slow (' + pace.toFixed(2) + ' > ' + paceMax + ' min/km)');
       }
       
       if (stepsMin > 0) {
