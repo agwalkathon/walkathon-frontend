@@ -2261,7 +2261,15 @@ function applyFlaggedFilters() {
       
     var isChecked = bulkSelected[a.id] ? ' checked' : '';
 
-    var statusCellHtml = '<td data-label="Status"><span class="badge" style="background:#FEF3C7; color:#D97706; border:1px solid #FCD34D; font-weight:600;">🗑️ Deleted</span></td>';
+    var statusCellHtml = '';
+    if (currentTab === 'deleted') {
+      statusCellHtml = '<td data-label="Status"><span class="badge" style="background:#FEF3C7; color:#D97706; border:1px solid #FCD34D; font-weight:600;">🗑️ Deleted</span></td>';
+    } else {
+      var isRev = a.is_reviewed === true || a.is_reviewed === 'true';
+      statusCellHtml = '<td data-label="Status">' +
+        '<span class="badge badge-invalid" style="background:' + (isRev ? '#F3F4F6; color:#4B5563; border-color:#D1D5DB;' : '#FFE4E6; color:#E11D48; border-color:#FDA4AF;') + '" title="' + esc(a.flag_reason || 'Flagged') + (isRev ? ' (Reviewed)' : ' (Pending)') + '">🚩 ' + (isRev ? 'Reviewed' : 'Pending Review') + '</span>' +
+        '</td>';
+    }
 
     return '<tr id="row-' + a.id + '" class="activity-row" data-strava-id="' + a.strava_activity_id + '"'
       + ' data-device="' + esc(a.device_name || '—') + '"'
@@ -2378,6 +2386,7 @@ async function doBulkAction(action) {
   bar.innerHTML = '<span>⏳ Processing bulk action... <span class="bulk-selected-count" id="bulk-prog">0</span> / ' + ids.length + '</span>';
   
   var success = 0;
+  var failed = [];
   var token = sessionStorage.getItem('wk_admin_token');
   for (var i = 0; i < ids.length; i++) {
     var id = ids[i];
@@ -2393,7 +2402,8 @@ async function doBulkAction(action) {
         body: JSON.stringify({ activity_id: parseInt(id), action: action, flag_reason: reason })
       });
       if (!resp.ok) {
-        throw new Error('Server returned status: ' + resp.status);
+        var errBody = await resp.json().catch(function(){return{};});
+        throw new Error(errBody.error || ('HTTP ' + resp.status));
       }
       if (action === 'review' || action === 'unreview') {
         if (act) act.is_reviewed = (action === 'review');
@@ -2401,19 +2411,24 @@ async function doBulkAction(action) {
       success++;
     } catch(e) {
       console.error('Bulk item failed:', id, e);
+      failed.push('ID ' + id + ': ' + e.message);
     }
     var prog = document.getElementById('bulk-prog');
     if (prog) prog.textContent = i + 1;
   }
   
   bar.innerHTML = origHtml;
+  
+  var statusMsg = 'Bulk action completed.\nSucceeded: ' + success + '\nFailed: ' + failed.length;
+  if (failed.length > 0) {
+    statusMsg += '\n\nErrors:\n' + failed.slice(0, 5).join('\n') + (failed.length > 5 ? '\n...and ' + (failed.length - 5) + ' more' : '');
+  }
+  alert(statusMsg);
+
+  bulkSelected = {};
   if (action !== 'review' && action !== 'unreview') {
-    bulkSelected = {};
-    alert('Bulk action completed. Successful updates: ' + success);
     loadFlaggedData();
   } else {
-    bulkSelected = {};
-    alert('Bulk review completed. Successful updates: ' + success);
     applyFlaggedFilters();
   }
 }
@@ -4038,6 +4053,7 @@ async function doBulkActionAll(action) {
   bar.innerHTML = '<span>⏳ Processing bulk action... <span class="bulk-selected-count" id="bulk-prog-all">0</span> / ' + ids.length + '</span>';
   
   var success = 0;
+  var failed = [];
   var token = sessionStorage.getItem('wk_admin_token');
   for (var i = 0; i < ids.length; i++) {
     var id = ids[i];
@@ -4053,7 +4069,8 @@ async function doBulkActionAll(action) {
         body: JSON.stringify({ activity_id: parseInt(id), action: action, flag_reason: reason })
       });
       if (!resp.ok) {
-        throw new Error('Server returned status: ' + resp.status);
+        var errBody = await resp.json().catch(function(){return{};});
+        throw new Error(errBody.error || ('HTTP ' + resp.status));
       }
       success++;
       var progEl = document.getElementById('bulk-prog-all');
@@ -4062,13 +4079,20 @@ async function doBulkActionAll(action) {
       updateRowStatusLocally(parseInt(id), action, reason);
     } catch(e) {
       console.error('Bulk action failed for ID ' + id, e);
+      failed.push('ID ' + id + ': ' + e.message);
     }
   }
   
   bar.innerHTML = origHtml;
+  
+  var statusMsg = 'Bulk action completed.\nSucceeded: ' + success + '\nFailed: ' + failed.length;
+  if (failed.length > 0) {
+    statusMsg += '\n\nErrors:\n' + failed.slice(0, 5).join('\n') + (failed.length > 5 ? '\n...and ' + (failed.length - 5) + ' more' : '');
+  }
+  alert(statusMsg);
+
   bulkSelected = {};
   updateBulkBarAll();
-  alert('Bulk action completed successfully.');
 }
 
 function updateRowStatusLocally(id, action, reason) {
