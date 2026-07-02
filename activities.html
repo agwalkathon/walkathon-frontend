@@ -1186,7 +1186,7 @@ td button.btn:last-child { margin-right: 0; }
               <tr style="background:var(--page-bg);">
                 <th style="padding:10px 12px; text-align:center; width:36px;"><input type="checkbox" id="chk-all-preview" onchange="toggleAllPreviewCheckboxes(this.checked)" style="cursor:pointer; width:15px; height:15px;"></th>
                 <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase;">ATHLETE</th>
-                <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase;">ACTIVITY</th>
+                <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase; max-width:120px; width:120px;">ACTIVITY</th>
                 <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase;">TYPE</th>
                 <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase;">DATE</th>
                 <th style="padding:10px 12px; text-align:left; color:var(--text-secondary); font-size:11px; font-weight:600; text-transform:uppercase;">DISTANCE</th>
@@ -2927,16 +2927,8 @@ async function fetchFlagCandidates() {
     var avgSpeed = a.avg_speed || 0; 
     var pace = avgSpeed ? (1000 / avgSpeed) / 60 : 999999; 
 
-    // 1. Distance filter (Violation: matches if distance is below min or above max limit)
-    var matchesDist = false;
-    var hasDistMin = document.getElementById('fr-dist-min').value !== '';
-    var hasDistMax = document.getElementById('fr-dist-max').value !== '';
-    if (hasDistMin || hasDistMax) {
-      if (hasDistMin && km < distMin) matchesDist = true;
-      if (hasDistMax && km > distMax) matchesDist = true;
-    } else {
-      matchesDist = true;
-    }
+    // 1. Distance filter (Search Filter: only scan activities within this range)
+    var matchesDist = (km >= distMin && km <= distMax);
 
     // 2. Pace filter (Violation: matches if pace is below min (too fast) or above max (too slow))
     var matchesPace = false;
@@ -2991,10 +2983,6 @@ async function fetchFlagCandidates() {
       // Build descriptive flag reasons based on the matched criteria
       if (km < 1.0) {
         reasons.push('Distance below 1 km (' + km.toFixed(2) + ' km)');
-      } else if (hasDistMin && km < distMin) {
-        reasons.push('Distance below min limit (' + km.toFixed(2) + ' < ' + distMin + ' km)');
-      } else if (hasDistMax && km > distMax) {
-        reasons.push('Distance above max limit (' + km.toFixed(2) + ' > ' + distMax + ' km)');
       }
       
       if (hasPaceMin && pace < paceMin) {
@@ -3061,7 +3049,7 @@ async function previewFlagRules() {
       return '<tr' + already + ' data-idx="' + flagPreviewData.indexOf(m) + '"' + (a.is_flagged ? ' class="row-already-flagged"' : '') + '>'
         + ' <td style="padding:8px 12px;text-align:center"><input type="checkbox" class="row-preview-chk" data-idx="' + flagPreviewData.indexOf(m) + '"' + chkChecked + chkDisabled + ' onchange="updateSelectedPreviewCount()" style="cursor:pointer;width:15px;height:15px"></td>'
         + '<td style="padding:8px 12px">' + (a.is_flagged ? '<span style="color:#bbb;font-size:11px">✓ already</span> ' : '') + '<a href="' + athleteUrl + '" target="_blank" style="color:#E8622A;font-weight:600;text-decoration:none">' + esc(m.name) + '</a></td>'
-        + '<td style="padding:8px 12px"><a href="' + actUrl + '" target="_blank" style="color:#1A1A1A;text-decoration:none">' + actName + '</a></td>'
+        + '<td style="padding:8px 12px; max-width:120px;"><a href="' + actUrl + '" target="_blank" title="' + actName + '" style="color:#1A1A1A;text-decoration:none; display:inline-block; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + actName + '</a></td>'
         + '<td style="padding:8px 12px">' + esc(a.sport_type || '—') + '</td>'
         + '<td style="padding:8px 12px">' + dt + '</td>'
         + '<td style="padding:8px 12px">' + km + ' km</td>'
