@@ -612,6 +612,7 @@ td button.btn:last-child { margin-right: 0; }
       <div class="bulk-bar" id="bulk-actions-bar-all" style="display:none; margin-bottom:12px;">
         <span id="bulk-count-msg-all"><span class="bulk-selected-count" id="bulk-selected-num-all">0</span> items selected</span>
         <div style="margin-left:auto; display:flex; gap:8px;">
+          <button class="btn btn-danger" id="btn-bulk-flag-all" style="background:#b91c1c; border-color:#b91c1c;" onclick="doBulkActionAll('flag')">🚩 Flag Selected</button>
           <button class="btn btn-success" id="btn-bulk-clear-all" onclick="doBulkActionAll('unflag')">✅ Clear Selected</button>
           <button class="btn btn-primary" id="btn-bulk-review-all" style="background:#3b82f6; border-color:#3b82f6;" onclick="doBulkActionAll('review')">👁️ Review Selected</button>
           <button class="btn btn-danger" id="btn-bulk-delete-all" onclick="doBulkActionAll('delete')">🗑️ Delete Selected</button>
@@ -709,6 +710,7 @@ td button.btn:last-child { margin-right: 0; }
         <div class="bulk-bar" id="bulk-actions-bar" style="display:none">
           <span id="bulk-count-msg"><span class="bulk-selected-count" id="bulk-selected-num">0</span> items selected</span>
           <div style="margin-left:auto; display:flex; gap:8px;">
+            <button class="btn btn-danger" id="btn-bulk-flag" style="background:#b91c1c; border-color:#b91c1c;" onclick="doBulkAction('flag')">🚩 Flag Selected</button>
             <button class="btn btn-success" id="btn-bulk-clear" onclick="doBulkAction('unflag')">✅ Clear Selected</button>
             <button class="btn btn-primary" id="btn-bulk-review" style="background:#3b82f6; border-color:#3b82f6;" onclick="doBulkAction('review')">👁️ Review Selected</button>
             <button class="btn btn-danger" id="btn-bulk-delete" onclick="doBulkAction('delete')">🗑️ Delete Selected</button>
@@ -2361,6 +2363,14 @@ function toggleReviewStatus(id, newStatus) {
 async function doBulkAction(action) {
   var ids = Object.keys(bulkSelected);
   if (!ids.length) return;
+
+  var flagReason = '';
+  if (action === 'flag') {
+    flagReason = prompt('Enter flag reason for selected activities:', 'Manual Admin Flag');
+    if (flagReason === null) return; // User cancelled
+    flagReason = flagReason.trim() || 'Manual Admin Flag';
+  }
+
   if (!confirm('Are you sure you want to bulk-' + action + ' the ' + ids.length + ' selected activities?')) return;
   
   var bar = document.getElementById('bulk-actions-bar');
@@ -2373,7 +2383,7 @@ async function doBulkAction(action) {
     var id = ids[i];
     try {
       var act = allActivities.find(function(a) { return String(a.id) === String(id); });
-      var reason = act ? act.flag_reason || '' : '';
+      var reason = action === 'flag' ? flagReason : (act ? act.flag_reason || '' : '');
       await fetch(BACKEND_URL+'/flag', {
         method: 'POST',
         headers: {
@@ -3960,7 +3970,7 @@ async function doActionAll(id, action, reason) {
     });
     if (bulkSelected[id]) delete bulkSelected[id];
     showToast('Action completed successfully!', false);
-    updateRowStatusLocally(id, action);
+    updateRowStatusLocally(id, action, reason);
   } catch (e) {
     alert('Action failed: ' + e.message);
   }
@@ -4010,6 +4020,14 @@ function updateBulkBarAll() {
 async function doBulkActionAll(action) {
   var ids = Object.keys(bulkSelected);
   if (!ids.length) return;
+
+  var flagReason = '';
+  if (action === 'flag') {
+    flagReason = prompt('Enter flag reason for selected activities:', 'Manual Admin Flag');
+    if (flagReason === null) return; // User cancelled
+    flagReason = flagReason.trim() || 'Manual Admin Flag';
+  }
+
   if (!confirm('Are you sure you want to bulk-' + action + ' the ' + ids.length + ' selected activities?')) return;
   
   var bar = document.getElementById('bulk-actions-bar-all');
@@ -4022,7 +4040,7 @@ async function doBulkActionAll(action) {
     var id = ids[i];
     try {
       var act = window._exportActs ? window._exportActs.find(function(a) { return String(a.id) === String(id); }) : null;
-      var reason = act ? act.flag_reason || '' : '';
+      var reason = action === 'flag' ? flagReason : (act ? act.flag_reason || '' : '');
       await fetch(BACKEND_URL+'/flag', {
         method: 'POST',
         headers: {
@@ -4035,18 +4053,19 @@ async function doBulkActionAll(action) {
       var progEl = document.getElementById('bulk-prog-all');
       if (progEl) progEl.textContent = success;
       
-      updateRowStatusLocally(parseInt(id), action);
+      updateRowStatusLocally(parseInt(id), action, reason);
     } catch(e) {
       console.error('Bulk action failed for ID ' + id, e);
     }
   }
   
+  bar.innerHTML = origHtml;
   bulkSelected = {};
   updateBulkBarAll();
   alert('Bulk action completed successfully.');
 }
 
-function updateRowStatusLocally(id, action) {
+function updateRowStatusLocally(id, action, reason) {
   var row = document.getElementById('activity-row-' + id);
   if (!row) return;
 
@@ -4059,6 +4078,8 @@ function updateRowStatusLocally(id, action) {
     mustRemove = (stFilter !== '' && stFilter !== 'deleted');
   } else if (action === 'unflag') {
     mustRemove = (stFilter === 'invalid') || (revFilter === 'pending');
+  } else if (action === 'flag') {
+    mustRemove = (stFilter === 'valid');
   } else if (action === 'review') {
     mustRemove = (revFilter === 'pending');
   } else if (action === 'unreview') {
@@ -4089,6 +4110,10 @@ function updateRowStatusLocally(id, action) {
         if (action === 'unflag') {
           act.is_flagged = false;
           act.flag_reason = '';
+          act.is_reviewed = false;
+        } else if (action === 'flag') {
+          act.is_flagged = true;
+          act.flag_reason = reason || 'Manual Admin Flag';
           act.is_reviewed = false;
         } else if (action === 'review') {
           act.is_reviewed = true;
