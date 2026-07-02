@@ -248,15 +248,7 @@ async function load(isBackgroundRefresh) {
         }
       });
     }
-    if (CONFIG_LB.maintenance_mode) {
-      var _ov = document.getElementById('maintenance-overlay');
-      if (_ov) {
-        var _mm = document.getElementById('maintenance-message');
-        if (_mm && CONFIG_LB.maintenance_message) _mm.textContent = CONFIG_LB.maintenance_message;
-        _ov.style.display = 'flex';
-      }
-      return;
-    }
+
     if (window.enforceForceInstallPWA) {
       window.enforceForceInstallPWA();
     }
